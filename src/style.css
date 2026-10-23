@@ -1056,6 +1056,58 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
   body.dark.aurora .tag{letter-spacing:0}       /* 标签去字距 */
   body.dark.aurora .chip{letter-spacing:0}       /* 筛选胶囊 */
   body.dark.aurora .search{font-size:13px}       /* 搜索框回到标准 */
+
+  /* 极光全面表面覆盖：修复晨曦暖底残留导致的对比度问题 */
+  body.dark.aurora #panel{background:rgba(15,30,48,.85)}
+  body.dark.aurora .p-head{background:rgba(15,30,48,.65);border-bottom:1px solid rgba(80,200,255,.15)}
+  body.dark.aurora .filters{background:rgba(15,30,48,.5);border-bottom:1px solid rgba(80,200,255,.12)}
+  body.dark.aurora .list{background:transparent}
+  body.dark.aurora .item{border-color:transparent}
+  body.dark.aurora .item:hover{background:rgba(34,211,238,.08);border-color:rgba(34,211,238,.15)}
+  body.dark.aurora .item.sel{background:rgba(34,211,238,.12);border-color:rgba(34,211,238,.25)}
+  body.dark.aurora .chip{background:rgba(20,40,60,.7);border-color:rgba(80,200,255,.2);color:#e0f0f0}
+  body.dark.aurora .chip.active{background:rgba(34,211,238,.85);color:#062030}
+  body.dark.aurora .search{background:rgba(20,40,60,.7);border-color:rgba(80,200,255,.2);color:#e0f0f0}
+  body.dark.aurora .menu{background:rgba(15,30,48,.92);border-color:rgba(80,200,255,.15)}
+  body.dark.aurora .menu-item{color:#e0f0f0}
+  body.dark.aurora .menu-item:hover{background:rgba(34,211,238,.1)}
+  body.dark.aurora .route-panel{background:rgba(15,30,48,.85);border-color:rgba(80,200,255,.12)}
+  body.dark.aurora .route-panel input{background:rgba(20,40,60,.7);border-color:rgba(80,200,255,.2);color:#e0f0f0}
+  body.dark.aurora .route-panel .rp-title button{background:rgba(20,40,60,.7);color:#7a9a9a;border-color:rgba(80,200,255,.2)}
+  body.dark.aurora .rp-mode{background:rgba(20,40,60,.7);color:#7a9a9a;border-color:rgba(80,200,255,.2)}
+  body.dark.aurora .rp-mode.active{background:rgba(34,211,238,.85);color:#062030}
+  body.dark.aurora .route-panel .rp-actions #rpClear{background:rgba(20,40,60,.7);color:#7a9a9a;border-color:rgba(80,200,255,.2)}
+  body.dark.aurora .rp-summary{background:rgba(20,40,60,.5);border-color:rgba(80,200,255,.15)}
+  body.dark.aurora .rp-card{background:rgba(20,40,60,.5);border-color:rgba(80,200,255,.15)}
+  body.dark.aurora .rp-card:hover{background:rgba(34,211,238,.08)}
+  body.dark.aurora .rp-tag{background:rgba(20,40,60,.5);border-color:rgba(80,200,255,.12);color:#7a9a9a}
+  body.dark.aurora .rp-wp-chip{border-color:rgba(34,211,238,.3);background:rgba(34,211,238,.08);color:#e0f0f0}
+  body.dark.aurora .pp-inner{background:rgba(15,30,48,.85);border-color:rgba(80,200,255,.12)}
+  body.dark.aurora .iw .c-tip{background:rgba(20,50,50,.5);border-color:rgba(80,200,255,.2);color:#a0d8d0}
+  body.dark.aurora .iw .c-near .pp-near{border-color:rgba(34,211,238,.3);background:rgba(34,211,238,.06);color:#22d3ee}
+  body.dark.aurora .zoom-indicator{background:rgba(15,30,48,.85);border-color:rgba(80,200,255,.15)}
+  body.dark.aurora .zoom-btn,body.dark.aurora .zoom-help{color:#e0f0f0}
+  body.dark.aurora .zoom-locate{background:rgba(15,30,48,.85);color:#e0f0f0;border-color:rgba(80,200,255,.15)}
+  body.dark.aurora .f-toggle{border-color:rgba(80,200,255,.25);background:rgba(20,40,60,.6);color:#e0f0f0}
+  body.dark.aurora .f-toggle.active{background:rgba(34,211,238,.8);color:#062030;border-color:rgba(0,255,163,.4)}
+  body.dark.aurora .mi-btn{background:rgba(20,40,60,.6);border-color:rgba(80,200,255,.2);color:#e0f0f0}
+  body.dark.aurora .toast{background:rgba(15,30,48,.92);border-color:rgba(80,200,255,.15)}
+  body.dark.aurora .measure-panel{background:rgba(15,30,48,.85)}
+  body.dark.aurora .q-list{background:rgba(15,30,48,.92)}
+  body.dark.aurora .cluster-list{background:rgba(15,30,48,.92)}
+  body.dark.aurora .measure-label{background:rgba(34,211,238,.85)}
+  body.dark.aurora .weather-card{background:rgba(15,30,48,.5);border-color:rgba(80,200,255,.15)}
+  body.dark.aurora .weather-card .w-day{color:#e0f0f0}
+  body.dark.aurora .weather-card .w-temp{color:#e0f0f0}
+  body.dark.aurora .weather-card .w-temp i{color:#7a9a9a}
+  body.dark.aurora .live-status.ok{color:#22d3ee;background:rgba(34,211,238,.1);border-color:rgba(34,211,238,.3)}
+  body.dark.aurora .live-status.sim{color:#ffbf67;background:rgba(255,191,103,.1);border-color:rgba(255,191,103,.3)}
+  body.dark.aurora .live-info-btn{background:rgba(20,40,60,.6);border-color:rgba(80,200,255,.2);color:#7a9a9a}
+  body.dark.aurora .live-info-panel{background:rgba(15,30,48,.95);border-color:rgba(80,200,255,.15)}
+  body.dark.aurora .live-info-panel .lp-head{border-bottom-color:rgba(80,200,255,.1)}
+  body.dark.aurora .live-info-panel .lp-close{background:rgba(20,40,60,.6);border-color:rgba(80,200,255,.15);color:#7a9a9a}
+  body.dark.aurora .live-info-panel .lp-legend{border-top-color:rgba(80,200,255,.1)}
+
   body.dark.aurora .menu-item{font-size:13px}    /* 菜单标准 */
   /* 极光下侧栏面板底色统一 */
   body.dark.aurora #panel{background:rgba(15,30,48,.72)}
