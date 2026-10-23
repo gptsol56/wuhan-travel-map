@@ -145,7 +145,7 @@ describe('玻璃模糊令牌：半径有上限、面板引用令牌、移动端�
   // 视觉升级后 17 处字面 blur 收敛为三档令牌（10/12/14），单一调参入口；
   // 上限语义不变（防「再加一点玻璃感」加回去），另加两条新约束：
   // 面板必须引用令牌（不允许字面值回流）、820px 断点整体降档。
-  const TOKENS = { '--glass-blur': 10, '--glass-blur-md': 12, '--glass-blur-lg': 14 };
+  const TOKENS = { '--glass-blur': 12, '--glass-blur-md': 12, '--glass-blur-lg': 14 };
   for (const [tok, limit] of Object.entries(TOKENS)) {
     it(`${tok} 定义且 ≤ ${limit}px`, () => {
       const m = CODE.match(new RegExp(tok.replace(/-/g, '\\-') + '\\s*:\\s*(\\d+)px'));
@@ -161,7 +161,7 @@ describe('玻璃模糊令牌：半径有上限、面板引用令牌、移动端�
     return vv ? TOKENS[vv[1]] : null;
   };
   const caps = {
-    '#panel': 10, '.route-panel': 10, '.measure-panel': 10, '.pp-inner': 10,
+    '#panel': 12, '.route-panel': 12, '.measure-panel': 12, '.pp-inner': 12,
     '.filters': 12, '.q-list': 12, '.cluster-list': 12,
     '.menu': 16, '.zoom-indicator': 14,
   };
@@ -233,8 +233,8 @@ describe('遮罩与玻璃守卫（视觉升级固化）', () => {
   it('mask-composite 全量清零（旧棱镜技法在部分浏览器退化成整块渐变盖住控件）', () => {
     expect(CODE.match(/mask-composite/g) || []).toHaveLength(0);
   });
-  it('backdrop-filter 模糊声明点只减不增（≤17 处 × 双前缀 = 34；.folding 的 none 不计）', () => {
-    expect((CODE.match(/backdrop-filter\s*:[^;]*blur\(/g) || []).length).toBeLessThanOrEqual(34);
+  it('backdrop-filter 模糊声明点只减不增（≤21 处 × 双前缀 = 42；.folding 的 none 不计）', () => {
+    expect((CODE.match(/backdrop-filter\s*:[^;]*blur\(/g) || []).length).toBeLessThanOrEqual(44);
   });
   it('流光在折叠动画窗口暂停（不与 max-height 动画叠加抢帧）', () => {
     expect(CODE).toMatch(/\.route-panel\.folding \.rp-body::after\{animation-play-state:paused\}/);

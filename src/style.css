@@ -27,7 +27,9 @@
     --glass-deep:inset 0 -20px 40px rgba(0,0,0,0.12);                      /* 底部内阴影（深度感） */
     --glass-drop:0 20px 60px rgba(0,0,0,0.18);                             /* 大投影 */
     /* 玻璃模糊令牌：原 17 处字面值统一于此（移动端在 820px 断点统一降档） */
-    --glass-blur:10px; --glass-blur-md:12px; --glass-blur-lg:14px;
+    --glass-blur:12px; --glass-blur-md:12px; --glass-blur-lg:14px;
+    /* iOS 光效参数：透色靠 saturate(220-240%) + brightness(1.06-1.10)，不靠 blur 堆 */
+    --glass-sat:230%; --glass-bri:1.07;
     /* 棱镜描边（双背景 border-box 技法；mask-composite 已全量移除 ——
        那套 mask 在部分浏览器退化成整块渐变盖住控件，即「边缘黑块/残缺」的来源） */
     --prism:linear-gradient(135deg, rgba(167,199,255,.75) 0%, rgba(255,255,255,.95) 30%, rgba(255,200,225,.65) 55%, rgba(255,255,255,.95) 80%, rgba(186,165,255,.75) 100%);
@@ -144,11 +146,11 @@
   /* 主玻璃面板：模糊半径从 12px 砍到 10px。
      12 → 10 在视觉上几乎无差，但高斯模糊本身是 O(像素数 × 半径)，
      侧栏整列常驻，砍 17% 半径直接等于砍 30%+ 移动端 GPU 时间。 */
-  #panel{width:320px;min-width:320px;height:100%;background:linear-gradient(180deg, rgba(255,255,255,.72) 0%, rgba(252,253,255,.6) 50%, rgba(248,250,252,.68) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-right:1px solid var(--glass-border);font-size:13px;display:flex;flex-direction:column;z-index:1200;box-shadow:0 1px 2px rgba(15,30,60,.08), 8px 0 40px rgba(15,30,60,.15), inset 1px 0 0 rgba(255,255,255,.95), inset -1px 0 0 rgba(255,255,255,.18);transition:width .28s ease,min-width .28s ease;position:relative;overflow:hidden;background-clip:padding-box}
+  #panel{width:320px;min-width:320px;height:100%;background:linear-gradient(180deg, rgba(255,255,255,.72) 0%, rgba(252,253,255,.6) 50%, rgba(248,250,252,.68) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-right:1px solid var(--glass-border);font-size:13px;display:flex;flex-direction:column;z-index:1200;box-shadow:0 1px 2px rgba(15,30,60,.08), 8px 0 40px rgba(15,30,60,.15), inset 1px 0 0 rgba(255,255,255,.95), inset -1px 0 0 rgba(255,255,255,.18);transition:width .28s ease,min-width .28s ease;position:relative;overflow:hidden;background-clip:padding-box}
 /* 水晶棱镜边框 — 右侧蓝→白→粉→紫渐变模拟光线色散（保留，这是玻璃材质的主体观感） */
 #panel::after{content:'';position:absolute;top:0;right:-1px;bottom:0;width:2px;background:linear-gradient(180deg, rgba(167,199,255,0) 0%, rgba(167,199,255,.95) 25%, rgba(255,255,255,1) 50%, rgba(255,200,225,.9) 75%, rgba(167,199,255,0) 100%);pointer-events:none}
 body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40,50,.78),rgba(30,34,42,.85));border-right-color:rgba(255,255,255,.1);box-shadow:0 1px 2px rgba(0,0,0,.3), 8px 0 40px rgba(0,0,0,.6), inset 1px 0 0 rgba(255,255,255,.12)}
-  .p-head{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.55);background:linear-gradient(180deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.4) 60%, rgba(245,247,250,.45) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(1.4);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.4);position:relative}
+  .p-head{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.55);background:linear-gradient(180deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.4) 60%, rgba(245,247,250,.45) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(200%) brightness(1.04);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(200%) brightness(1.04);position:relative}
 .p-head::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,0));pointer-events:none;border-radius:0 0 6px 6px}
   .p-head::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg, transparent, rgba(0,0,0,.12), transparent)}
   body.dark .p-head{background:linear-gradient(180deg, rgba(45,50,60,.55), rgba(35,40,50,.32));border-bottom-color:rgba(255,255,255,.1)}
@@ -167,7 +169,7 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
   .weather-card .w-pop{margin-left:6px;font-size:11px;color:#4a7fa5;font-weight:600}
   body.dark .weather-card{background:linear-gradient(180deg, rgba(20,55,40,.55), rgba(24,40,55,.45));border-color:rgba(60,110,80,.5)}
   body.dark .weather-card .w-pop{color:#8cb8d8}
-  .filters{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.3);backdrop-filter:blur(var(--glass-blur-md)) saturate(1.4);-webkit-backdrop-filter:blur(var(--glass-blur-md)) saturate(1.4)}
+  .filters{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.3);backdrop-filter:blur(var(--glass-blur-md)) saturate(200%) brightness(1.04);-webkit-backdrop-filter:blur(var(--glass-blur-md)) saturate(200%) brightness(1.04)}
   /* 筛选折叠成 3 个图标：原来是 4 组「label + chips」常驻，把列表挤到只剩一小条 */
   .f-row{display:flex;align-items:center;gap:6px}
   .f-row .q-wrap{flex:1;min-width:0;margin-top:0}
@@ -180,7 +182,7 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
   .f-toggle.active{background:color-mix(in srgb,var(--accent) 15%,transparent);border-color:color-mix(in srgb,var(--accent) 38%,transparent);color:var(--accent)}
   .f-panel{padding-top:7px}
   /* 工具菜单：收纳原 .ctl 常驻工具条与图例 */
-  .menu{position:absolute;top:52px;right:12px;z-index:1250;width:190px;max-height:min(82vh,640px);overflow-y:auto;padding:8px;border-radius:18px 12px 18px 12px;background:linear-gradient(180deg, rgba(255,255,255,.72), rgba(248,250,252,.65));backdrop-filter:blur(var(--glass-blur-lg)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur-lg)) saturate(1.8);border:1px solid rgba(255,255,255,.7);box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);display:flex;flex-direction:column;gap:3px}
+  .menu{position:absolute;top:52px;right:12px;z-index:1250;width:190px;max-height:min(82vh,640px);overflow-y:auto;padding:8px;border-radius:18px 12px 18px 12px;background:linear-gradient(180deg, rgba(255,255,255,.72), rgba(248,250,252,.65));backdrop-filter:blur(var(--glass-blur-lg)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur-lg)) saturate(1.8);border:1px solid rgba(255,255,255,.7);box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);display:flex;flex-direction:column;gap:3px}
   .menu::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,.04) 28%,transparent 55%,rgba(255,255,255,.06) 100%)}
   .menu[hidden]{display:none}
   /* .menu-item 自带 display:flex，会盖掉 hidden 属性的 UA 样式 —— 显式守卫（安装按钮默认隐藏用） */
@@ -396,14 +398,14 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
 
   /* 缩放组：[-] [11] [+] + ? 独立圆钮，纵排右下角 */
   .zoom-group{position:absolute;right:12px;bottom:12px;z-index:1150;display:flex;flex-direction:column;align-items:center;gap:6px}
-  .zoom-indicator{display:flex;flex-direction:column;align-items:center;border-radius:14px;overflow:hidden;border:1px solid rgba(0,0,0,.1);background:rgba(255,255,255,.82);backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);box-shadow:var(--glass-hi),0 4px 16px rgba(0,0,0,.15)}
+  .zoom-indicator{display:flex;flex-direction:column;align-items:center;border-radius:14px;overflow:hidden;border:1px solid rgba(0,0,0,.1);background:rgba(255,255,255,.82);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);box-shadow:var(--glass-hi),0 4px 16px rgba(0,0,0,.15)}
   .zoom-indicator .zoom-btn{width:34px;height:34px;border:none;background:transparent;color:var(--ink);font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s ease,transform .2s var(--spring-pop)}
   .zoom-indicator .zoom-btn:hover{background:rgba(0,0,0,.06)}
   .zoom-indicator .zoom-btn:active{transform:scale(.88)}
   .zoom-indicator .zoom-btn:first-child{border-radius:14px 14px 0 0}
   .zoom-indicator .zoom-btn:last-child{border-radius:0 0 14px 14px}
   .zoom-level{min-width:34px;padding:4px 0;text-align:center;font-weight:700;font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums;font-family:var(--font-mono);font-size:12px;user-select:none;border-top:1px solid rgba(0,0,0,.08);border-bottom:1px solid rgba(0,0,0,.08)}
-  .zoom-help{width:44px;height:44px;border-radius:50%;font-size:18px;border:1px solid rgba(0,0,0,.1);background:rgba(255,255,255,.82);backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);color:var(--accent);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--glass-hi),0 4px 16px rgba(0,0,0,.12);transition:background .15s ease,transform .2s var(--spring-pop)}
+  .zoom-help{width:44px;height:44px;border-radius:50%;font-size:18px;border:1px solid rgba(0,0,0,.1);background:rgba(255,255,255,.82);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);color:var(--accent);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--glass-hi),0 4px 16px rgba(0,0,0,.12);transition:background .15s ease,transform .2s var(--spring-pop)}
   .zoom-help:hover{background:rgba(11,122,75,.08);transform:scale(1.08)}
   .zoom-help:active{transform:scale(.9)}
   body.dark .zoom-indicator{background:rgba(35,40,50,.82);border-color:rgba(255,255,255,.12)}
@@ -428,7 +430,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   /* 自建弹窗（液态玻璃）——完全自定义，无 TMap 默认容器 */
   .spot-popup{position:absolute;top:0;left:0;z-index:3000;will-change:transform;pointer-events:none;display:none}
   /* 弹窗模糊 14→10（252px 宽的小弹窗，玻璃感差异肉眼几乎看不出） */
-  .pp-inner{pointer-events:auto;box-sizing:border-box;width:252px;background:linear-gradient(180deg, rgba(255,255,255,.6) 0%, rgba(250,251,253,.5) 50%, rgba(245,247,250,.6) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-radius:20px 12px 20px 12px;padding:13px 15px;box-shadow:var(--glass-hi),var(--glass-deep),0 12px 40px rgba(0,0,0,.3);border:1px solid rgba(0,0,0,.06);font-size:13.5px;line-height:1.55;overflow-wrap:break-word;word-break:break-word;white-space:normal;position:relative;overflow:hidden;will-change:transform;animation:ppIn .3s var(--ios-spring);transform-origin:50% 15%}
+  .pp-inner{pointer-events:auto;box-sizing:border-box;width:252px;background:linear-gradient(180deg, rgba(255,255,255,.6) 0%, rgba(250,251,253,.5) 50%, rgba(245,247,250,.6) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-radius:20px 12px 20px 12px;padding:13px 15px;box-shadow:var(--glass-hi),var(--glass-deep),0 12px 40px rgba(0,0,0,.3);border:1px solid rgba(0,0,0,.06);font-size:13.5px;line-height:1.55;overflow-wrap:break-word;word-break:break-word;white-space:normal;position:relative;overflow:hidden;will-change:transform;animation:ppIn .3s var(--ios-spring);transform-origin:50% 15%}
   @keyframes ppIn{from{opacity:0;transform:perspective(800px) scale(.92) translateY(8px) rotateX(-4deg)}to{opacity:1;transform:none}}
 /* 原来这里有 4 条伪元素规则、其中 2 条互相覆盖（191 被 194 覆盖、192 被 193 覆盖），
    即 mask-composite 渐变边框和径向高光从来没生效过。合并成一条顶部高光。 */
@@ -618,7 +620,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   body.dark .btn.active{background:rgba(52,211,153,.85);color:#06281a}
 
   /* ---------- 定位按钮（悬浮于地图右下） ---------- */
-  .zoom-locate{width:44px;height:44px;border-radius:50%;border:1px solid rgba(0,0,0,.1);background:rgba(255,255,255,.82);backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);color:var(--ink);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--glass-hi),0 4px 16px rgba(0,0,0,.12);transition:background .15s ease,transform .2s var(--spring-pop)}
+  .zoom-locate{width:44px;height:44px;border-radius:50%;border:1px solid rgba(0,0,0,.1);background:rgba(255,255,255,.82);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);color:var(--ink);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--glass-hi),0 4px 16px rgba(0,0,0,.12);transition:background .15s ease,transform .2s var(--spring-pop)}
   .zoom-locate:hover{background:rgba(255,255,255,.95);transform:scale(1.08)}
   .zoom-locate:active{transform:scale(.9)}
   body.dark .zoom-locate{background:rgba(35,40,50,.82);border-color:rgba(255,255,255,.12)}
@@ -655,7 +657,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   /* ---------- 搜索联想下拉 ---------- */
   .q-wrap{position:relative}
   /* 搜索下拉 18→12（仅在搜索框聚焦时出现，按需付出） */
-  .q-list{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:1200;background:linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.7));backdrop-filter:blur(var(--glass-blur-md)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur-md)) saturate(1.8);border:1px solid rgba(255,255,255,.6);border-radius:16px 10px 16px 10px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);overflow:hidden;max-height:250px;overflow-y:auto}
+  .q-list{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:1200;background:linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.7));backdrop-filter:blur(var(--glass-blur-md)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur-md)) saturate(1.8);border:1px solid rgba(255,255,255,.6);border-radius:16px 10px 16px 10px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);overflow:hidden;max-height:250px;overflow-y:auto}
   body.dark .q-list{background:rgba(34,40,52,.96);border-color:rgba(255,255,255,.14)}
   .q-list .q-empty{padding:9px 11px;font-size:12.5px;color:var(--muted)}
   .q-item{display:flex;align-items:center;gap:7px;font-size:12.5px;padding:7px 11px;cursor:pointer;color:var(--ink)}
@@ -668,7 +670,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   body.dark .list mark{color:#34d399}
   /* ---------- 聚合气泡点击 → 快捷列表 ---------- */
   /* 聚合点列表 18→12（仅点击聚合气泡时出现） */
-  .cluster-list{position:absolute;z-index:1180;background:linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.68));backdrop-filter:blur(var(--glass-blur-md)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur-md)) saturate(1.8);border:1px solid rgba(255,255,255,.7);border-radius:18px 12px 18px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);overflow:hidden;min-width:200px;max-width:260px;animation:clIn .32s var(--ios-spring)}
+  .cluster-list{position:absolute;z-index:1180;background:linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.68));backdrop-filter:blur(var(--glass-blur-md)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur-md)) saturate(1.8);border:1px solid rgba(255,255,255,.7);border-radius:18px 12px 18px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);overflow:hidden;min-width:200px;max-width:260px;animation:clIn .32s var(--ios-spring)}
   body.dark .cluster-list{background:rgba(30,36,46,.95);border-color:rgba(255,255,255,.15)}
   @keyframes clIn{from{opacity:0;transform:translateY(-10px) scale(.97) rotateX(-3deg)}to{opacity:1;transform:none}}
   .cluster-list .cl-head{padding:9px 12px;font-size:12.5px;font-weight:700;background:linear-gradient(90deg,var(--cl-accent,#0b7a4b) 0%,transparent 30%),rgba(255,255,255,.5);border-bottom:1px solid rgba(120,130,145,.18);display:flex;align-items:center;gap:6px}
@@ -694,7 +696,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
      结果整个面板掉到视口外，「路程 / 直线」读数被屏幕底边切掉，
      看上去就像「点了测距没反应」。 */
   /* 测距面板模糊 12→10（按需弹出，砍 17% 半径省 GPU） */
-  .measure-panel{position:absolute;left:12px;bottom:28px;z-index:1150;backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-radius:18px 12px 18px 12px;padding:9px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);font-size:12.5px;line-height:1.6;overflow:hidden;background:linear-gradient(180deg, rgba(255,255,255,.72) 0%, rgba(248,250,252,.5) 50%, rgba(240,243,247,.55) 100%) padding-box, var(--prism) border-box;border:1px solid transparent}
+  .measure-panel{position:absolute;left:12px;bottom:28px;z-index:1150;backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-radius:18px 12px 18px 12px;padding:9px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);font-size:12.5px;line-height:1.6;overflow:hidden;background:linear-gradient(180deg, rgba(255,255,255,.72) 0%, rgba(248,250,252,.5) 50%, rgba(240,243,247,.55) 100%) padding-box, var(--prism) border-box;border:1px solid transparent}
 
 .measure-panel::before{content:'';position:absolute;top:1px;left:10%;right:10%;height:30%;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,.5), transparent);pointer-events:none}
   .measure-panel .mp-title{font-weight:700;margin-bottom:2px}
@@ -724,7 +726,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
      .prism ::after 的 mask 边框依赖父级 overflow 边界（其实不依赖，
      mask-composite 只看自身的 border-radius），所以这个改法 0 风险。
      面板的圆角还在，只是子元素不再被圆角裁切。 */
-  .route-panel{position:absolute;left:12px;top:12px;z-index:1300;width:260px;background:linear-gradient(180deg, rgba(255,255,255,.75) 0%, rgba(250,251,253,.65) 50%, rgba(245,247,250,.7) 100%) padding-box, var(--prism) border-box;backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-radius:22px 14px 22px 14px;padding:11px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);font-size:12.5px;overflow:visible;border:1px solid transparent}
+  .route-panel{position:absolute;left:12px;top:12px;z-index:1300;width:260px;background:linear-gradient(180deg, rgba(255,255,255,.75) 0%, rgba(250,251,253,.65) 50%, rgba(245,247,250,.7) 100%) padding-box, var(--prism) border-box;backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-radius:22px 14px 22px 14px;padding:11px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);font-size:12.5px;overflow:visible;border:1px solid transparent}
   /* 抽屉开关时对话框要整体挪位/收窄，这里给它补上 left / width 的过渡，
      否则 body.panel-open 那条规则会瞬移，看起来像闪了一下。
      注意只动 left 和 width，不碰 transform —— .rp-body 的折叠用的是 max-height。 */
@@ -792,8 +794,8 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   .route-panel input:focus{border-color:var(--accent)}
 
   /* 键盘快捷键面板 */
-  #helpOverlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fadeIn .15s ease}
-  #helpOverlay .help-card{background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.85));backdrop-filter:blur(20px) saturate(1.6);border:1px solid rgba(255,255,255,.7);border-radius:18px;padding:18px 22px;min-width:340px;box-shadow:0 20px 60px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.95);animation:slideUp .3s var(--spring-soft)}
+  #helpOverlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px) saturate(var(--glass-sat)) brightness(var(--glass-bri));animation:fadeIn .15s ease}
+  #helpOverlay .help-card{background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.85));backdrop-filter:blur(20px) saturate(200%) brightness(1.04);border:1px solid rgba(255,255,255,.7);border-radius:18px;padding:18px 22px;min-width:340px;box-shadow:0 20px 60px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.95);animation:slideUp .3s var(--spring-soft)}
   body.dark #helpOverlay .help-card{background:linear-gradient(180deg, rgba(35,40,50,.92),rgba(30,34,42,.85));border-color:rgba(255,255,255,.15);box-shadow:0 20px 60px rgba(0,0,0,.6)}
   .help-head{font-weight:700;font-size:15px;letter-spacing:.5px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;color:var(--ink)}
   .help-x{width:26px;height:26px;border-radius:50%;border:1px solid rgba(0,0,0,.12);background:rgba(255,255,255,.6);color:#1a1f2e;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;transition:.15s}
@@ -900,7 +902,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
      右下是「回到我的位置」(x>=1230)，y 620~656 这条带上什么都没有。
      收起/弹出方向也跟着镜像成自下而上。
      spring 缓动换 ease（.34,1.56,.64,1 会算反向运动帧；toast 一次性弹窗，ease 已够用）。 */
-  .toast{position:fixed;bottom:64px;left:50%;transform:translate(-50%,12px) scale(.95);z-index:4000;background:linear-gradient(180deg, rgba(50,56,66,.82) 0%, rgba(35,40,50,.78) 50%, rgba(28,32,38,.88) 100%);color:#fff;padding:9px 16px;border-radius:16px 10px 16px 10px;font-size:12.5px;backdrop-filter:blur(var(--glass-blur-lg)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur-lg)) saturate(1.8);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -16px 32px rgba(0,0,0,.25),0 16px 48px rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.14);pointer-events:none;opacity:0;transition:opacity .25s ease, transform .45s var(--spring-soft);max-width:min(420px,76vw);text-align:center}
+  .toast{position:fixed;bottom:64px;left:50%;transform:translate(-50%,12px) scale(.95);z-index:4000;background:linear-gradient(180deg, rgba(50,56,66,.82) 0%, rgba(35,40,50,.78) 50%, rgba(28,32,38,.88) 100%);color:#fff;padding:9px 16px;border-radius:16px 10px 16px 10px;font-size:12.5px;backdrop-filter:blur(var(--glass-blur-lg)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur-lg)) saturate(1.8);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -16px 32px rgba(0,0,0,.25),0 16px 48px rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.14);pointer-events:none;opacity:0;transition:opacity .25s ease, transform .45s var(--spring-soft);max-width:min(420px,76vw);text-align:center}
 body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-gradient(180deg, rgba(255,255,255,.92),rgba(245,247,250,.85));color:#1a1f2e;border-color:rgba(255,255,255,.6);box-shadow:0 10px 32px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.95)}
   .toast.show{opacity:1;transform:translate(-50%,0) scale(1);animation:toastPop .5s var(--ios-spring)}
 @keyframes toastPop{0%{transform:translate(-50%,16px) scale(.88) rotateX(4deg);opacity:0}100%{transform:translate(-50%,0) scale(1) rotateX(0);opacity:1}}
@@ -1008,3 +1010,41 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
   .pp-inner{transition:transform 520ms var(--ios-spring)}
   .spot-popup:hover .pp-inner{transform:perspective(800px) rotateX(0.5deg) rotateY(-0.5deg) scale(1.008)}
   .spot-popup:not(:hover) .pp-inner{transform:none}
+
+  /* iOS 边缘透镜环：光在玻璃边缘被压缩 → 用双层 inset shadow 模拟折射增亮。
+     不用 mask-composite（项目已清零），纯 shadow 零兼容性问题。 */
+  .route-panel, .pp-inner, .menu, .q-list, .cluster-list, .measure-panel, .toast {
+    --lens-width: 3px;
+    --lens-glow: rgba(255,255,255,.18);
+  }
+  /* 边缘透镜：内层亮环（折射增亮）+ 外层柔散（边缘过渡） */
+  .route-panel { box-shadow: var(--glass-hi), var(--glass-deep), var(--glass-drop), inset 0 0 0 var(--lens-width) var(--lens-glow), inset 0 0 12px rgba(255,255,255,.08); }
+  .pp-inner { box-shadow: var(--glass-hi), var(--glass-deep), 0 12px 40px rgba(0,0,0,.3), inset 0 0 0 var(--lens-width) var(--lens-glow), inset 0 0 14px rgba(255,255,255,.1); }
+  .menu { box-shadow: var(--glass-hi), var(--glass-deep), var(--glass-drop), inset 0 0 0 var(--lens-width) var(--lens-glow), inset 0 0 12px rgba(255,255,255,.06); }
+  .q-list { box-shadow: var(--glass-hi), var(--glass-deep), var(--glass-drop), inset 0 0 0 var(--lens-width) var(--lens-glow); }
+  .cluster-list { box-shadow: var(--glass-hi), var(--glass-deep), var(--glass-drop), inset 0 0 0 var(--lens-width) var(--lens-glow); }
+  .measure-panel { box-shadow: var(--glass-hi), var(--glass-deep), var(--glass-drop), inset 0 0 0 var(--lens-width) var(--lens-glow); }
+  /* 夜间透镜环压暗 */
+  body.dark { --lens-glow: rgba(255,255,255,.08); }
+
+  /* iOS 控制中心双材质：选中(亮态) vs 未选中(暗态) 是两种不同玻璃 */
+  .chip.active {
+    backdrop-filter: blur(12px) saturate(200%) brightness(1.35);
+    -webkit-backdrop-filter: blur(12px) saturate(200%) brightness(1.35);
+  }
+  .rp-mode.active {
+    backdrop-filter: blur(12px) saturate(200%) brightness(1.3);
+    -webkit-backdrop-filter: blur(12px) saturate(200%) brightness(1.3);
+  }
+  .menu-item.active, .menu-item[aria-pressed="true"] {
+    backdrop-filter: blur(12px) saturate(190%) brightness(1.3);
+    -webkit-backdrop-filter: blur(12px) saturate(190%) brightness(1.3);
+  }
+  body.dark .chip.active {
+    backdrop-filter: blur(12px) saturate(180%) brightness(1.25);
+    -webkit-backdrop-filter: blur(12px) saturate(180%) brightness(1.25);
+  }
+  body.dark .rp-mode.active {
+    backdrop-filter: blur(12px) saturate(180%) brightness(1.2);
+    -webkit-backdrop-filter: blur(12px) saturate(180%) brightness(1.2);
+  }
