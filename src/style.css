@@ -185,11 +185,14 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
   .menu[hidden]{display:none}
   /* .menu-item 自带 display:flex，会盖掉 hidden 属性的 UA 样式 —— 显式守卫（安装按钮默认隐藏用） */
   .menu-item[hidden]{display:none}
-    .menu{animation:menuIn .22s var(--spring-soft);transform-origin:top right}
-  @keyframes menuIn{from{opacity:0;transform:scale(.95) translateY(-6px)}to{opacity:1;transform:none}}
+    .menu{animation:menuIn .3s var(--ios-spring);transform-origin:top right}
+  @keyframes menuIn{from{opacity:0;transform:scale(.93) translateY(-8px) rotateX(3deg)}to{opacity:1;transform:none}}
   .menu-head{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.4px;padding:6px 8px 3px}
   .menu-item{display:flex;align-items:center;gap:7px;width:100%;padding:7px 9px;border-radius:9px;border:1px solid transparent;background:transparent;color:var(--ink);font-size:13px;font-family:inherit;text-align:left;cursor:pointer;transition:background .15s,border-color .15s,transform .3s var(--spring-pop)}
   .menu-item:active{transform:scale(.96)}
+  .menu-item > *{transition:transform 280ms var(--ios-spring)}
+  .menu-item:hover > :first-child{transform:translateX(3px)}
+  .menu-item:hover > :not(:first-child){transform:translateY(-1px)}
   .menu-item:hover{background:rgba(255,255,255,.85);border-color:rgba(255,255,255,.9);box-shadow:0 0 12px rgba(167,199,255,.18)}
   .menu-item.active,.menu-item[aria-pressed="true"]{background:rgba(11,122,75,.85);color:#fff;border-color:rgba(255,255,255,.7)}
   /* 图例已按需求移除（原吸底样式随之删除；.lg/.dot 等残留规则无人命中，无害） */
@@ -254,7 +257,8 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
      transition 保留，hover 动画照旧。 */
   /* spring/.34 缓动换成 ease；去掉 box-shadow 过渡（box-shadow 模糊半径变化很贵）；
      duration 从 .35s 砍到 .15s。hover 视觉差别极小但帧数少一半以上。 */
-  .item{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:10px;cursor:pointer;transition:transform .3s var(--spring-soft), background .15s ease, border-color .15s ease;border:1px solid transparent}
+  @keyframes itemIn{from{opacity:0;transform:translate3d(0,14px,0)}to{opacity:1;transform:none}}
+  .item{animation:itemIn .38s var(--ios-spring) both;animation-delay:var(--d,0s);display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:10px;cursor:pointer;transition:transform .3s var(--spring-soft), background .15s ease, border-color .15s ease;border:1px solid transparent}
   /* :hover / .sel 摘掉 backdrop-filter（hover 临时触发也会强制重新模糊整张地图）；
      渐变/border 透明度上调一档补偿：.55/.4→.72/.58, .6→.78 */
   .item:hover{background:linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.58));border-color:rgba(255,255,255,.7);box-shadow:0 2px 8px rgba(0,0,0,.06);transform:translateX(3px) scale(1.005)}
@@ -424,8 +428,8 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   /* 自建弹窗（液态玻璃）——完全自定义，无 TMap 默认容器 */
   .spot-popup{position:absolute;top:0;left:0;z-index:3000;will-change:transform;pointer-events:none;display:none}
   /* 弹窗模糊 14→10（252px 宽的小弹窗，玻璃感差异肉眼几乎看不出） */
-  .pp-inner{pointer-events:auto;box-sizing:border-box;width:252px;background:linear-gradient(180deg, rgba(255,255,255,.6) 0%, rgba(250,251,253,.5) 50%, rgba(245,247,250,.6) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-radius:20px 12px 20px 12px;padding:13px 15px;box-shadow:var(--glass-hi),var(--glass-deep),0 12px 40px rgba(0,0,0,.3);border:1px solid rgba(0,0,0,.06);font-size:13.5px;line-height:1.55;overflow-wrap:break-word;word-break:break-word;white-space:normal;position:relative;overflow:hidden;will-change:transform;animation:ppIn .26s var(--spring-pop);transform-origin:50% 15%}
-  @keyframes ppIn{from{opacity:0;transform:scale(.9) translateY(6px)}to{opacity:1;transform:none}}
+  .pp-inner{pointer-events:auto;box-sizing:border-box;width:252px;background:linear-gradient(180deg, rgba(255,255,255,.6) 0%, rgba(250,251,253,.5) 50%, rgba(245,247,250,.6) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-radius:20px 12px 20px 12px;padding:13px 15px;box-shadow:var(--glass-hi),var(--glass-deep),0 12px 40px rgba(0,0,0,.3);border:1px solid rgba(0,0,0,.06);font-size:13.5px;line-height:1.55;overflow-wrap:break-word;word-break:break-word;white-space:normal;position:relative;overflow:hidden;will-change:transform;animation:ppIn .3s var(--ios-spring);transform-origin:50% 15%}
+  @keyframes ppIn{from{opacity:0;transform:perspective(800px) scale(.92) translateY(8px) rotateX(-4deg)}to{opacity:1;transform:none}}
 /* 原来这里有 4 条伪元素规则、其中 2 条互相覆盖（191 被 194 覆盖、192 被 193 覆盖），
    即 mask-composite 渐变边框和径向高光从来没生效过。合并成一条顶部高光。 */
   .pp-inner::before{content:'';position:absolute;top:0;left:0;right:0;height:40px;border-radius:16px 16px 0 0;background:linear-gradient(180deg,rgba(255,255,255,.32) 0%,rgba(255,255,255,0) 100%);pointer-events:none}
@@ -664,9 +668,9 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   body.dark .list mark{color:#34d399}
   /* ---------- 聚合气泡点击 → 快捷列表 ---------- */
   /* 聚合点列表 18→12（仅点击聚合气泡时出现） */
-  .cluster-list{position:absolute;z-index:1180;background:linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.68));backdrop-filter:blur(var(--glass-blur-md)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur-md)) saturate(1.8);border:1px solid rgba(255,255,255,.7);border-radius:18px 12px 18px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);overflow:hidden;min-width:200px;max-width:260px;animation:clIn .25s var(--spring-soft)}
+  .cluster-list{position:absolute;z-index:1180;background:linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.68));backdrop-filter:blur(var(--glass-blur-md)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur-md)) saturate(1.8);border:1px solid rgba(255,255,255,.7);border-radius:18px 12px 18px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);overflow:hidden;min-width:200px;max-width:260px;animation:clIn .32s var(--ios-spring)}
   body.dark .cluster-list{background:rgba(30,36,46,.95);border-color:rgba(255,255,255,.15)}
-  @keyframes clIn{from{opacity:0;transform:translateY(-8px) scale(.98)}to{opacity:1;transform:none}}
+  @keyframes clIn{from{opacity:0;transform:translateY(-10px) scale(.97) rotateX(-3deg)}to{opacity:1;transform:none}}
   .cluster-list .cl-head{padding:9px 12px;font-size:12.5px;font-weight:700;background:linear-gradient(90deg,var(--cl-accent,#0b7a4b) 0%,transparent 30%),rgba(255,255,255,.5);border-bottom:1px solid rgba(120,130,145,.18);display:flex;align-items:center;gap:6px}
   body.dark .cluster-list .cl-head{background:linear-gradient(90deg,var(--cl-accent,#0b7a4b) 0%,transparent 30%),rgba(255,255,255,.06)}
   .cluster-list .cl-head .cl-title{flex:1}
@@ -898,8 +902,8 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
      spring 缓动换 ease（.34,1.56,.64,1 会算反向运动帧；toast 一次性弹窗，ease 已够用）。 */
   .toast{position:fixed;bottom:64px;left:50%;transform:translate(-50%,12px) scale(.95);z-index:4000;background:linear-gradient(180deg, rgba(50,56,66,.82) 0%, rgba(35,40,50,.78) 50%, rgba(28,32,38,.88) 100%);color:#fff;padding:9px 16px;border-radius:16px 10px 16px 10px;font-size:12.5px;backdrop-filter:blur(var(--glass-blur-lg)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur-lg)) saturate(1.8);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -16px 32px rgba(0,0,0,.25),0 16px 48px rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.14);pointer-events:none;opacity:0;transition:opacity .25s ease, transform .45s var(--spring-soft);max-width:min(420px,76vw);text-align:center}
 body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-gradient(180deg, rgba(255,255,255,.92),rgba(245,247,250,.85));color:#1a1f2e;border-color:rgba(255,255,255,.6);box-shadow:0 10px 32px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.95)}
-  .toast.show{opacity:1;transform:translate(-50%,0) scale(1);animation:toastPop .45s var(--spring-soft)}
-@keyframes toastPop{0%{transform:translate(-50%,14px) scale(.9);opacity:0}100%{transform:translate(-50%,0) scale(1);opacity:1}}
+  .toast.show{opacity:1;transform:translate(-50%,0) scale(1);animation:toastPop .5s var(--ios-spring)}
+@keyframes toastPop{0%{transform:translate(-50%,16px) scale(.88) rotateX(4deg);opacity:0}100%{transform:translate(-50%,0) scale(1) rotateX(0);opacity:1}}
   .toast.ok{background:rgba(20,122,74,.94)}
   .toast.error{background:rgba(200,45,50,.94)}
   .toast.info{background:rgba(38,78,128,.94)}
@@ -999,3 +1003,8 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
   body.dark .chip:hover{box-shadow:inset 0 .5px 0 rgba(255,255,255,.1), 0 6px 14px rgba(0,0,0,.3), 0 0 18px rgba(100,160,255,.15)}
   body.dark .btn:hover{box-shadow:0 14px 28px rgba(0,0,0,.4), 0 0 22px rgba(100,160,255,.18), inset 0 .5px 0 rgba(255,255,255,.12)}
   body.dark .menu-item:hover{box-shadow:0 0 12px rgba(100,160,255,.12)}
+
+  /* 弹窗 hover 微倾斜（iOS 液态手感近似，纯 CSS） */
+  .pp-inner{transition:transform 520ms var(--ios-spring)}
+  .spot-popup:hover .pp-inner{transform:perspective(800px) rotateX(0.5deg) rotateY(-0.5deg) scale(1.008)}
+  .spot-popup:not(:hover) .pp-inner{transform:none}

@@ -1187,7 +1187,8 @@ function hl(t){
 }
 /* 行节点拆成「外层属性」+「内部内容」两部分，好让 keyed diff 复用节点时只换内部内容 */
 function rowAttrs(s){
-  return 'data-id="'+getSpotIndex(s)+'" tabindex="0" role="button" aria-label="'+esc(s.name)+'"';
+  var d = s._delay != null ? ';--d:' + s._delay + 'ms' : '';
+  return 'data-id="'+getSpotIndex(s)+'" tabindex="0" role="button" aria-label="'+esc(s.name)+'" style="'+d+'"';
 }
 function rowInnerHTML(s){
   var srcBadge = getSrcBadge(s);
@@ -1220,6 +1221,11 @@ function cacheRowButtons(el){
   el._addBtn = el.querySelector('.item-add');
 }
 function renderListRows(all){
+  /* 级联入场：每个条目递增 30ms 延迟（iOS 进场节奏），最多 8 级（避免长列表等待） */
+  var items = all.slice(0, 8);
+  items.forEach(function(s, i){
+    s._delay = Math.min(i * 30, 210);
+  });
   if(!all || !all.length){
     if(list._emptyRendered) return;        // 空态已经显示，不必重复重排
     list.innerHTML = '<div class="empty">没有匹配的景点</div>';
