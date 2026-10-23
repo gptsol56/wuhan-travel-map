@@ -181,6 +181,7 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
   .f-panel{padding-top:7px}
   /* 工具菜单：收纳原 .ctl 常驻工具条与图例 */
   .menu{position:absolute;top:52px;right:12px;z-index:1250;width:190px;max-height:min(82vh,640px);overflow-y:auto;padding:8px;border-radius:18px 12px 18px 12px;background:linear-gradient(180deg, rgba(255,255,255,.72), rgba(248,250,252,.65));backdrop-filter:blur(var(--glass-blur-lg)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur-lg)) saturate(1.8);border:1px solid rgba(255,255,255,.7);box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);display:flex;flex-direction:column;gap:3px}
+  .menu::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,.04) 28%,transparent 55%,rgba(255,255,255,.06) 100%)}
   .menu[hidden]{display:none}
   /* .menu-item 自带 display:flex，会盖掉 hidden 属性的 UA 样式 —— 显式守卫（安装按钮默认隐藏用） */
   .menu-item[hidden]{display:none}
@@ -189,7 +190,7 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
   .menu-head{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.4px;padding:6px 8px 3px}
   .menu-item{display:flex;align-items:center;gap:7px;width:100%;padding:7px 9px;border-radius:9px;border:1px solid transparent;background:transparent;color:var(--ink);font-size:13px;font-family:inherit;text-align:left;cursor:pointer;transition:background .15s,border-color .15s,transform .3s var(--spring-pop)}
   .menu-item:active{transform:scale(.96)}
-  .menu-item:hover{background:rgba(255,255,255,.85);border-color:rgba(255,255,255,.9)}
+  .menu-item:hover{background:rgba(255,255,255,.85);border-color:rgba(255,255,255,.9);box-shadow:0 0 12px rgba(167,199,255,.18)}
   .menu-item.active,.menu-item[aria-pressed="true"]{background:rgba(11,122,75,.85);color:#fff;border-color:rgba(255,255,255,.7)}
   /* 图例已按需求移除（原吸底样式随之删除；.lg/.dot 等残留规则无人命中，无害） */
 
@@ -235,7 +236,7 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
   /* 同 .item：只在 :active 那一瞬间缩一下，不需要常驻图层。
      留着 will-change 会让每个 chip 常驻一个合成层，还和上面的 backdrop-filter 抢图层预算。 */
   .chip{border-radius:14px;padding:3px 10px;font-size:12px;cursor:pointer;user-select:none;transition:transform .3s var(--spring-pop), background-color .15s ease, color .15s ease;box-shadow:inset 0 .5px 0 rgba(255,255,255,.95), inset 0 -.5px 0 rgba(255,255,255,.35), 0 3px 8px rgba(15,30,60,.06);position:relative;color:var(--ink);overflow:hidden;background:linear-gradient(180deg, rgba(255,255,255,.78) 0%, rgba(248,250,252,.66) 50%, rgba(240,243,247,.7) 100%) padding-box, var(--prism) border-box;border:1px solid transparent}
-.chip:hover{transform:translateY(-1px) scale(1.04);box-shadow:inset 0 .5px 0 rgba(255,255,255,.95), inset 0 -.5px 0 rgba(255,255,255,.4), 0 6px 14px rgba(15,30,60,.12)}
+.chip:hover{transform:translateY(-1px) scale(1.04);box-shadow:inset 0 .5px 0 rgba(255,255,255,.95), inset 0 -.5px 0 rgba(255,255,255,.4), 0 6px 14px rgba(15,30,60,.12), 0 0 18px rgba(167,199,255,.25)}
 .chip:active{transform:translateY(0) scale(.97);transition:transform .12s cubic-bezier(.4,0,.2,1)}
   .chip.active{background:rgba(11,122,75,.85);color:#fff;border-color:rgba(255,255,255,.7);box-shadow:0 2px 8px rgba(11,122,75,.35)}
   /* 摘掉 backdrop-filter（搜索框就一个，模糊地图收益低）；bg .5→.7 补偿 */
@@ -377,7 +378,7 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
   /* spring 缓动换成 ease（translateY 3px 那种微小动作用 ease 几乎无差） */
   .sp-pin{position:relative;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2.5px solid transparent;font-size:21px;line-height:1;background-clip:padding-box;box-shadow:0 2px 6px rgba(0,0,0,.32);transition:transform .12s ease}
   .sp-pin::before{content:'';position:absolute;inset:0;border-radius:50%;pointer-events:none;z-index:2;background:radial-gradient(circle at 50% 30%, rgba(255,255,255,.45), rgba(255,255,255,0) 70%);opacity:0;transition:opacity .12s linear}
-  .sp-pin:hover{transform:translateY(-2px) scale(1.12)}
+  .sp-pin:hover{transform:translateY(-2px) scale(1.12);filter:drop-shadow(0 4px 12px rgba(255,255,255,.35)) drop-shadow(0 0 8px currentColor)}
   .sp-pin:hover::before{opacity:1}
   .sp-pin:active{transform:translateY(-1px) scale(1.05)}
 .sp-name{position:absolute;top:48px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.93);color:#1a1f2e;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:7px;white-space:nowrap;line-height:1.4;max-width:140px;overflow:hidden;text-overflow:ellipsis;border:1px solid rgba(0,0,0,.06);box-shadow:0 1px 4px rgba(0,0,0,.24);letter-spacing:.3px;z-index:1;pointer-events:none}
@@ -460,7 +461,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   /* 摘掉 backdrop-filter（右上角小按钮组，模糊收益低）；spring 换 ease + 去掉 box-shadow 过渡 */
   .btn{background:linear-gradient(180deg, rgba(255,255,255,.85) 0%, rgba(248,251,253,.72) 50%, rgba(240,243,247,.78) 100%) padding-box, var(--prism) border-box;border-radius:11px;padding:6px 11px;font-size:12px;cursor:pointer;box-shadow:0 1px 2px rgba(15,30,60,.08), 0 6px 18px rgba(15,30,60,.12), inset 0 .5px 0 rgba(255,255,255,.95), inset 0 -.5px 0 rgba(255,255,255,.4), inset 1px 0 0 rgba(255,255,255,.55), inset -1px 0 0 rgba(255,255,255,.18);position:relative;color:var(--ink);transition:transform .3s var(--spring-pop), background .15s ease;overflow:hidden;border:1px solid transparent}
 /* 双光源高光：左上方 + 右上方两束点光叠加（真实玻璃在两个倾斜光源下的反射） */
-.btn:hover{transform:translateY(-2px) scale(1.025);box-shadow:0 1px 2px rgba(15,30,60,.1), 0 14px 28px rgba(15,30,60,.18), inset 0 .5px 0 rgba(255,255,255,.95), inset 0 -.5px 0 rgba(255,255,255,.4), inset 1px 0 0 rgba(255,255,255,.65), inset -1px 0 0 rgba(255,255,255,.22)}
+.btn:hover{transform:translateY(-2px) scale(1.025);box-shadow:0 1px 2px rgba(15,30,60,.1), 0 14px 28px rgba(15,30,60,.18), 0 0 22px rgba(167,199,255,.3), inset 0 .5px 0 rgba(255,255,255,.95), inset 0 -.5px 0 rgba(255,255,255,.4), inset 1px 0 0 rgba(255,255,255,.65), inset -1px 0 0 rgba(255,255,255,.22)}
 /* 摘掉 box-shadow 过渡：box-shadow 模糊半径变化每一帧都要重新光栅化阴影，
    在触屏 :active 触发时（按下立刻有反馈）会跑 250ms 的 4 段 shadow 动画。
    保留 transform 过渡（按下回弹仍然有手感），shadow 直接切。 */
@@ -727,11 +728,12 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
 /* 顶光改为 inset 顶线：原来是独立圆角白色渐变块（border-radius:10px + height:20%），
    在 overflow:visible 的面板上就是一块看得见的「白玻璃片」贴在标题区，对比度突兀。
    inset box-shadow 贴合面板自身 18px 圆角、零溢出。 */
-.route-panel::before{content:none}
+.route-panel::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.12) 0%,rgba(255,255,255,.03) 30%,transparent 55%,rgba(255,255,255,.02) 85%,rgba(255,255,255,.08) 100%)}
   .route-panel.hidden{display:none}
   /* 流光（玻璃完整化·动态）：斜光带每 7s 扫过一次 —— 纯 transform 循环（合成器
      动画，零重绘），低透明度不抢内容；reduced-motion 被全局 0.01ms 压制；
      折叠动画窗口 .folding 暂停，不与 max-height 动画叠加抢帧。 */
+  .route-panel:hover .rp-body::after{animation-duration:3s;background:linear-gradient(100deg,transparent,rgba(255,255,255,.22),transparent)}
   .route-panel .rp-body::after{content:'';position:absolute;top:0;bottom:0;left:0;width:64px;background:linear-gradient(100deg,transparent,rgba(255,255,255,.12),transparent);transform:skewX(-18deg) translateX(-90px);animation:sheenSweep 7s linear infinite;pointer-events:none}
   .route-panel.folding .rp-body::after{animation-play-state:paused}
   .pp-inner::after{content:'';position:absolute;top:0;bottom:0;left:0;width:56px;background:linear-gradient(100deg,transparent,rgba(255,255,255,.14),transparent);transform:skewX(-18deg) translateX(-80px);animation:sheenSweep 7s linear 1.2s infinite;pointer-events:none}
@@ -992,3 +994,8 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
     }
   }, {passive: false});
 })();
+  body.dark .route-panel::before{background:linear-gradient(135deg,rgba(255,255,255,.06) 0%,rgba(255,255,255,.02) 30%,transparent 55%,rgba(255,255,255,.03) 100%)}
+  body.dark .menu::before{background:linear-gradient(135deg,rgba(255,255,255,.07) 0%,rgba(255,255,255,.02) 28%,transparent 55%,rgba(255,255,255,.04) 100%)}
+  body.dark .chip:hover{box-shadow:inset 0 .5px 0 rgba(255,255,255,.1), 0 6px 14px rgba(0,0,0,.3), 0 0 18px rgba(100,160,255,.15)}
+  body.dark .btn:hover{box-shadow:0 14px 28px rgba(0,0,0,.4), 0 0 22px rgba(100,160,255,.18), inset 0 .5px 0 rgba(255,255,255,.12)}
+  body.dark .menu-item:hover{box-shadow:0 0 12px rgba(100,160,255,.12)}
