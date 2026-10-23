@@ -3,6 +3,6 @@
     "checkJs": false,
     "maxNodeModuleJsDepth": 0
   },
-  "include": ["*.js", "tools/*.js", "data/*.js", "globals.d.ts"],
+  "include": ["src/*.js", "tools/*.js", "test/**/*.js", "globals.d.ts"],
   "exclude": ["node_modules", "server", "test", "tools"]
 }

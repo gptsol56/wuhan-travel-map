@@ -25,7 +25,7 @@ describe('sw.js 缓存策略', () => {
   });
 
   it('预缓存清单包含全部关键资源（A1：断网也有完整应用外壳）', () => {
-    for (const f of ['style.min.css', 'app.min.js', 'data/spots.data.js', 'manifest.json',
+    for (const f of ['dist/style.min.css', 'dist/app.min.js', 'data/spots.data.js', 'manifest.json',
       'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png',
       'data/hubei.topo.json']) {
       expect(SW, `应预缓存 ${f}`).toContain(`scoped('${f}')`);

@@ -16,7 +16,7 @@ const ROOT = path.resolve(__dirname, '..', '..');
 const SRC = path.join(ROOT, 'data', 'spots.src.json');
 const OUT_JSON = path.join(ROOT, 'data', 'spots.json');
 const OUT_JS = path.join(ROOT, 'data', 'spots.data.js');
-const APP = path.join(ROOT, 'app.js');
+const APP = path.join(ROOT, 'src/app.js');
 const HTML = path.join(ROOT, 'index.html');
 
 const read = (p) => fs.readFileSync(p, 'utf8');
@@ -71,7 +71,7 @@ describe('spots 产物', () => {
   it('HTML 里 spots.data.js 在 app.min.js 之前加载（defer 按序执行，SPOTS 先就位）', () => {
     const html = read(HTML);
     const iData = html.indexOf('spots.data.js');
-    const iApp = html.indexOf('app.min.js');
+    const iApp = html.indexOf('dist/app.min.js');
     expect(iData, 'HTML 应引用 spots.data.js').toBeGreaterThan(0);
     expect(iApp, 'HTML 应引用 app.min.js').toBeGreaterThan(0);
     expect(iData, 'spots.data.js 必须排在 app.min.js 之前').toBeLessThan(iApp);

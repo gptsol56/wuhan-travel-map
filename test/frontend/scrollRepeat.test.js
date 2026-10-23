@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest';
 // 下面这几条就是绘制层面的几个来源，逐个钉死，避免以后又被「优化」回去。
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
-const RAW = fs.readFileSync(path.join(ROOT, 'style.src.css'), 'utf8');
+const RAW = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
 const CODE = RAW.replace(/\/\*[\s\S]*?\*\//g, '');   // 注释里会写到这些属性名，必须先剥掉
 
 function allRuleBodies(selector) {

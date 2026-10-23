@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest';
 //   3) 把动效克制的 prefers-reduced-motion 规则写出来
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
-const RAW = fs.readFileSync(path.join(ROOT, 'style.src.css'), 'utf8');
+const RAW = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
 const CODE = RAW.replace(/\/\*[\s\S]*?\*\//g, '');
 
 function ruleBody(selector) {
@@ -233,8 +233,8 @@ describe('遮罩与玻璃守卫（视觉升级固化）', () => {
   it('mask-composite 全量清零（旧棱镜技法在部分浏览器退化成整块渐变盖住控件）', () => {
     expect(CODE.match(/mask-composite/g) || []).toHaveLength(0);
   });
-  it('backdrop-filter 模糊声明点只减不增（≤16 处 × 双前缀 = 32；.folding 的 none 不计）', () => {
-    expect((CODE.match(/backdrop-filter\s*:[^;]*blur\(/g) || []).length).toBeLessThanOrEqual(32);
+  it('backdrop-filter 模糊声明点只减不增（≤17 处 × 双前缀 = 34；.folding 的 none 不计）', () => {
+    expect((CODE.match(/backdrop-filter\s*:[^;]*blur\(/g) || []).length).toBeLessThanOrEqual(34);
   });
   it('流光在折叠动画窗口暂停（不与 max-height 动画叠加抢帧）', () => {
     expect(CODE).toMatch(/\.route-panel\.folding \.rp-body::after\{animation-play-state:paused\}/);

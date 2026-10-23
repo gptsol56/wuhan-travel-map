@@ -6,9 +6,9 @@ import { loadPart } from './helpers/loadAppPart.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
-const CSS_RAW = fs.readFileSync(path.join(ROOT, 'style.src.css'), 'utf8');
+const CSS_RAW = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
 const CSS = CSS_RAW.replace(/\/\*[\s\S]*?\*\//g, '');
-const APP = fs.readFileSync(path.join(ROOT, 'app.js'), 'utf8');
+const APP = fs.readFileSync(path.join(ROOT, 'src/app.js'), 'utf8');
 
 /* 紫晶皮肤的结构性约定：
    body 上同时挂 dark 和 violet，深色表面覆盖复用 body.dark 那套，

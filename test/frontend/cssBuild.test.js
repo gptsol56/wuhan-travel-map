@@ -14,8 +14,8 @@ import { describe, expect, it } from 'vitest';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
 
-const SRC = path.join(ROOT, 'style.src.css');
-const OUT = path.join(ROOT, 'style.min.css');
+const SRC = path.join(ROOT, 'src/style.css');
+const OUT = path.join(ROOT, 'dist/style.min.css');
 
 describe('style.min.css 产物', () => {
   it('两个文件都存在', () => {
@@ -110,7 +110,7 @@ describe('测试读的是源文件而不是产物', () => {
     const offenders = fs.readdirSync(dir)
       .filter((f) => f.endsWith('.test.js'))
       .filter((f) => f !== SELF)
-      .filter((f) => readsArtifact(fs.readFileSync(path.join(dir, f), 'utf8'), 'style.min.css'));
+      .filter((f) => readsArtifact(fs.readFileSync(path.join(dir, f), 'utf8'), 'dist/style.min.css'));
     expect(
       offenders,
       '这些测试读的是产物，改了源文件它们不会报警：' + offenders.join(', '),

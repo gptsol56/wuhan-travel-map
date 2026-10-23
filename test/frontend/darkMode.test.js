@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
-const CSS = fs.readFileSync(path.join(ROOT, 'style.src.css'), 'utf8');
+const CSS = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
 
 const CODE = CSS.replace(/\/\*[\s\S]*?\*\//g, '');
 

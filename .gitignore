@@ -16,3 +16,6 @@ $null
 # ZCode 会话目录
 .zcode/
 .v2c/
+
+.vercel
+.env*

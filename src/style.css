@@ -355,14 +355,14 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
 
 
   /* 缩放组：[-] [11] [+] + ? 独立圆钮，纵排右下角 */
-  .zoom-group{position:absolute;right:12px;bottom:12px;z-index:1150;display:flex;align-items:center;gap:8px}
-  .zoom-indicator{display:flex;align-items:center;gap:0;border-radius:14px;overflow:hidden;border:1px solid rgba(0,0,0,.1);background:rgba(255,255,255,.82);backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);box-shadow:var(--glass-hi),0 4px 16px rgba(0,0,0,.15)}
+  .zoom-group{position:absolute;right:12px;bottom:12px;z-index:1150;display:flex;flex-direction:column;align-items:center;gap:6px}
+  .zoom-indicator{display:flex;flex-direction:column;align-items:center;border-radius:14px;overflow:hidden;border:1px solid rgba(0,0,0,.1);background:rgba(255,255,255,.82);backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);box-shadow:var(--glass-hi),0 4px 16px rgba(0,0,0,.15)}
   .zoom-indicator .zoom-btn{width:34px;height:34px;border:none;background:transparent;color:var(--ink);font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s ease,transform .2s var(--spring-pop)}
   .zoom-indicator .zoom-btn:hover{background:rgba(0,0,0,.06)}
   .zoom-indicator .zoom-btn:active{transform:scale(.88)}
-  .zoom-indicator .zoom-btn:first-child{border-radius:14px 0 0 14px}
-  .zoom-indicator .zoom-btn:last-child{border-radius:0 14px 14px 0}
-  .zoom-level{min-width:34px;text-align:center;font-weight:700;font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums;user-select:none}
+  .zoom-indicator .zoom-btn:first-child{border-radius:14px 14px 0 0}
+  .zoom-indicator .zoom-btn:last-child{border-radius:0 0 14px 14px}
+  .zoom-level{min-width:34px;padding:4px 0;text-align:center;font-weight:700;font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums;user-select:none;border-top:1px solid rgba(0,0,0,.08);border-bottom:1px solid rgba(0,0,0,.08)}
   .zoom-help{width:44px;height:44px;border-radius:50%;font-size:18px;border:1px solid rgba(0,0,0,.1);background:rgba(255,255,255,.82);backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);color:var(--accent);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--glass-hi),0 4px 16px rgba(0,0,0,.12);transition:background .15s ease,transform .2s var(--spring-pop)}
   .zoom-help:hover{background:rgba(11,122,75,.08);transform:scale(1.08)}
   .zoom-help:active{transform:scale(.9)}
@@ -578,11 +578,29 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   body.dark .btn.active{background:rgba(52,211,153,.85);color:#06281a}
 
   /* ---------- 定位按钮（悬浮于地图右下） ---------- */
-  #locateBtn{position:absolute;right:calc(12px + env(safe-area-inset-right));bottom:calc(70px + env(safe-area-inset-bottom));z-index:1160;width:38px;height:38px;border-radius:10px;font-size:19px;display:flex;align-items:center;justify-content:center}
-  /* ---------- 比例尺 ---------- 
+  .zoom-locate{width:44px;height:44px;border-radius:50%;border:1px solid rgba(0,0,0,.1);background:rgba(255,255,255,.82);backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);color:var(--ink);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--glass-hi),0 4px 16px rgba(0,0,0,.12);transition:background .15s ease,transform .2s var(--spring-pop)}
+  .zoom-locate:hover{background:rgba(255,255,255,.95);transform:scale(1.08)}
+  .zoom-locate:active{transform:scale(.9)}
+  body.dark .zoom-locate{background:rgba(35,40,50,.82);border-color:rgba(255,255,255,.12)}
+  /* ---------- 比例尺 ----------
      自研比例尺已删：TMap 自带 .tmap-scale-control 就在同一锚点，
      两套叠在一起再加腾讯地图版权块，左下角会糊成三行。
      需要自定义比例尺时在这里覆盖 SDK 的 .tmap-scale-control 即可。 */
+  /* ---------- SDK 自带缩放 +/-（罗盘正下方） ----------
+     gljs 的 Map 构造参数没有关闭项，只能藏；应用自己的缩放指示器在右下角，
+     两套 +/- 并存会让人按错。去遮挡的死区列表（app.js DEAD_ZONE_SELECTORS）
+     仍保留 .tmap-zoom-control：display:none 量出来是 0 尺寸，collectDeadZones
+     会自动跳过，不会留一块莫名的禁区。 */
+  #map .tmap-zoom-control{display:none !important}
+  /* ---------- SDK 罗盘（.rotate-circle）深色适配 ----------
+     SDK 只有白色圆盘 + 白色旋转花瓣 + 深灰指针/箭头，深色底图上是一块白斑。
+     配色对齐 .zoom-locate 的深色玻璃；指针和箭头是 data:PNG 改不了颜色，
+     用 invert 提亮（深灰 → 浅灰，深色底上刚好够看）。 */
+  body.dark #map .compass-circle-background{background:rgba(35,40,50,.85);border:1px solid rgba(255,255,255,.12)}
+  body.dark #map .compass-circle{background:rgba(35,40,50,.85)}
+  body.dark #map .compass-img{filter:invert(1)}
+  body.dark #map .rotate-left,body.dark #map .rotate-top,body.dark #map .rotate-right,body.dark #map .rotate-bottom{background:rgba(35,40,50,.85)}
+  body.dark #map .rotate-left-img,body.dark #map .rotate-top-img,body.dark #map .rotate-right-img,body.dark #map .rotate-bottom-img{filter:invert(1)}
   /* ---------- 弹窗底部动作按钮 + 官方外链 ---------- */
   .pp-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
   .pp-actions button{background:rgba(11,122,75,.9);color:#fff;border:none;border-radius:9px;padding:6px 11px;font-size:12px;cursor:pointer;box-shadow:0 2px 8px rgba(11,122,75,.3)}
@@ -757,7 +775,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   .route-panel .rp-actions button{flex:1;padding:7px 0;font-size:13px;border-radius:8px;cursor:pointer;border:1px solid transparent;font-weight:600;transition:.15s}
   .route-panel .rp-actions #rpGo{background:linear-gradient(135deg,#e5484d,#c22b30);color:#fff;box-shadow:0 2px 8px rgba(229,72,77,.4)}
   .route-panel .rp-actions #rpGo:hover{filter:brightness(1.08)}
-  .route-panel .rp-actions #rpClear{background:rgba(255,255,255,.6);color:var(--muted);border-color:rgba(255,255,255,.7)}
+  .route-panel .rp-actions #rpClear,.route-panel .rp-actions #rpShare{background:rgba(255,255,255,.6);color:var(--muted);border-color:rgba(255,255,255,.7)}
   .rp-summary{margin-top:8px;padding:7px 10px;border-radius:9px;background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.7);font-size:12px;color:var(--muted)}
   .rp-summary .rp-sum-line{display:block;line-height:1.6}
   .rp-summary b{color:var(--ink);font-weight:700}
@@ -823,7 +841,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   body.dark .rp-tag.t-red{background:rgba(229,72,77,.2);color:#ff8a8d;border-color:rgba(229,72,77,.4)}
   body.dark .rp-tag.t-green{background:rgba(48,164,108,.2);color:#7fd9a8;border-color:rgba(48,164,108,.4)}
   body.dark .rp-tag.t-orange{background:rgba(245,165,36,.2);color:#f5c95c;border-color:rgba(245,165,36,.4)}
-  body.dark .route-panel .rp-actions #rpClear{background:rgba(40,45,56,.6);color:var(--muted);border-color:var(--glass-border)}
+  body.dark .route-panel .rp-actions #rpClear,body.dark .route-panel .rp-actions #rpShare{background:rgba(40,45,56,.6);color:var(--muted);border-color:var(--glass-border)}
   body.dark .rp-cards{scrollbar-color:rgba(150,180,220,.4) transparent}
   body.dark .rp-cards::-webkit-scrollbar-thumb{background:rgba(150,180,220,.3)}
   body.dark .rp-cards.scrolling::-webkit-scrollbar-track{background:rgba(150,180,220,.16)}

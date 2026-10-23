@@ -14,8 +14,8 @@ import { describe, expect, it } from 'vitest';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
 
-const SRC = path.join(ROOT, 'app.js');
-const OUT = path.join(ROOT, 'app.min.js');
+const SRC = path.join(ROOT, 'src/app.js');
+const OUT = path.join(ROOT, 'dist/app.min.js');
 const HTML = path.join(ROOT, 'index.html');
 
 describe('app.min.js 产物', () => {
@@ -57,8 +57,8 @@ describe('app.min.js 产物', () => {
 
   it('HTML 加载的是产物而不是源文件', () => {
     const html = fs.readFileSync(HTML, 'utf8');
-    expect(html, 'script 应引用 app.min.js').toMatch(/<script src="app\.min\.js" defer>/);
-    expect(html, '不应再引用源文件 app.js').not.toMatch(/src="app\.js"/);
+    expect(html, 'script 应引用 dist/app.min.js').toMatch(new RegExp('<script src="dist/app\\.min\\.js" defer>'));
+    expect(html, '不应再引用源文件').not.toMatch(new RegExp('src="(src/)?app\\.js"'));
   });
 
   it('压缩确实带来了体积收益（否则压缩器白写）', () => {
@@ -80,7 +80,7 @@ describe('测试读的是源文件而不是产物', () => {
     const offenders = fs.readdirSync(dir)
       .filter((f) => f.endsWith('.test.js'))
       .filter((f) => f !== SELF)
-      .filter((f) => readsArtifact(fs.readFileSync(path.join(dir, f), 'utf8'), 'app.min.js'));
+      .filter((f) => readsArtifact(fs.readFileSync(path.join(dir, f), 'utf8'), 'dist/app.min.js'));
     expect(
       offenders,
       '这些测试读的是产物，改了源文件它们不会报警：' + offenders.join(', '),

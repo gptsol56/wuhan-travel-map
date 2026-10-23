@@ -4,7 +4,7 @@
 // gzip 后 26,636 字节；光把注释去掉就掉到 11,655 字节（省 56%）。
 // gzip 压代码压得好，压不动中文散文，所以注释在这个文件里格外贵。
 //
-// 做法：带注释的 style.src.css 是唯一真相源（改样式改它），
+// 做法：带注释的 src/style.css 是唯一真相源（改样式改它），
 // 本脚本生成 style.min.css 给浏览器。两者都进仓库，
 // 因为项目是零构建的：不装任何东西也能直接打开跑起来。
 //
@@ -21,8 +21,8 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
-const SRC = path.join(ROOT, 'style.src.css');
-const OUT = path.join(ROOT, 'style.min.css');
+const SRC = path.join(ROOT, 'src', 'style.css');
+const OUT = path.join(ROOT, 'dist', 'style.min.css');
 
 function minify(css) {
   // 1. 去注释 + 2. 压空白 + 3. 删结构符两侧空格 —— 三件事在**同一个状态机**里做完。

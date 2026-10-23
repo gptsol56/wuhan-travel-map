@@ -19,7 +19,7 @@
   <meta name="twitter:title" content="武汉景点地图">
   <meta name="twitter:description" content="50个景点人流参考 & 路线规划">
   <title>武汉景点地图 — 50个景点人流参考 & 路线规划</title>
-<link rel="stylesheet" href="style.min.css">
+<link rel="stylesheet" href="dist/style.min.css">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <script type="application/ld+json">
@@ -108,7 +108,7 @@
       <button class="menu-item" id="btn-violet" title="切换到紫晶模式" aria-pressed="false">💜 紫晶</button>
       <button class="menu-item" id="btn-pitch" title="切换 3D 俯仰视角" aria-pressed="false">🕋 3D</button>
     </div>
-    <button class="btn" id="locateBtn" title="回到我的位置">📍</button>
+
     <button class="btn" id="toggle">☰ 列表</button>
     <button class="btn" id="expandBtn">☰ 展开列表</button>
     <div id="measurePanel" class="measure-panel" style="display:none">
@@ -140,10 +140,11 @@
       </div>
     </div>
     <div class="zoom-group">
+      <button class="zoom-locate" id="locateBtn" title="回到我的位置">📍</button>
       <div class="zoom-indicator" id="zoomIndicator" aria-live="polite" title="按 + / - 调整缩放">
-        <button class="zoom-btn" id="zoomOut" title="缩小 (-)">−</button>
-        <span class="zoom-level" id="zoomLevel">11</span>
         <button class="zoom-btn" id="zoomIn" title="放大 (+)">+</button>
+        <span class="zoom-level" id="zoomLevel">11</span>
+        <button class="zoom-btn" id="zoomOut" title="缩小 (-)">−</button>
       </div>
       <button class="zoom-help" id="zoomHelp" title="快捷键 (?)">?</button>
     </div>
@@ -151,7 +152,7 @@
 </div>
 
 <script src="data/spots.data.js" defer></script>
-<script src="app.min.js" defer></script>
+<script src="dist/app.min.js" defer></script>
 
 </body>
 </html>

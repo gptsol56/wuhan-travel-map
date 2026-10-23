@@ -5,8 +5,8 @@ import { describe, expect, it } from 'vitest';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
-const CSS = fs.readFileSync(path.join(ROOT, 'style.src.css'), 'utf8');
-const APP = fs.readFileSync(path.join(ROOT, 'app.js'), 'utf8');
+const CSS = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
+const APP = fs.readFileSync(path.join(ROOT, 'src/app.js'), 'utf8');
 
 // 抽屉宽 = min(320px, 88vw)；对话框让位后左边界 = 抽屉宽 + 12px
 const DRAWER = 'min(320px, 88vw)';

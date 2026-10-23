@@ -5,8 +5,8 @@ import { describe, expect, it } from 'vitest';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
-const JS = fs.readFileSync(path.join(ROOT, 'app.js'), 'utf8');
-const CSS = fs.readFileSync(path.join(ROOT, 'style.src.css'), 'utf8');
+const JS = fs.readFileSync(path.join(ROOT, 'src/app.js'), 'utf8');
+const CSS = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
 
 // 这个文件原本是一整套「光斑跟随手标」的行为测试（量化节流、rAF 去重、
 // 4% 步长、--px/--py 写入…）。光斑已按需求整体砍掉，行为不再存在，

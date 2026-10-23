@@ -33,8 +33,8 @@ const path = require('path');
 const zlib = require('zlib');
 
 const ROOT = path.resolve(__dirname, '..');
-const SRC = path.join(ROOT, 'app.js');
-const OUT = path.join(ROOT, 'app.min.js');
+const SRC = path.join(ROOT, 'src', 'app.js');
+const OUT = path.join(ROOT, 'dist', 'app.min.js');
 
 // 「/ 前面是这些字符」→ 正则字面量。集合外的（标识符/数字/)/]/字符串结尾）→ 除法。
 const REGEX_OK_AFTER = new Set('([,=:!&|?;{}+-*%^~<>');

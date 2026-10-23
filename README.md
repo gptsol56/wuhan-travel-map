@@ -62,7 +62,7 @@ npm start                   # 监听 :3000，前端与 /api/crowd 同源
 ```
 index.html    # 入口页（PWA）
 data/            # 数据层：spots 三件套（真相源+双产物）与湖北边界 TopoJSON
-app.js / style.src.css / spots.src.json    # 三份真相源
+src/（源码：app.js + style.css）    # 三份真相源
 server/              # 人流代理后端（Express，可选）
 test/frontend/       # 前端单测（vitest + jsdom，抽取真实源码执行）
 tools/               # 三个零依赖构建脚本

@@ -102,16 +102,19 @@ const HTML_FILE = 'index.html';
 // 旧中文文件名入口保留为一枚重定向页（透传 hash/query，收藏的分享链接不丢）
 const LEGACY_ENTRY = '武汉景点地图.html';
 const PUBLIC_ASSETS = new Set([
-  '/app.min.js', '/app.js',           // app.js 是源文件（测试用），保留直连兼容
+  '/dist/app.min.js', '/dist/style.min.css',   // 产物（index.html 引用的就是这两个）
+  '/src/app.js',           // app.js 是源文件（测试用），保留直连兼容
   '/data/spots.data.js', '/data/spots.json',
   '/data/hubei.topo.json',                 // 行政边界数据（O2 本地化）
-  '/style.min.css', '/sw.js', '/manifest.json',
+  '/sw.js', '/manifest.json',
 ]);
+// PWA 图标是一组文件（index.html favicon + SW 预缓存 + manifest 都引用），按前缀放行
+const PUBLIC_PREFIXES = ['/icons/'];
 const PUBLIC_PAGES = new Set(['/', '/index.html', '/' + LEGACY_ENTRY]);
 
 app.use(function publicOnly(req, res, next){
   const p = req.path.split('?')[0];
-  if(!PUBLIC_ASSETS.has(p) && !PUBLIC_PAGES.has(p)){
+  if(!PUBLIC_ASSETS.has(p) && !PUBLIC_PAGES.has(p) && !PUBLIC_PREFIXES.some(pre => p.startsWith(pre))){
     return res.status(404).json({ ok: false, code: 'NOT_FOUND', message: 'Not found' });
   }
   // 探针/冒烟脚本用 ?nocache 强制绕过缓存

@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
-const RAW = fs.readFileSync(path.join(ROOT, 'style.src.css'), 'utf8');
+const RAW = fs.readFileSync(path.join(ROOT, 'src/style.css'), 'utf8');
 
 // 去掉注释再数括号：注释里出现 { 或 } 会把计数带偏，
 // 而「注释没闭合」本身就是下面单独要查的一类错误。

@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadPart, grabFunction, grabVar } from './helpers/loadAppPart.js';
 
-const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'app.js');
+const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'src/app.js');
 
 /* 四类重叠修复里跟「障碍物」相关的部分：
    ① 底图 POI 文字接进 declutterNames（软障碍）
