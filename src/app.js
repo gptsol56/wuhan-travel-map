@@ -343,10 +343,10 @@ document.addEventListener('keydown', function(e){
       break;
     case 'd':
     case 'D':
-      // 点按钮而不是直接改状态：日↔夜的切换逻辑只写在 themeBtn.onclick 一处，
+      // 点开关而不是直接改状态：日↔夜的切换逻辑只写在 themeToggle.onclick 一处，
       // 快捷键不重复一遍。紫晶是另一个开关，不在 d 的职责范围内。
-      var themeBtn = document.getElementById('btn-theme');
-      if(themeBtn) themeBtn.click();
+      var themeToggleEl = document.getElementById('themeToggle');
+      if(themeToggleEl) themeToggleEl.click();
       break;
     case 'c':
     case 'C':
@@ -1562,26 +1562,29 @@ document.getElementById('expandBtn').onclick = function(){
    两个类，CSS 里 body.dark 那套深色玻璃覆盖全部照常生效，body.violet 排在它后面
    （同特异性，靠源码顺序）把色相刷成紫。两边共用一套结构，就不会出现
    「夜间调好的深色表面在紫晶里没被覆盖、露出一块白斑」这种漏改。 */
-/* 主题。做成两个**独立**开关，而不是一个三态循环按钮：
-   btn-theme 是原来的日↔夜两态开关（d 快捷键的行为也保持原样，少一点意外），
-   btn-violet 单独开/关紫晶。之前做成三态循环（点一次夜间、点两次紫晶）看着优雅，
-   实际很坑：用户点一下看到「夜间」，以为功能坏了就判定「没显示出颜色」。
-   两个开关各自只做一件事，按钮上写什么、点了就去哪，不用数点击次数。 */
+/* 主题。两个**独立**开关，而不是一个三态循环按钮：
+   themeToggle 是侧栏顶栏的日↔夜小拨动开关（d 快捷键的行为保持原样，少一点意外），
+   btn-violet（☰ 菜单里）单独开/关紫晶。之前做成三态循环（点一次夜间、点两次紫晶）
+   看着优雅，实际很坑：用户点一下看到「夜间」，以为功能坏了就判定「没显示出颜色」。
+   两个开关各自只做一件事。小开关的语义是「深色表面开没开」：夜间、紫晶都算开
+   （aria-checked=true），所以它和紫晶不打架 —— 紫晶里关掉小开关就是回日间，
+   开着小开关再点紫晶只是在深色表面上换色相。 */
 var THEME_ORDER = ['light', 'dark', 'violet'];
 var curTheme = 'light';
-var themeBtn = document.getElementById('btn-theme');
+var themeToggle = document.getElementById('themeToggle');
 var violetBtn = document.getElementById('btn-violet');
 function applyTheme(next){
   curTheme = THEME_ORDER.indexOf(next) >= 0 ? next : 'light';
   // violet 必须同时点亮 dark：深色表面覆盖挂在 body.dark 上
   document.body.classList.toggle('dark', curTheme === 'dark' || curTheme === 'violet');
   document.body.classList.toggle('violet', curTheme === 'violet');
-  // 日夜开关：当前是日间就显示「去夜间」，否则显示「去日间」
-  var toNight = curTheme === 'light';
-  themeBtn.textContent = toNight ? '🌙 夜间' : '☀️ 日间';
-  themeBtn.title = toNight ? '切换到夜间模式' : '切换到日间模式';
-  themeBtn.setAttribute('aria-label', themeBtn.title);
-  themeBtn.setAttribute('aria-pressed', toNight ? 'false' : 'true');
+  // 日/夜小开关只表达「深色表面开没开」：夜间、紫晶都算开
+  if(themeToggle){
+    var toNight = curTheme !== 'light';
+    themeToggle.setAttribute('aria-checked', toNight ? 'true' : 'false');
+    themeToggle.title = toNight ? '切换到日间模式（快捷键 D）' : '切换到夜间模式（快捷键 D）';
+    themeToggle.setAttribute('aria-label', themeToggle.title);
+  }
   // 紫晶开关：开着就显示「回夜间」（紫晶是建在夜间之上的），否则显示「进紫晶」
   if(violetBtn){
     var onViolet = curTheme === 'violet';
@@ -1596,7 +1599,7 @@ function applyTheme(next){
    测试要从 app.js 抽真实源码执行，裸的 `x.onclick = ...` 不在任何函数体里，
    抓不出来，就只能对着源码字符串断言、点不出真实行为。 */
 function bindThemeButtons(){
-  themeBtn.onclick = function(){ applyTheme(curTheme === 'light' ? 'dark' : 'light'); savePrefs(); };
+  if(themeToggle) themeToggle.onclick = function(){ applyTheme(curTheme === 'light' ? 'dark' : 'light'); savePrefs(); };
   if(violetBtn) violetBtn.onclick = function(){ applyTheme(curTheme === 'violet' ? 'dark' : 'violet'); savePrefs(); };
 }
 bindThemeButtons();
