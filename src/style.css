@@ -568,6 +568,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   body.dark .iw .c-near .pp-near{border-color:rgba(90,180,140,.4);background:rgba(20,55,40,.5);color:#8fd9b0}
   body.dark .iw .c-near .pp-near:hover{background:rgba(30,70,50,.7)}
   body.dark .iw .peak{color:#e5c37a}
+  body.dark{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
   body.dark #map canvas{filter:var(--map-filter)}
   /* 腾讯 SDK 内部用 canvas 渲染地名/道路标签，CSS 无法直接控制文字字体，
      但可以让 canvas 元素继承字体声明以加速 SDK 字体回退 */
@@ -577,7 +578,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
 
   /* 实时状态徽标 & 路况按钮激活态 */
   /* 摘掉 backdrop-filter（小徽标 + 模糊地图 8px 收益低） */
-  .live-status{display:inline-block;margin-top:6px;font-size:11px;line-height:1.5;padding:4px 10px;border-radius:9px;border:1px solid;box-shadow:0 2px 6px rgba(0,0,0,.06), inset 0 1px 0 rgba(255,255,255,.5)}
+  .live-status{display:inline-block;margin-top:6px;font-size:12px;line-height:1.5;padding:4px 10px;border-radius:9px;border:1px solid;box-shadow:0 2px 6px rgba(0,0,0,.06), inset 0 1px 0 rgba(255,255,255,.5)}
   .live-status.ok{color:#0b5d3b;background:rgba(240,250,244,.6);border-color:rgba(207,232,219,.9)}
   .live-status.sim{color:#8a5a00;background:rgba(255,246,230,.55);border-color:rgba(245,217,168,.85)}
   body.dark .live-status.ok{color:#7fd9a8;background:rgba(20,60,40,.55);border-color:rgba(50,110,80,.6)}
@@ -602,7 +603,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   .live-info-panel .lp-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px}
   .live-info-panel .lp-item:last-of-type{margin-bottom:0}
   .live-info-panel .lp-item b{display:block;color:var(--ink);font-size:11.5px}
-  .live-info-panel .lp-item span:not(.lp-dot){display:block;color:var(--muted);font-size:11px;line-height:1.45}
+  .live-info-panel .lp-item span:not(.lp-dot){display:block;color:var(--muted);font-size:12px;line-height:1.45}
   .live-info-panel .lp-dot{width:8px;height:8px;border-radius:50%;flex:none;margin-top:4px}
   .live-info-panel .lp-dot.ok{background:var(--green)}
   .live-info-panel .lp-dot.est{background:#b58a00}
@@ -998,7 +999,7 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
     --glass-border:rgba(80,200,255,.15); --glass-hi:rgba(0,255,163,.12);
     --glass-head:rgba(15,30,48,.55); --glass-head-border:rgba(80,200,255,.14);
     --glass-shadow:rgba(0,10,20,.55);
-    --map-filter:brightness(.45) saturate(1.15) hue-rotate(170deg) contrast(1.08);
+    --map-filter:brightness(.55) saturate(1.12) hue-rotate(170deg) contrast(1.05);
     --prism:linear-gradient(135deg, rgba(0,255,163,.4) 0%, rgba(255,255,255,.3) 30%, rgba(167,139,250,.3) 55%, rgba(255,255,255,.3) 80%, rgba(232,121,249,.4) 100%);
     --src-real:#7fd9a8; --src-mock:#e8c66d;
     --src-real-bg:rgba(127,217,168,.18); --src-mock-bg:rgba(232,198,109,.18);
