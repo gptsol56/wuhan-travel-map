@@ -102,7 +102,12 @@
      打头——在内嵌浏览器上中文回退链不稳导致字体模糊，已回退。
      ss01/ss03 已移除（会改雅黑汉字字形，是「不像系统字体」的元凶）；
      tnum（等宽数字）保留。不引入任何网络字体。 */
-  html,body{margin:0;height:100%;font-family:"Microsoft YaHei","微软雅黑",system-ui,-apple-system,"Segoe UI","PingFang SC","HarmonyOS Sans SC","MiSans",sans-serif;color:var(--ink);overflow:hidden;font-feature-settings:"tnum";font-variant-numeric:tabular-nums}
+  html,body{margin:0;height:100%;font-family:"Microsoft YaHei","微软雅黑",system-ui,-apple-system,"Segoe UI","PingFang SC","HarmonyOS Sans SC","MiSans",sans-serif;color:var(--ink);overflow:hidden;font-feature-settings:"tnum";font-variant-numeric:tabular-nums;font-size:13px;line-height:1.6}
+  /* 排版微调令牌 */
+  :root{
+    --font-body:"Microsoft YaHei","微软雅黑",system-ui,-apple-system,"Segoe UI","PingFang SC","HarmonyOS Sans SC","MiSans",sans-serif;
+    --font-mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,monospace;
+  }
   /* 缩放数字、坐标、距离等数字使用等宽 */
   .zoom-level,.live-status,.heat-scale .hs-txt{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
   /* 上面已统一 html,body 字体栈，这里删掉遗留的重复声明
@@ -139,7 +144,7 @@
   /* 主玻璃面板：模糊半径从 12px 砍到 10px。
      12 → 10 在视觉上几乎无差，但高斯模糊本身是 O(像素数 × 半径)，
      侧栏整列常驻，砍 17% 半径直接等于砍 30%+ 移动端 GPU 时间。 */
-  #panel{width:320px;min-width:320px;height:100%;background:linear-gradient(180deg, rgba(255,255,255,.72) 0%, rgba(252,253,255,.6) 50%, rgba(248,250,252,.68) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-right:1px solid var(--glass-border);font-family:"Microsoft YaHei","微软雅黑",system-ui,-apple-system,"Segoe UI","PingFang SC","HarmonyOS Sans SC","MiSans",sans-serif;font-size:13px;display:flex;flex-direction:column;z-index:1200;box-shadow:0 1px 2px rgba(15,30,60,.08), 8px 0 40px rgba(15,30,60,.15), inset 1px 0 0 rgba(255,255,255,.95), inset -1px 0 0 rgba(255,255,255,.18);transition:width .28s ease,min-width .28s ease;position:relative;overflow:hidden;background-clip:padding-box}
+  #panel{width:320px;min-width:320px;height:100%;background:linear-gradient(180deg, rgba(255,255,255,.72) 0%, rgba(252,253,255,.6) 50%, rgba(248,250,252,.68) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-right:1px solid var(--glass-border);font-size:13px;display:flex;flex-direction:column;z-index:1200;box-shadow:0 1px 2px rgba(15,30,60,.08), 8px 0 40px rgba(15,30,60,.15), inset 1px 0 0 rgba(255,255,255,.95), inset -1px 0 0 rgba(255,255,255,.18);transition:width .28s ease,min-width .28s ease;position:relative;overflow:hidden;background-clip:padding-box}
 /* 水晶棱镜边框 — 右侧蓝→白→粉→紫渐变模拟光线色散（保留，这是玻璃材质的主体观感） */
 #panel::after{content:'';position:absolute;top:0;right:-1px;bottom:0;width:2px;background:linear-gradient(180deg, rgba(167,199,255,0) 0%, rgba(167,199,255,.95) 25%, rgba(255,255,255,1) 50%, rgba(255,200,225,.9) 75%, rgba(167,199,255,0) 100%);pointer-events:none}
 body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40,50,.78),rgba(30,34,42,.85));border-right-color:rgba(255,255,255,.1);box-shadow:0 1px 2px rgba(0,0,0,.3), 8px 0 40px rgba(0,0,0,.6), inset 1px 0 0 rgba(255,255,255,.12)}
@@ -147,7 +152,7 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
 .p-head::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,0));pointer-events:none;border-radius:0 0 6px 6px}
   .p-head::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg, transparent, rgba(0,0,0,.12), transparent)}
   body.dark .p-head{background:linear-gradient(180deg, rgba(45,50,60,.55), rgba(35,40,50,.32));border-bottom-color:rgba(255,255,255,.1)}
-  .p-head h1{font-size:19px;margin:0 0 3px;letter-spacing:.5px;color:var(--ink);text-shadow:0 1px 0 rgba(255,255,255,.5)}
+  .p-head h1{font-size:18px;margin:0 0 3px;font-weight:700;letter-spacing:0;color:var(--ink);text-shadow:0 1px 0 rgba(255,255,255,.5)}
   .p-head .sub{font-size:12px;color:var(--muted);line-height:1.5}
   .p-head .weather{margin-top:7px;font-size:12px;color:#0b5d3b;background:rgba(240,250,244,.55);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border:1px solid rgba(207,232,219,.85);border-radius:8px;padding:4px 8px;line-height:1.5}
   .p-head .note{margin-top:7px;font-size:11px;color:#8a5a00;background:rgba(255,246,230,.5);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border:1px solid rgba(245,217,168,.8);border-radius:7px;padding:5px 8px;line-height:1.5}
@@ -169,7 +174,10 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
   .f-toggle{flex:none;width:30px;height:30px;border-radius:9px;border:1px solid rgba(255,255,255,.7);background:rgba(255,255,255,.5);cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;color:var(--ink);transition:background .15s,border-color .15s,transform .3s var(--spring-pop)}
   .f-toggle:active{transform:scale(.92)}
   .f-toggle:hover{background:rgba(255,255,255,.8)}
-  .f-toggle.active{background:rgba(11,122,75,.85);border-color:rgba(255,255,255,.7);color:#fff}
+  /* 图标换成 SVG 线性图标（stroke 跟 currentColor），emoji 彩色且各平台渲染不一；
+     激活态从实色绿底改成 accent tint（color-mix 跟着 --accent 走，日/夜/紫晶全自动） */
+  .f-toggle svg{width:15px;height:15px}
+  .f-toggle.active{background:color-mix(in srgb,var(--accent) 15%,transparent);border-color:color-mix(in srgb,var(--accent) 38%,transparent);color:var(--accent)}
   .f-panel{padding-top:7px}
   /* 工具菜单：收纳原 .ctl 常驻工具条与图例 */
   .menu{position:absolute;top:52px;right:12px;z-index:1250;width:190px;max-height:min(82vh,640px);overflow-y:auto;padding:8px;border-radius:18px 12px 18px 12px;background:linear-gradient(180deg, rgba(255,255,255,.72), rgba(248,250,252,.65));backdrop-filter:blur(var(--glass-blur-lg)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur-lg)) saturate(1.8);border:1px solid rgba(255,255,255,.7);box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);display:flex;flex-direction:column;gap:3px}
@@ -211,8 +219,10 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
   .theme-toggle:hover{background:rgba(255,255,255,.85)}
   .theme-toggle .tt-ico{font-size:11px;line-height:1;color:var(--muted);transition:color .15s}
   .theme-toggle .tt-knob{position:absolute;top:2px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .18s ease}
-  .theme-toggle[aria-checked="false"] .tt-ico:first-child{color:#e8a11c}
-  .theme-toggle[aria-checked="true"] .tt-ico:last-child{color:#5b8def}
+  /* 活跃侧图标用主题强调色（日间绿/夜间薄荷绿/紫晶紫），跟着全局色系走，
+     不再自设橙/蓝 —— 那样和应用的 accent 体系打架 */
+  .theme-toggle[aria-checked="false"] .tt-ico:first-child,
+  .theme-toggle[aria-checked="true"] .tt-ico:last-child{color:var(--accent)}
   .theme-toggle[aria-checked="true"] .tt-knob{transform:translateX(25px)}
   body.dark .theme-toggle{background:rgba(40,46,56,.7);border-color:rgba(255,255,255,.12)}
   body.dark .theme-toggle .tt-knob{background:#e8ecf2}
@@ -229,9 +239,12 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
 .chip:active{transform:translateY(0) scale(.97);transition:transform .12s cubic-bezier(.4,0,.2,1)}
   .chip.active{background:rgba(11,122,75,.85);color:#fff;border-color:rgba(255,255,255,.7);box-shadow:0 2px 8px rgba(11,122,75,.35)}
   /* 摘掉 backdrop-filter（搜索框就一个，模糊地图收益低）；bg .5→.7 补偿 */
-  .search{width:100%;margin-top:6px;padding:6px 10px;font-size:13px;border:1px solid rgba(255,255,255,.75);border-radius:9px;outline:none;background:rgba(255,255,255,.7);color:var(--ink)}
-  .search::placeholder{color:var(--muted)}
+  .search{width:100%;margin-top:6px;padding:6px 10px 6px 30px;font-size:13px;border:1px solid rgba(255,255,255,.75);border-radius:9px;outline:none;background:rgba(255,255,255,.7);color:var(--ink)}
+  .search::placeholder{color:var(--muted);opacity:.7;font-size:12px}
   .search:focus{border-color:var(--accent)}
+  /* 搜索图标：从占位符文字里拿出来，变成输入框内嵌的独立 SVG（灰色常态、聚焦变强调色） */
+  .q-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--muted);pointer-events:none;transition:color .15s;z-index:1}
+  .q-wrap:focus-within .q-icon{color:var(--accent)}
   .list{flex:1;overflow-y:auto;padding:6px 8px}
   /* 这里原来有 will-change:transform，已删除。
      .item 只在 :hover 时做 translateX(3px) scale(1.005) 一下，触屏根本没有 hover，
@@ -260,8 +273,8 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
        · .it-src 的 margin-left:4px 叠在 .it-tags 的 gap:4px 上，实际间距 8px，
          而相邻两个 .tag 之间只有 4px。同一个容器里两种间距，是这屏最刺眼的不一致。
          margin-left 直接删掉，间距统一交给 gap。 */
-  .it-name{font-size:14px;line-height:1.35;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .it-sub{font-size:12px;line-height:1.3;color:var(--muted);margin-top:2px}
+  .it-name{font-size:14px;line-height:1.4;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .it-sub{font-size:12px;line-height:1.5;color:var(--muted);margin-top:2px}
   /* min-height:45px = 2 行 × 20px(标签实测高) + 1 个 5px 行距 —— 用浏览器量过。
      为什么需要它：标签是 flex-wrap，换行点取决于「有几个标签 + 每个多宽」，
      没有结构保证。目前 50 张卡全是 4~5 个标签，在 .it-tags 的 187px 宽度下
@@ -272,11 +285,21 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
      给个 min-height 把下限钉在 2 行，1 行内容也占满同样高度：
      现在零视觉代价（没有卡片是 1 行），但对数据变化免疫。 */
   .it-tags{display:flex;gap:5px;margin-top:5px;flex:none;flex-wrap:wrap;min-height:45px}
-  .tag{font-size:11px;line-height:1.35;padding:2px 7px;border-radius:8px;color:#fff;font-weight:600;border:1px solid rgba(255,255,255,.4);box-shadow:0 1px 3px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.4);white-space:nowrap;flex:none}
-  .t-hi{background:var(--red)} .t-mid{background:var(--orange)} .t-lo{background:var(--green)}
-  .t-res{background:#6e56cf} .t-tick{background:#4f6f8f}
+  .tag{font-size:11px;line-height:1.4;letter-spacing:.2px;padding:2px 7px;border-radius:8px;color:#fff;font-weight:600;border:1px solid rgba(255,255,255,.4);box-shadow:0 1px 3px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.4);white-space:nowrap;flex:none}
+  /* 人流/预约标签 tint 化：实色底白字改成「彩色浅底 + 彩色文字」，
+     与 .t-adv/.t-open/.it-src 那套半透明玻璃风统一 —— 一行标签一个视觉密度，
+     不再有一两块实色压在玻璃卡片上。文字色走 --adv-*（三种主题各自调过对比度）。
+     必须带 .tag 前缀：.t-hi 同时被弹窗 .tier（纯文字）和聚合列表 .cl-crowd（自带 tint）
+     复用，裸 .t-hi 的实色底会一并染过去。 */
+  .tag.t-hi{background:rgba(229,72,77,.16);color:var(--adv-hi);border-color:rgba(255,255,255,.3)}
+  .tag.t-mid{background:rgba(245,165,36,.18);color:var(--adv-mid);border-color:rgba(255,255,255,.3)}
+  .tag.t-lo{background:rgba(48,164,108,.16);color:var(--adv-lo);border-color:rgba(255,255,255,.3)}
+  .tag.t-res{background:rgba(109,87,207,.15);color:#5746b0;border-color:rgba(255,255,255,.3)}
+  .tag.t-tick{background:rgba(79,111,143,.16);color:#3d5a77;border-color:rgba(255,255,255,.3)}
+  body.dark .tag.t-res{background:rgba(139,116,255,.22);color:#b3a4ff}
+  body.dark .tag.t-tick{background:rgba(122,158,196,.2);color:#a9c6e0}
   .it-src{
-    font-size:11px; line-height:1.35;
+    font-size:11px; line-height:1.4;letter-spacing:.2px;
     padding:2px 7px;
     border-radius:8px;
     font-weight:500;
@@ -374,7 +397,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   .zoom-indicator .zoom-btn:active{transform:scale(.88)}
   .zoom-indicator .zoom-btn:first-child{border-radius:14px 14px 0 0}
   .zoom-indicator .zoom-btn:last-child{border-radius:0 0 14px 14px}
-  .zoom-level{min-width:34px;padding:4px 0;text-align:center;font-weight:700;font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums;user-select:none;border-top:1px solid rgba(0,0,0,.08);border-bottom:1px solid rgba(0,0,0,.08)}
+  .zoom-level{min-width:34px;padding:4px 0;text-align:center;font-weight:700;font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums;font-family:var(--font-mono);font-size:12px;user-select:none;border-top:1px solid rgba(0,0,0,.08);border-bottom:1px solid rgba(0,0,0,.08)}
   .zoom-help{width:44px;height:44px;border-radius:50%;font-size:18px;border:1px solid rgba(0,0,0,.1);background:rgba(255,255,255,.82);backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);color:var(--accent);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--glass-hi),0 4px 16px rgba(0,0,0,.12);transition:background .15s ease,transform .2s var(--spring-pop)}
   .zoom-help:hover{background:rgba(11,122,75,.08);transform:scale(1.08)}
   .zoom-help:active{transform:scale(.9)}
@@ -417,7 +440,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   .pp-close:hover{background:#e5484d;color:#fff;border-color:#e5484d}
   body.dark .pp-close{background:rgba(40,45,56,.6);border-color:rgba(255,255,255,.18);color:var(--muted)}
   body.dark .pp-close:hover{background:#e5484d;color:#fff;border-color:#e5484d}
-  .iw .c-title{font-size:16px;font-weight:700;display:flex;align-items:center;gap:7px;line-height:1.4;overflow-wrap:break-word;word-break:break-word;white-space:normal;color:var(--ink);text-shadow:0 1px 0 rgba(255,255,255,.6);padding-right:22px}
+  .iw .c-title{font-size:15px;font-weight:700;letter-spacing:-0.01em;display:flex;align-items:center;gap:7px;line-height:1.4;overflow-wrap:break-word;word-break:break-word;white-space:normal;color:var(--ink);text-shadow:0 1px 0 rgba(255,255,255,.6);padding-right:22px}
   .iw .c-cat{font-size:11px;color:var(--muted);margin:2px 0 8px}
   .iw .c-row{display:flex;font-size:12.5px;margin:4px 0;line-height:1.5;overflow-wrap:break-word;word-break:break-word;white-space:normal;color:var(--ink)}
   .iw .c-row b{flex:none;width:46px;color:var(--muted);font-weight:500}
@@ -521,7 +544,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   body.dark .chip{background:linear-gradient(rgba(40,45,56,.6),rgba(40,45,56,.6)) padding-box, var(--prism) border-box;border-color:var(--glass-border);color:var(--ink);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
   body.dark .chip.active{background:rgba(52,211,153,.85);color:#06281a;border-color:rgba(255,255,255,.25)}
   body.dark .search{background:rgba(40,45,56,.6);border-color:var(--glass-border);color:var(--ink)}
-  body.dark .search::placeholder{color:var(--muted)}
+  body.dark .search::placeholder{color:var(--muted);opacity:.7;font-size:12px}
   body.dark .item:hover{background:rgba(45,50,62,.5);border-color:var(--glass-border)}
   body.dark .item.sel{background:rgba(30,60,48,.55);border-color:rgba(52,211,153,.35)}
   body.dark .it-emoji{background:rgba(40,45,56,.6);border-color:var(--glass-border);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
@@ -713,7 +736,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   .route-panel.folding .rp-body::after{animation-play-state:paused}
   .pp-inner::after{content:'';position:absolute;top:0;bottom:0;left:0;width:56px;background:linear-gradient(100deg,transparent,rgba(255,255,255,.14),transparent);transform:skewX(-18deg) translateX(-80px);animation:sheenSweep 7s linear 1.2s infinite;pointer-events:none}
   @keyframes sheenSweep{0%,42%{transform:skewX(-18deg) translateX(-90px)}68%,100%{transform:skewX(-18deg) translateX(340px)}}
-  .route-panel .rp-title{font-weight:700;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+  .route-panel .rp-title{font-weight:700;letter-spacing:-0.01em;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
   /* 折叠键尺寸必须跟同排控件对齐：.rp-mode 实测 28px、查询路线/清除 31px，
    这里原来只有 22×22、圆角 6px、字号 11px —— 一个 11px 的 ▾ 挤在 22px 白框里，
    渲染出来就是标题栏右边一个看不出是什么的白点（用户报的「尺寸没有调好」）。
@@ -774,7 +797,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   .help-table td{padding:7px 10px;border-bottom:1px solid rgba(0,0,0,.06)}
   body.dark .help-table td{border-bottom-color:rgba(255,255,255,.08)}
   .help-table tr:last-child td{border-bottom:none}
-  .help-table kbd{display:inline-block;min-width:60px;padding:3px 9px;border-radius:6px;background:linear-gradient(180deg, rgba(255,255,255,.7),rgba(255,255,255,.45));border:1px solid rgba(0,0,0,.18);box-shadow:0 1px 0 rgba(255,255,255,.9), inset 0 -1px 0 rgba(0,0,0,.08);font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11px;color:#1a1f2e;text-align:center;font-weight:600}
+  .help-table kbd{display:inline-block;min-width:60px;padding:3px 9px;border-radius:6px;background:linear-gradient(180deg, rgba(255,255,255,.7),rgba(255,255,255,.45));border:1px solid rgba(0,0,0,.18);box-shadow:0 1px 0 rgba(255,255,255,.9), inset 0 -1px 0 rgba(0,0,0,.08);font-family:var(--font-mono);font-size:11px;color:#1a1f2e;text-align:center;font-weight:600}
   body.dark .help-table kbd{background:linear-gradient(180deg, rgba(60,65,75,.7),rgba(40,45,55,.45));border-color:rgba(255,255,255,.18);color:#fff;box-shadow:inset 0 -1px 0 rgba(0,0,0,.5)}
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
   @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
@@ -901,6 +924,9 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
     /* 深色下的悬停反馈：浅色下是「底色变白」，夜间得压到 .14~.16，否则是一块白斑 */
   body.dark :where(.rp-mode,.b-chip):hover{background:rgba(255,255,255,.14)}
   body.dark :where(.zoom-btn,.zoom-help,.pp-close):hover{background:rgba(255,255,255,.16)}
+  /* SVG 图标跟 currentColor：夜间的 --ink 是浅色，白玻璃底会看不清，
+     底子换成和 .mi-btn 同款深色玻璃 */
+  body.dark .f-toggle{background:rgba(40,46,56,.7);border-color:var(--glass-border)}
   body.dark .f-toggle:hover{background:rgba(255,255,255,.14)}
   body.dark .mi-btn:hover{background:rgba(255,255,255,.16)}
   body.dark .route-panel .rp-title button:hover{background:rgba(255,255,255,.14)}

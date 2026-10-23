@@ -104,16 +104,15 @@ describe('字体栈：雅黑打头（Windows 中文渲染稳定）', () => {
     expect(matches.length, 'html,body{} 出现多次，后面的会覆盖前面的字体特性').toBe(1);
   });
 
-  it('#panel 字体栈与全局一致（雅黑打头）', () => {
+  it('#panel 不覆写字体（继承 html,body 的雅黑栈，减少漂移源）', () => {
     const m = CODE.match(/(^|})\s*#panel\s*\{([^}]*)\}/);
     expect(m, '找不到 #panel{} 规则').toBeTruthy();
-    expect(m[2]).toMatch(/font-family\s*:\s*"Microsoft YaHei"/);
-    expect(m[2]).toMatch(/Microsoft YaHei/);
+    expect(m[2], '#panel 不应自带 font-family（继承 body）').not.toMatch(/font-family/);
   });
 
   it('.help-table kbd 仍然是等宽字体（不能被全局字体覆盖成微软雅黑）', () => {
     const m = CODE.match(/(^|})\s*\.help-table kbd\s*\{([^}]*)\}/);
     expect(m).toBeTruthy();
-    expect(m[2]).toMatch(/ui-monospace|SFMono-Regular|Consolas|monospace/);
+    expect(m[2], 'kbd 应引用 --font-mono 令牌或直接写等宽栈').toMatch(/var\(--font-mono\)|ui-monospace|monospace/);
   });
 });
