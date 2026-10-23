@@ -1048,6 +1048,20 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
     border-color:rgba(0,255,163,.4);
   }
   body.dark.aurora :focus-visible{outline-color:#22d3ee}
+
+  /* 极光文字排版修正：深底上的可读性优化 */
+  body.dark.aurora .it-name{letter-spacing:0;   /* 深底去字距（浅底加的 .01em 在深底挤） */}
+  body.dark.aurora .p-head h1{font-weight:700;  /* 深底标题回到 700（晨曦降到 600 是暖色系的柔和，深底需要更重） */}
+  body.dark.aurora .it-sub{letter-spacing:0}    /* 副标题同理 */
+  body.dark.aurora .tag{letter-spacing:0}       /* 标签去字距 */
+  body.dark.aurora .chip{letter-spacing:0}       /* 筛选胶囊 */
+  body.dark.aurora .search{font-size:13px}       /* 搜索框回到标准 */
+  body.dark.aurora .menu-item{font-size:13px}    /* 菜单标准 */
+  /* 极光下侧栏面板底色统一 */
+  body.dark.aurora #panel{background:rgba(15,30,48,.72)}
+  body.dark.aurora .p-head{background:rgba(15,30,48,.5);border-bottom-color:rgba(80,200,255,.12)}
+  body.dark.aurora .filters{background:rgba(15,30,48,.4);border-bottom-color:rgba(80,200,255,.1)}
+
   body.dark.aurora .item-add{border-color:rgba(34,211,238,.4);background:rgba(34,211,238,.1);color:#22d3ee}
   body.dark.aurora .item-add:hover,body.dark.aurora .item-add.added{background:#22d3ee;color:#062030}
   body.dark.aurora #btnRoute:hover,body.dark.aurora #btnRoute.active{background:rgba(34,211,238,.82);color:#062030}
