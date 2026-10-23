@@ -998,7 +998,7 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
     --glass-border:rgba(80,200,255,.15); --glass-hi:rgba(0,255,163,.12);
     --glass-head:rgba(15,30,48,.55); --glass-head-border:rgba(80,200,255,.14);
     --glass-shadow:rgba(0,10,20,.55);
-    --map-filter:brightness(.65) saturate(1.1) hue-rotate(170deg);
+    --map-filter:brightness(.45) saturate(1.15) hue-rotate(170deg) contrast(1.08);
     --prism:linear-gradient(135deg, rgba(0,255,163,.4) 0%, rgba(255,255,255,.3) 30%, rgba(167,139,250,.3) 55%, rgba(255,255,255,.3) 80%, rgba(232,121,249,.4) 100%);
     --src-real:#7fd9a8; --src-mock:#e8c66d;
     --src-real-bg:rgba(127,217,168,.18); --src-mock-bg:rgba(232,198,109,.18);
