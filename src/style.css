@@ -93,7 +93,7 @@
   .item:focus-visible, .chip:focus-visible { outline: 2px solid var(--accent,#e5484d); outline-offset: 2px; }
   .rp-card:focus-visible { outline: 2px solid var(--accent,#e5484d); outline-offset: 2px; }
   .b-chip:focus-visible { outline: 2px solid var(--accent,#e5484d); outline-offset: 2px; }
-  *{box-sizing:border-box;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+  *{box-sizing:border-box}
   /* 视觉隐藏但保留给读屏 —— 这个类之前压根没定义，
      于是路线对话框里两个 <label class="sr-only">出发点 / 到达点</label>
      当成普通文字直接显示出来，在 .rp-row(flex) 里各占 ~45px：
@@ -542,7 +542,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
      这里曾是 rgba(18,21,26,.66) 的近黑异色 —— 侧栏与路线面板并排时色差刺眼。 */
   body.dark #panel{background:rgba(30,35,45,.72)}
   body.dark .p-head{background:var(--glass-head);border-bottom:1px solid var(--glass-head-border)}
-  body.dark .p-head h1{text-shadow:0 1px 0 rgba(0,0,0,.4)}
+  body.dark .p-head h1{text-shadow:none}
   body.dark .p-head .weather{background:rgba(20,60,40,.5);border-color:rgba(50,110,80,.6);color:#7fd9a8}
   body.dark .p-head .note{background:rgba(60,45,10,.5);border-color:rgba(120,95,30,.6);color:#e5c37a}
   body.dark .filters{background:rgba(30,35,45,.45);border-bottom:1px solid var(--glass-head-border)}
@@ -564,7 +564,6 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   body.dark .iw .c-near .pp-near{border-color:rgba(90,180,140,.4);background:rgba(20,55,40,.5);color:#8fd9b0}
   body.dark .iw .c-near .pp-near:hover{background:rgba(30,70,50,.7)}
   body.dark .iw .peak{color:#e5c37a}
-  body.dark{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
   body.dark #map canvas{filter:var(--map-filter)}
   /* 腾讯 SDK 内部用 canvas 渲染地名/道路标签，CSS 无法直接控制文字字体，
      但可以让 canvas 元素继承字体声明以加速 SDK 字体回退 */
