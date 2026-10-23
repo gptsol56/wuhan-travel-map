@@ -990,7 +990,7 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
      北极光在极夜天幕上流动：绿→青→紫→品红
      复用 body.dark 的 133 条表面覆盖，只刷色相 */
   body.aurora{
-    --ink:#e0f0f0; --muted:#7a9a9a; --line:#1e3040; --bg:#0b1628; --accent:#22d3ee;
+    --ink:#e0f0f0; --muted:#8fb5b2; --line:#1e3040; --bg:#0b1628; --accent:#22d3ee;
     --adv-hi:#ff8a8d; --adv-mid:#ffbf67; --adv-lo:#7fd9a8;
     --res-text:#a0d8d0; --tick-text:#8ab8b0;
     --res-bg:rgba(34,211,238,.18); --tick-bg:rgba(100,180,170,.18);
@@ -1121,6 +1121,22 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
   body.dark.aurora .list mark,body.dark.aurora .q-item mark{color:#22d3ee}
   body.dark.aurora .rp-wp-chip .idx{color:#22d3ee}
   body.dark.aurora .chip.active{box-shadow:0 2px 8px rgba(34,211,238,.3)}
+
+
+  /* 极光紧急修复：主题按钮黑字 + 溢出 */
+  body.dark.aurora .theme-toggle{color:#22d3ee !important;background:rgba(34,211,238,.15) !important}
+  body.dark.aurora .theme-toggle:hover{background:rgba(34,211,238,.25) !important}
+  /* 极光下所有按钮文字统一 */
+  body.dark.aurora button{color:#e0f0f0}
+  body.dark.aurora button.active{color:#062030}
+  body.dark.aurora .chip{color:#e0f0f0}
+  body.dark.aurora .chip.active{color:#062030}
+  body.dark.aurora .menu-item{color:#e0f0f0}
+  body.dark.aurora .menu-item.active{color:#062030}
+  /* 溢出修复 */
+  body.dark.aurora .theme-toggle{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;padding:2px 6px;max-width:72px}
+  body.dark.aurora .it-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  body.dark.aurora .it-sub{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{transition-duration:.01ms !important;animation-duration:.01ms !important;animation-iteration-count:1 !important;scroll-behavior:auto !important}
