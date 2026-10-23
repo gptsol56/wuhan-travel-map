@@ -151,7 +151,7 @@
 /* 水晶棱镜边框 — 右侧蓝→白→粉→紫渐变模拟光线色散（保留，这是玻璃材质的主体观感） */
 #panel::after{content:'';position:absolute;top:0;right:-1px;bottom:0;width:2px;background:linear-gradient(180deg, rgba(167,199,255,0) 0%, rgba(167,199,255,.95) 25%, rgba(255,255,255,1) 50%, rgba(255,200,225,.9) 75%, rgba(167,199,255,0) 100%);pointer-events:none}
 body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40,50,.78),rgba(30,34,42,.85));border-right-color:rgba(255,255,255,.1);box-shadow:0 1px 2px rgba(0,0,0,.3), 8px 0 40px rgba(0,0,0,.6), inset 1px 0 0 rgba(255,255,255,.12)}
-  .p-head{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.55);background:linear-gradient(180deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.4) 60%, rgba(245,247,250,.45) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(200%) brightness(1.04);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(200%) brightness(1.04);position:relative}
+  .p-head{padding:13px 10px;border-bottom:1px solid rgba(255,255,255,.55);background:linear-gradient(180deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.4) 60%, rgba(245,247,250,.45) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(200%) brightness(1.04);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(200%) brightness(1.04);position:relative}
 .p-head::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,0));pointer-events:none;border-radius:0 0 6px 6px}
   .p-head::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg, transparent, rgba(0,0,0,.12), transparent)}
   body.dark .p-head{background:linear-gradient(180deg, rgba(45,50,60,.55), rgba(35,40,50,.32));border-bottom-color:rgba(255,255,255,.1)}
@@ -248,7 +248,7 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
   /* 搜索图标：从占位符文字里拿出来，变成输入框内嵌的独立 SVG（灰色常态、聚焦变强调色） */
   .q-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--muted);pointer-events:none;transition:color .15s;z-index:1}
   .q-wrap:focus-within .q-icon{color:var(--accent)}
-  .list{flex:1;overflow-y:auto;padding:6px 8px}
+  .list{flex:1;overflow-y:auto;padding:6px 10px}
   /* 这里原来有 will-change:transform，已删除。
      .item 只在 :hover 时做 translateX(3px) scale(1.005) 一下，触屏根本没有 hover，
      根本不需要常驻合成层；但列表一次就是 50 行 ×50 个图层，

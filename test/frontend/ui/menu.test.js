@@ -62,7 +62,7 @@ describe('☰ 工具菜单（原 .ctl 工具条收纳而来）', () => {
 
   it('原工具条的按钮都收进了菜单里（日夜开关除外：它是顶栏小开关）', () => {
     const ids = ['btnRoute', 'btn-measure', 'btn-north', 'reset', 'btn-vec', 'btn-sat',
-      'btn-traffic', 'btn-crowd-color', 'btn-violet', 'btn-pitch'];
+      'btn-traffic', 'btn-crowd-color', 'btn-violet'];
     for (const id of ids) {
       expect(ui.menu.querySelector('#' + id), `#${id} 应在 #menu 内`).toBeTruthy();
     }

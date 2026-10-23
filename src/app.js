@@ -90,11 +90,7 @@ function startApp(){
 var mapInst = new TMap.Map('map', {
   center: new TMap.LatLng(30.56, 114.31),
   zoom: 11,
-  viewMode: '3D',
-  pitch: 0,
   maxZoom: 18,
-  rotatable: true,
-  pitchable: true
 });
 // 暴露到 window 供 SDK / 全局访问
 window.__tmapMap = mapInst;
@@ -1416,7 +1412,6 @@ document.getElementById('reset').onclick = function(){
   window.__tmapMap.setCenter(new TMap.LatLng(30.56, 114.31));
   window.__tmapMap.setZoom(11);
   window.__tmapMap.setRotation(0);              // 复位旋转
-  setPitchToggle(false);           // 复位 3D 俯仰并同步「🕋 平面/3D」按钮态
   northBtn.textContent = getNorthText(0);   // 指南针文字刷回「北」
   closePopup();
   // 复位视图同时清空已画出的路线与行程，避免图上仍残留线条
@@ -2018,17 +2013,6 @@ window.__tmapMap.on('resize', function(){
   scheduleRenderPins();       // 视口尺寸变了，屏外剔除和去重叠都要按新尺寸重算
 });
 
-/* ================== 3D 俯仰视角切换 ================== */
-var pitchBtn = document.getElementById('btn-pitch');
-var pitchOn = false;
-function setPitchToggle(on){
-  pitchOn = on;
-  window.__tmapMap.setPitch(on ? 55 : 0);
-  pitchBtn.classList.toggle('active', on);
-  pitchBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-  pitchBtn.textContent = on ? '🕋 平面' : '🕋 3D';
-}
-pitchBtn.onclick = function(){ setPitchToggle(!pitchOn); };
 
 /* ================== 弹窗「到这去」：一键把景点设为路线终点 ================== */
 function navTo(s){
