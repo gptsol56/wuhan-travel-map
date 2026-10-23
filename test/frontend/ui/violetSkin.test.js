@@ -72,14 +72,14 @@ const vbtn = document.getElementById('btn-violet');
 bindThemeButtons();
 
 describe('主题：顶栏日/夜小开关 与 菜单紫晶 是两个独立开关', () => {
-  beforeEach(() => applyTheme('light'));
+  beforeEach(() => applyTheme('dawn'));
 
   it('三态顺序固定', () => {
-    expect([...mod.THEME_ORDER]).toEqual(['light', 'dark', 'violet']);
+    expect([...mod.THEME_ORDER]).toEqual(['dawn', 'dark', 'violet']);
   });
 
   it('日间：两个类都不挂，小开关 aria-checked=false', () => {
-    applyTheme('light');
+    applyTheme('dawn');
     expect(document.body.classList.contains('dark')).toBe(false);
     expect(document.body.classList.contains('violet')).toBe(false);
     expect(sw.getAttribute('aria-checked')).toBe('false');
@@ -104,14 +104,14 @@ describe('主题：顶栏日/夜小开关 与 菜单紫晶 是两个独立开关
   });
 
   it('紫晶按钮文案指向「点下去会去哪」', () => {
-    applyTheme('light');  expect(vbtn.textContent).toBe('💜 紫晶');
+    applyTheme('dawn');  expect(vbtn.textContent).toBe('💜 紫晶');
     applyTheme('dark');   expect(vbtn.textContent).toBe('💜 紫晶');
     applyTheme('violet'); expect(vbtn.textContent).toBe('🌙 夜间');
   });
 
   it('点小开关是日↔夜两态开关（d 快捷键的老行为不变）', () => {
     sw.onclick(); expect(curTheme()).toBe('dark');
-    sw.onclick(); expect(curTheme()).toBe('light');
+    sw.onclick(); expect(curTheme()).toBe('dawn');
     sw.onclick(); expect(curTheme()).toBe('dark');
   });
 
@@ -135,7 +135,7 @@ describe('主题：顶栏日/夜小开关 与 菜单紫晶 是两个独立开关
   it('在夜间点小开关会直接回日间，不会停在中间态', () => {
     applyTheme('dark');
     sw.onclick();
-    expect(curTheme()).toBe('light');
+    expect(curTheme()).toBe('dawn');
     expect(document.body.classList.contains('dark')).toBe(false);
   });
 
@@ -144,7 +144,7 @@ describe('主题：顶栏日/夜小开关 与 菜单紫晶 是两个独立开关
   it('紫晶里点小开关直接回日间，不留「紫晶挂浅色底」的中间态', () => {
     applyTheme('violet');
     sw.onclick();
-    expect(curTheme()).toBe('light');
+    expect(curTheme()).toBe('dawn');
     expect(document.body.classList.contains('violet')).toBe(false);
     expect(document.body.classList.contains('dark')).toBe(false);
     expect(sw.getAttribute('aria-checked')).toBe('false');
@@ -152,13 +152,13 @@ describe('主题：顶栏日/夜小开关 与 菜单紫晶 是两个独立开关
 
   it('非法输入回落到日间，不留下半开状态', () => {
     applyTheme('nope');
-    expect(curTheme()).toBe('light');
+    expect(curTheme()).toBe('dawn');
     expect(document.body.classList.contains('dark')).toBe(false);
     expect(document.body.classList.contains('violet')).toBe(false);
   });
 
   it('aria 状态如实反映各自开关', () => {
-    applyTheme('light');
+    applyTheme('dawn');
     expect(sw.getAttribute('aria-checked')).toBe('false');
     expect(vbtn.getAttribute('aria-pressed')).toBe('false');
     applyTheme('dark');
@@ -172,7 +172,7 @@ describe('主题：顶栏日/夜小开关 与 菜单紫晶 是两个独立开关
   });
 
   it('两个开关都带 title / aria-label，告诉用户点下去会去哪', () => {
-    ['light', 'dark', 'violet'].forEach((t) => {
+    ['dawn', 'dark', 'violet'].forEach((t) => {
       applyTheme(t);
       expect(sw.title, `${t} 下日夜开关缺 title`).toBeTruthy();
       expect(vbtn.title, `${t} 下紫晶开关缺 title`).toBeTruthy();
@@ -188,7 +188,7 @@ describe('主题：顶栏日/夜小开关 与 菜单紫晶 是两个独立开关
 
   it('刷新后仍回到日间，不持久化主题', () => {
     expect(APP).not.toMatch(/applyTheme\(false\)/);
-    expect(APP).toContain("applyTheme('light')");
+    expect(APP).toContain("applyTheme('dawn')");
     const save = APP.slice(APP.indexOf('function savePrefs'), APP.indexOf('function applyChipActive'));
     expect(save).not.toMatch(/\bviolet\b|\bdark\b/);
   });

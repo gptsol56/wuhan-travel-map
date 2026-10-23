@@ -1,15 +1,16 @@
 ﻿:root{
-    --red:#e5484d; --orange:#c2410c; --green:#30a46c;   /* 中档橙加深：白字在 #c2410c 上对比 ~5:1，浅/深色皆可读 */
-    --adv-hi:#c03539; --adv-mid:#9a6a00; --adv-lo:#1f7a4d;   /* 浅色下人流建议文字色（足对比度） */
-    --res-text:#5b3bbf; --tick-text:#33566f;   /* 预约/购票角标文字色（浅色） */
-    --res-bg:rgba(110,86,207,.18); --tick-bg:rgba(79,111,143,.18);
-    --ink:#1a1d21; --muted:#667; --line:#e6e8ec; --bg:#f7f8fa; --accent:#0b7a4b;
+    /* 江畔晨曦 · 暖色系（替换原冷灰绿调） */
+    --red:#d4574e; --orange:#c47a3d; --green:#7a9e7e;   /* 降饱和暖化 */
+    --adv-hi:#c04a42; --adv-mid:#9a7030; --adv-lo:#5a8a5e;
+    --res-text:#7a5a30; --tick-text:#5a6e50;   /* 暖棕角标 */
+    --res-bg:rgba(180,140,80,.18); --tick-bg:rgba(100,130,100,.18);
+    --ink:#3d3529; --muted:#8a7e6e; --line:#e8e0d5; --bg:#faf6f0; --accent:#e07856;   /* 珊瑚橙 */
     /* 液态玻璃基色（浅色） */
-    --glass:#f7f8fa; --glass-soft:rgba(255,255,255,.5); --glass-strong:rgba(255,255,255,.75);
-    --glass-border:rgba(255,255,255,.65); --glass-hi:rgba(255,255,255,.85);
-    --glass-head:rgba(255,255,255,.38); --glass-head-border:rgba(255,255,255,.6);
+    --glass:#faf6f0; --glass-soft:rgba(255,250,244,.5); --glass-strong:rgba(255,252,248,.75);
+    --glass-border:rgba(255,248,240,.7); --glass-hi:rgba(255,248,240,.85);
+    --glass-head:rgba(255,250,244,.38); --glass-head-border:rgba(255,248,240,.6);
     --glass-shadow:rgba(0,0,0,.2);
-    --map-filter:none;
+    --map-filter:saturate(1.05) brightness(1.02) sepia(.06) contrast(.98);   /* 晨曦暖化 */
     --src-real: #30a46c;
     --src-mock: #b58a00;
     --src-real-bg: rgba(48,164,108,.14);
@@ -23,16 +24,16 @@
     --ios-track:140ms;                              /* 跟手 */
     --ios-settle:520ms;                             /* 回弹 */
     /* 液态玻璃多层阴影令牌 */
-    --glass-hi:inset 0 1px 0 rgba(255,255,255,0.40);                        /* 顶缘 1px 高光 */
-    --glass-deep:inset 0 -20px 40px rgba(0,0,0,0.12);                      /* 底部内阴影（深度感） */
-    --glass-drop:0 20px 60px rgba(0,0,0,0.18);                             /* 大投影 */
+    --glass-hi:inset 0 1px 0 rgba(255,225,190,0.50);                       /* 金色顶缘高光（晨光感） */
+    --glass-deep:inset 0 -20px 40px rgba(160,120,80,0.10);                /* 暖棕内阴影 */
+    --glass-drop:0 20px 60px rgba(180,140,100,0.16);                      /* 暖棕投影 */
     /* 玻璃模糊令牌：原 17 处字面值统一于此（移动端在 820px 断点统一降档） */
     --glass-blur:12px; --glass-blur-md:12px; --glass-blur-lg:14px;
     /* iOS 光效参数：透色靠 saturate(220-240%) + brightness(1.06-1.10)，不靠 blur 堆 */
     --glass-sat:230%; --glass-bri:1.07;
     /* 棱镜描边（双背景 border-box 技法；mask-composite 已全量移除 ——
        那套 mask 在部分浏览器退化成整块渐变盖住控件，即「边缘黑块/残缺」的来源） */
-    --prism:linear-gradient(135deg, rgba(167,199,255,.75) 0%, rgba(255,255,255,.95) 30%, rgba(255,200,225,.65) 55%, rgba(255,255,255,.95) 80%, rgba(186,165,255,.75) 100%);
+    --prism:linear-gradient(135deg, rgba(255,215,150,.7) 0%, rgba(255,255,255,.92) 30%, rgba(255,185,165,.5) 55%, rgba(255,255,255,.92) 80%, rgba(255,200,170,.7) 100%);   /* 金→珊瑚 */
   }
   body.dark{
     --ink:#e8eaed; --muted:#9aa0a6; --line:#3a4048; --bg:#12151a; --accent:#34d399;
@@ -125,7 +126,7 @@
          2) backdrop-filter 采样固定背景时取的是旧偏移，滚动中会出现拖影/重影；
          3) 每次滚动都要重绘整页背景，移动端直接掉帧。
        body 的盒子本来就等于视口，去掉 fixed 后静止时画面一模一样。 */
-    background:linear-gradient(135deg, #f5f7fa 0%, #e8edf5 50%, #f0e8f5 100%), conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(110,168,255,.20) 30deg, transparent 90deg, rgba(186,153,255,.18) 150deg, transparent 210deg, rgba(255,180,210,.16) 270deg, transparent 330deg);
+    background:linear-gradient(135deg, #fdf8f0 0%, #faf0e8 40%, #f5ece4 100%), conic-gradient(from 180deg at 30% 20%, transparent 0deg, rgba(255,200,150,.18) 40deg, transparent 90deg, rgba(255,180,200,.12) 150deg, transparent 210deg, rgba(122,158,126,.08) 270deg, transparent 330deg);   /* 晨光从左上 */
   }
   body.dark{
     background:linear-gradient(135deg, #0f131a 0%, #161b25 50%, #1a1e28 100%), conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(110,168,255,.16) 30deg, transparent 90deg, rgba(186,153,255,.12) 150deg, transparent 210deg, rgba(255,180,210,.10) 270deg, transparent 330deg);
@@ -146,7 +147,7 @@
   /* 主玻璃面板：模糊半径从 12px 砍到 10px。
      12 → 10 在视觉上几乎无差，但高斯模糊本身是 O(像素数 × 半径)，
      侧栏整列常驻，砍 17% 半径直接等于砍 30%+ 移动端 GPU 时间。 */
-  #panel{width:320px;min-width:320px;height:100%;background:linear-gradient(180deg, rgba(255,255,255,.72) 0%, rgba(252,253,255,.6) 50%, rgba(248,250,252,.68) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-right:1px solid var(--glass-border);font-size:13px;display:flex;flex-direction:column;z-index:1200;box-shadow:0 1px 2px rgba(15,30,60,.08), 8px 0 40px rgba(15,30,60,.15), inset 1px 0 0 rgba(255,255,255,.95), inset -1px 0 0 rgba(255,255,255,.18);transition:width .28s ease,min-width .28s ease;position:relative;overflow:hidden;background-clip:padding-box}
+  #panel{width:320px;min-width:320px;height:100%;background:linear-gradient(180deg, rgba(255,250,244,.72) 0%, rgba(252,248,242,.6) 50%, rgba(248,244,240,.68) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-right:1px solid var(--glass-border);font-size:13px;display:flex;flex-direction:column;z-index:1200;box-shadow:0 1px 2px rgba(15,30,60,.08), 8px 0 40px rgba(15,30,60,.15), inset 1px 0 0 rgba(255,255,255,.95), inset -1px 0 0 rgba(255,255,255,.18);transition:width .28s ease,min-width .28s ease;position:relative;overflow:hidden;background-clip:padding-box}
 /* 水晶棱镜边框 — 右侧蓝→白→粉→紫渐变模拟光线色散（保留，这是玻璃材质的主体观感） */
 #panel::after{content:'';position:absolute;top:0;right:-1px;bottom:0;width:2px;background:linear-gradient(180deg, rgba(167,199,255,0) 0%, rgba(167,199,255,.95) 25%, rgba(255,255,255,1) 50%, rgba(255,200,225,.9) 75%, rgba(167,199,255,0) 100%);pointer-events:none}
 body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40,50,.78),rgba(30,34,42,.85));border-right-color:rgba(255,255,255,.1);box-shadow:0 1px 2px rgba(0,0,0,.3), 8px 0 40px rgba(0,0,0,.6), inset 1px 0 0 rgba(255,255,255,.12)}
@@ -154,7 +155,7 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
 .p-head::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,0));pointer-events:none;border-radius:0 0 6px 6px}
   .p-head::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg, transparent, rgba(0,0,0,.12), transparent)}
   body.dark .p-head{background:linear-gradient(180deg, rgba(45,50,60,.55), rgba(35,40,50,.32));border-bottom-color:rgba(255,255,255,.1)}
-  .p-head h1{font-size:18px;margin:0 0 3px;font-weight:700;letter-spacing:0;color:var(--ink);text-shadow:0 1px 0 rgba(255,255,255,.5)}
+  .p-head h1{font-size:18px;margin:0 0 3px;font-weight:600;letter-spacing:.01em;color:var(--ink);text-shadow:0 1px 0 rgba(255,255,255,.5)}
   .p-head .sub{font-size:12px;color:var(--muted);line-height:1.5}
   .p-head .weather{margin-top:7px;font-size:12px;color:#0b5d3b;background:rgba(240,250,244,.55);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border:1px solid rgba(207,232,219,.85);border-radius:8px;padding:4px 8px;line-height:1.5}
   .p-head .note{margin-top:7px;font-size:11px;color:#8a5a00;background:rgba(255,246,230,.5);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border:1px solid rgba(245,217,168,.8);border-radius:7px;padding:5px 8px;line-height:1.5}
@@ -182,7 +183,7 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
   .f-toggle.active{background:color-mix(in srgb,var(--accent) 15%,transparent);border-color:color-mix(in srgb,var(--accent) 38%,transparent);color:var(--accent)}
   .f-panel{padding-top:7px}
   /* 工具菜单：收纳原 .ctl 常驻工具条与图例 */
-  .menu{position:absolute;top:52px;right:12px;z-index:1250;width:190px;max-height:min(82vh,640px);overflow-y:auto;padding:8px;border-radius:18px 12px 18px 12px;background:linear-gradient(180deg, rgba(255,255,255,.72), rgba(248,250,252,.65));backdrop-filter:blur(var(--glass-blur-lg)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur-lg)) saturate(1.8);border:1px solid rgba(255,255,255,.7);box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);display:flex;flex-direction:column;gap:3px}
+  .menu{position:absolute;top:52px;right:12px;z-index:1250;width:190px;max-height:min(82vh,640px);overflow-y:auto;padding:8px;border-radius:18px 12px 18px 12px;background:linear-gradient(180deg, rgba(255,250,244,.72), rgba(248,244,240,.65));backdrop-filter:blur(var(--glass-blur-lg)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur-lg)) saturate(1.8);border:1px solid rgba(255,255,255,.7);box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);display:flex;flex-direction:column;gap:3px}
   .menu::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,.04) 28%,transparent 55%,rgba(255,255,255,.06) 100%)}
   .menu[hidden]{display:none}
   /* .menu-item 自带 display:flex，会盖掉 hidden 属性的 UA 样式 —— 显式守卫（安装按钮默认隐藏用） */
@@ -280,7 +281,7 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
        · .it-src 的 margin-left:4px 叠在 .it-tags 的 gap:4px 上，实际间距 8px，
          而相邻两个 .tag 之间只有 4px。同一个容器里两种间距，是这屏最刺眼的不一致。
          margin-left 直接删掉，间距统一交给 gap。 */
-  .it-name{font-size:14px;line-height:1.4;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .it-name{font-size:14px;line-height:1.4;font-weight:650;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .it-sub{font-size:12px;line-height:1.5;color:var(--muted);margin-top:2px}
   /* min-height:45px = 2 行 × 20px(标签实测高) + 1 个 5px 行距 —— 用浏览器量过。
      为什么需要它：标签是 flex-wrap，换行点取决于「有几个标签 + 每个多宽」，
@@ -430,7 +431,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   /* 自建弹窗（液态玻璃）——完全自定义，无 TMap 默认容器 */
   .spot-popup{position:absolute;top:0;left:0;z-index:3000;will-change:transform;pointer-events:none;display:none}
   /* 弹窗模糊 14→10（252px 宽的小弹窗，玻璃感差异肉眼几乎看不出） */
-  .pp-inner{pointer-events:auto;box-sizing:border-box;width:252px;background:linear-gradient(180deg, rgba(255,255,255,.6) 0%, rgba(250,251,253,.5) 50%, rgba(245,247,250,.6) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-radius:20px 12px 20px 12px;padding:13px 15px;box-shadow:var(--glass-hi),var(--glass-deep),0 12px 40px rgba(0,0,0,.3);border:1px solid rgba(0,0,0,.06);font-size:13.5px;line-height:1.55;overflow-wrap:break-word;word-break:break-word;white-space:normal;position:relative;overflow:hidden;will-change:transform;animation:ppIn .3s var(--ios-spring);transform-origin:50% 15%}
+  .pp-inner{pointer-events:auto;box-sizing:border-box;width:252px;background:linear-gradient(180deg, rgba(255,250,244,.6) 0%, rgba(250,246,240,.5) 50%, rgba(245,242,238,.6) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-radius:20px 12px 20px 12px;padding:13px 15px;box-shadow:var(--glass-hi),var(--glass-deep),0 12px 40px rgba(0,0,0,.3);border:1px solid rgba(0,0,0,.06);font-size:13.5px;line-height:1.55;overflow-wrap:break-word;word-break:break-word;white-space:normal;position:relative;overflow:hidden;will-change:transform;animation:ppIn .3s var(--ios-spring);transform-origin:50% 15%}
   @keyframes ppIn{from{opacity:0;transform:perspective(800px) scale(.92) translateY(8px) rotateX(-4deg)}to{opacity:1;transform:none}}
 /* 原来这里有 4 条伪元素规则、其中 2 条互相覆盖（191 被 194 覆盖、192 被 193 覆盖），
    即 mask-composite 渐变边框和径向高光从来没生效过。合并成一条顶部高光。 */
@@ -657,7 +658,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   /* ---------- 搜索联想下拉 ---------- */
   .q-wrap{position:relative}
   /* 搜索下拉 18→12（仅在搜索框聚焦时出现，按需付出） */
-  .q-list{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:1200;background:linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.7));backdrop-filter:blur(var(--glass-blur-md)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur-md)) saturate(1.8);border:1px solid rgba(255,255,255,.6);border-radius:16px 10px 16px 10px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);overflow:hidden;max-height:250px;overflow-y:auto}
+  .q-list{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:1200;background:linear-gradient(180deg, rgba(255,250,244,.78), rgba(255,248,242,.7));backdrop-filter:blur(var(--glass-blur-md)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur-md)) saturate(1.8);border:1px solid rgba(255,255,255,.6);border-radius:16px 10px 16px 10px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);overflow:hidden;max-height:250px;overflow-y:auto}
   body.dark .q-list{background:rgba(34,40,52,.96);border-color:rgba(255,255,255,.14)}
   .q-list .q-empty{padding:9px 11px;font-size:12.5px;color:var(--muted)}
   .q-item{display:flex;align-items:center;gap:7px;font-size:12.5px;padding:7px 11px;cursor:pointer;color:var(--ink)}
@@ -670,7 +671,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   body.dark .list mark{color:#34d399}
   /* ---------- 聚合气泡点击 → 快捷列表 ---------- */
   /* 聚合点列表 18→12（仅点击聚合气泡时出现） */
-  .cluster-list{position:absolute;z-index:1180;background:linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.68));backdrop-filter:blur(var(--glass-blur-md)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur-md)) saturate(1.8);border:1px solid rgba(255,255,255,.7);border-radius:18px 12px 18px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);overflow:hidden;min-width:200px;max-width:260px;animation:clIn .32s var(--ios-spring)}
+  .cluster-list{position:absolute;z-index:1180;background:linear-gradient(180deg, rgba(255,250,244,.75), rgba(255,248,242,.68));backdrop-filter:blur(var(--glass-blur-md)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur-md)) saturate(1.8);border:1px solid rgba(255,255,255,.7);border-radius:18px 12px 18px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);overflow:hidden;min-width:200px;max-width:260px;animation:clIn .32s var(--ios-spring)}
   body.dark .cluster-list{background:rgba(30,36,46,.95);border-color:rgba(255,255,255,.15)}
   @keyframes clIn{from{opacity:0;transform:translateY(-10px) scale(.97) rotateX(-3deg)}to{opacity:1;transform:none}}
   .cluster-list .cl-head{padding:9px 12px;font-size:12.5px;font-weight:700;background:linear-gradient(90deg,var(--cl-accent,#0b7a4b) 0%,transparent 30%),rgba(255,255,255,.5);border-bottom:1px solid rgba(120,130,145,.18);display:flex;align-items:center;gap:6px}
@@ -696,7 +697,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
      结果整个面板掉到视口外，「路程 / 直线」读数被屏幕底边切掉，
      看上去就像「点了测距没反应」。 */
   /* 测距面板模糊 12→10（按需弹出，砍 17% 半径省 GPU） */
-  .measure-panel{position:absolute;left:12px;bottom:28px;z-index:1150;backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-radius:18px 12px 18px 12px;padding:9px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);font-size:12.5px;line-height:1.6;overflow:hidden;background:linear-gradient(180deg, rgba(255,255,255,.72) 0%, rgba(248,250,252,.5) 50%, rgba(240,243,247,.55) 100%) padding-box, var(--prism) border-box;border:1px solid transparent}
+  .measure-panel{position:absolute;left:12px;bottom:28px;z-index:1150;backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-radius:18px 12px 18px 12px;padding:9px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);font-size:12.5px;line-height:1.6;overflow:hidden;background:linear-gradient(180deg, rgba(255,250,244,.72) 0%, rgba(248,244,240,.5) 50%, rgba(240,238,234,.55) 100%) padding-box, var(--prism) border-box;border:1px solid transparent}
 
 .measure-panel::before{content:'';position:absolute;top:1px;left:10%;right:10%;height:30%;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,.5), transparent);pointer-events:none}
   .measure-panel .mp-title{font-weight:700;margin-bottom:2px}
@@ -726,7 +727,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
      .prism ::after 的 mask 边框依赖父级 overflow 边界（其实不依赖，
      mask-composite 只看自身的 border-radius），所以这个改法 0 风险。
      面板的圆角还在，只是子元素不再被圆角裁切。 */
-  .route-panel{position:absolute;left:12px;top:12px;z-index:1300;width:260px;background:linear-gradient(180deg, rgba(255,255,255,.75) 0%, rgba(250,251,253,.65) 50%, rgba(245,247,250,.7) 100%) padding-box, var(--prism) border-box;backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-radius:22px 14px 22px 14px;padding:11px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);font-size:12.5px;overflow:visible;border:1px solid transparent}
+  .route-panel{position:absolute;left:12px;top:12px;z-index:1300;width:260px;background:linear-gradient(180deg, rgba(255,250,244,.75) 0%, rgba(250,246,240,.65) 50%, rgba(245,242,238,.7) 100%) padding-box, var(--prism) border-box;backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-radius:22px 14px 22px 14px;padding:11px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);font-size:12.5px;overflow:visible;border:1px solid transparent}
   /* 抽屉开关时对话框要整体挪位/收窄，这里给它补上 left / width 的过渡，
      否则 body.panel-open 那条规则会瞬移，看起来像闪了一下。
      注意只动 left 和 width，不碰 transform —— .rp-body 的折叠用的是 max-height。 */
@@ -1015,7 +1016,7 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
      不用 mask-composite（项目已清零），纯 shadow 零兼容性问题。 */
   .route-panel, .pp-inner, .menu, .q-list, .cluster-list, .measure-panel, .toast {
     --lens-width: 3px;
-    --lens-glow: rgba(255,255,255,.18);
+    --lens-glow: rgba(255,220,180,.22);   /* 金色透镜环 */
   }
   /* 边缘透镜：内层亮环（折射增亮）+ 外层柔散（边缘过渡） */
   .route-panel { box-shadow: var(--glass-hi), var(--glass-deep), var(--glass-drop), inset 0 0 0 var(--lens-width) var(--lens-glow), inset 0 0 12px rgba(255,255,255,.08); }
@@ -1047,4 +1048,44 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
   body.dark .rp-mode.active {
     backdrop-filter: blur(12px) saturate(180%) brightness(1.2);
     -webkit-backdrop-filter: blur(12px) saturate(180%) brightness(1.2);
+  }
+
+  /* 江畔晨曦 · 水波纹理（CSS 同心圆，模拟晨光下的江面涟漪） */
+  body:not(.dark) {
+    position: relative;
+  }
+  body:not(.dark)::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: repeating-radial-gradient(
+      ellipse at 50% 120%,
+      transparent 0px,
+      transparent 60px,
+      rgba(122,158,126,.025) 61px,
+      transparent 62px,
+      transparent 120px,
+      rgba(224,120,86,.015) 121px,
+      transparent 122px
+    );
+  }
+
+  /* 晨曦选中态：珊瑚橙亮玻璃 */
+  .chip.active {
+    background: rgba(224,120,86,.88);
+  }
+  .rp-mode.active {
+    background: rgba(224,120,86,.85);
+  }
+  .menu-item.active, .menu-item[aria-pressed="true"] {
+    background: rgba(224,120,86,.88);
+  }
+  .f-toggle.active {
+    background: rgba(224,120,86,.85);
+    border-color: rgba(255,220,180,.7);
+  }
+  .btn.active {
+    background: rgba(224,120,86,.88);
   }
