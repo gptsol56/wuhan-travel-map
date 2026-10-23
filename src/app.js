@@ -1575,38 +1575,39 @@ document.getElementById('expandBtn').onclick = function(){
    两个开关各自只做一件事。小开关的语义是「深色表面开没开」：夜间、紫晶都算开
    （aria-checked=true），所以它和紫晶不打架 —— 紫晶里关掉小开关就是回日间，
    开着小开关再点紫晶只是在深色表面上换色相。 */
-var THEME_ORDER = ['dawn', 'dark', 'violet'];
+var THEME_ORDER = ['dawn', 'nightglow', 'aurora', 'violet'];
+var THEME_CLASS = { dawn:'', nightglow:'dark', aurora:'dark aurora', violet:'dark violet' };
+var THEME_LABEL = { dawn:'🌅 晨曦', nightglow:'🌙 夜光', aurora:'🌌 极光', violet:'💜 紫晶' };
 var curTheme = 'dawn';
 var themeToggle = document.getElementById('themeToggle');
 var violetBtn = document.getElementById('btn-violet');
 function applyTheme(next){
   curTheme = THEME_ORDER.indexOf(next) >= 0 ? next : 'dawn';
-  // violet 必须同时点亮 dark：深色表面覆盖挂在 body.dark 上
-  document.body.classList.toggle('dark', curTheme === 'dark' || curTheme === 'violet');
-  document.body.classList.toggle('violet', curTheme === 'violet');
-  // 日/夜小开关只表达「深色表面开没开」：夜间、紫晶都算开
+  var cls = THEME_CLASS[curTheme] || '';
+  document.body.classList.toggle('dark', cls.indexOf('dark') >= 0);
+  document.body.classList.toggle('aurora', cls.indexOf('aurora') >= 0);
+  document.body.classList.toggle('violet', cls.indexOf('violet') >= 0);
   if(themeToggle){
-    var toNight = curTheme !== 'dawn';
-    themeToggle.setAttribute('aria-checked', toNight ? 'true' : 'false');
-    themeToggle.title = toNight ? '切换到晨曦模式（快捷键 D）' : '切换到夜间模式（快捷键 D）';
+    themeToggle.textContent = THEME_LABEL[curTheme] || THEME_LABEL.dawn;
+    themeToggle.title = '当前: ' + (THEME_LABEL[curTheme]||'') + '，点击切换主题（快捷键 D）';
+    themeToggle.setAttribute('aria-checked', curTheme !== 'dawn' ? 'true' : 'false');
     themeToggle.setAttribute('aria-label', themeToggle.title);
   }
-  // 紫晶开关：开着就显示「回夜间」（紫晶是建在夜间之上的），否则显示「进紫晶」
   if(violetBtn){
     var onViolet = curTheme === 'violet';
-    violetBtn.textContent = onViolet ? '🌙 夜间' : '💜 紫晶';
-    violetBtn.title = onViolet ? '退出紫晶，回到夜间' : '切换到紫晶模式';
+    violetBtn.textContent = onViolet ? THEME_LABEL.nightglow : THEME_LABEL.violet;
+    violetBtn.title = onViolet ? '退出紫晶，回到夜光' : '切换到紫晶模式';
     violetBtn.setAttribute('aria-label', violetBtn.title);
     violetBtn.setAttribute('aria-pressed', onViolet ? 'true' : 'false');
     violetBtn.classList.toggle('active', onViolet);
   }
 }
-/* 两个开关的绑定单独抽成函数（而不是裸写在顶层）：
-   测试要从 app.js 抽真实源码执行，裸的 `x.onclick = ...` 不在任何函数体里，
-   抓不出来，就只能对着源码字符串断言、点不出真实行为。 */
 function bindThemeButtons(){
-  if(themeToggle) themeToggle.onclick = function(){ applyTheme(curTheme === 'dawn' ? 'dark' : 'dawn'); savePrefs(); };
-  if(violetBtn) violetBtn.onclick = function(){ applyTheme(curTheme === 'violet' ? 'dark' : 'violet'); savePrefs(); };
+  if(themeToggle) themeToggle.onclick = function(){
+    var ix = THEME_ORDER.indexOf(curTheme);
+    applyTheme(THEME_ORDER[(ix + 1) % THEME_ORDER.length]); savePrefs();
+  };
+  if(violetBtn) violetBtn.onclick = function(){ applyTheme(curTheme === 'violet' ? 'nightglow' : 'violet'); savePrefs(); };
 }
 bindThemeButtons();
 

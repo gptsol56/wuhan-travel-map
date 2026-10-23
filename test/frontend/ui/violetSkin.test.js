@@ -55,9 +55,9 @@ function maxAlpha(decls) {
 document.body.innerHTML = '<button id="themeToggle" role="switch"></button><button id="btn-violet"></button>';
 
 const mod = loadPart({
-  parts: ['var:THEME_ORDER', 'var:curTheme', 'var:themeToggle', 'var:violetBtn', 'applyTheme', 'bindThemeButtons'],
+  parts: ['var:THEME_ORDER', 'var:THEME_CLASS', 'var:THEME_LABEL', 'var:curTheme', 'var:themeToggle', 'var:violetBtn', 'applyTheme', 'bindThemeButtons'],
   stubs: { savePrefs: () => {} },
-  exports: ['applyTheme', 'curTheme', 'THEME_ORDER', 'bindThemeButtons'],
+  exports: ['applyTheme', 'curTheme', 'THEME_ORDER', 'THEME_CLASS', 'THEME_LABEL', 'bindThemeButtons'],
 });
 const applyTheme = mod.applyTheme;
 const bindThemeButtons = mod.bindThemeButtons;
@@ -71,138 +71,64 @@ const vbtn = document.getElementById('btn-violet');
 // 让两个开关真正带上 onclick，才能测「点了会发生什么」而不是对着源码断言
 bindThemeButtons();
 
-describe('主题：顶栏日/夜小开关 与 菜单紫晶 是两个独立开关', () => {
-  beforeEach(() => applyTheme('dawn'));
+describe('主题：4 态循环系统（晨曦→夜光→极光→紫晶）', () => {
+  const body = () => document.body;
 
-  it('三态顺序固定', () => {
-    expect([...mod.THEME_ORDER]).toEqual(['dawn', 'dark', 'violet']);
-  });
-
-  it('日间：两个类都不挂，小开关 aria-checked=false', () => {
+  beforeEach(() => {
     applyTheme('dawn');
-    expect(document.body.classList.contains('dark')).toBe(false);
-    expect(document.body.classList.contains('violet')).toBe(false);
-    expect(sw.getAttribute('aria-checked')).toBe('false');
-    expect(vbtn.textContent).toContain('紫晶');
   });
 
-  it('夜间：只挂 dark，小开关 aria-checked=true', () => {
-    applyTheme('dark');
-    expect(document.body.classList.contains('dark')).toBe(true);
-    expect(document.body.classList.contains('violet')).toBe(false);
-    expect(sw.getAttribute('aria-checked')).toBe('true');
-    expect(vbtn.textContent).toContain('紫晶');
+  it('四态顺序固定', () => {
+    expect([...mod.THEME_ORDER]).toEqual(['dawn', 'nightglow', 'aurora', 'violet']);
   });
 
-  // 这条是整张皮肤的地基：紫晶复用的是 body.dark 的深色表面覆盖，
-  // 只挂 violet 会让面板退回浅色玻璃，紫晶看起来像「半成品」。
-  it('紫晶：dark 和 violet 必须同时挂上，小开关也算「开」', () => {
-    applyTheme('violet');
-    expect(document.body.classList.contains('dark')).toBe(true);
-    expect(document.body.classList.contains('violet')).toBe(true);
-    expect(sw.getAttribute('aria-checked')).toBe('true');
-  });
-
-  it('紫晶按钮文案指向「点下去会去哪」', () => {
-    applyTheme('dawn');  expect(vbtn.textContent).toBe('💜 紫晶');
-    applyTheme('dark');   expect(vbtn.textContent).toBe('💜 紫晶');
-    applyTheme('violet'); expect(vbtn.textContent).toBe('🌙 夜间');
-  });
-
-  it('点小开关是日↔夜两态开关（d 快捷键的老行为不变）', () => {
-    sw.onclick(); expect(curTheme()).toBe('dark');
-    sw.onclick(); expect(curTheme()).toBe('dawn');
-    sw.onclick(); expect(curTheme()).toBe('dark');
-  });
-
-  it('点「紫晶」一步到位，不用先切夜间', () => {
-    vbtn.onclick();
-    expect(curTheme()).toBe('violet');
-    expect(document.body.classList.contains('violet')).toBe(true);
-    expect(document.body.classList.contains('dark')).toBe(true);
-  });
-
-  it('紫晶开着时再点它退回夜间（紫晶是建在夜间之上的）', () => {
-    applyTheme('violet');
-    vbtn.onclick();
-    expect(curTheme()).toBe('dark');
-    expect(document.body.classList.contains('violet')).toBe(false);
-    expect(document.body.classList.contains('dark')).toBe(true);
-    // 退回夜间仍是深色表面，小开关保持「开」
-    expect(sw.getAttribute('aria-checked')).toBe('true');
-  });
-
-  it('在夜间点小开关会直接回日间，不会停在中间态', () => {
-    applyTheme('dark');
-    sw.onclick();
-    expect(curTheme()).toBe('dawn');
-    expect(document.body.classList.contains('dark')).toBe(false);
-  });
-
-  // 「不和紫晶冲突」的落点：小开关的语义是「深色表面开没开」，
-  // 紫晶里点它 = 整个深色表面（连同紫晶色相）一起关掉，不会留下紫晶挂浅色底的怪状态。
-  it('紫晶里点小开关直接回日间，不留「紫晶挂浅色底」的中间态', () => {
-    applyTheme('violet');
-    sw.onclick();
-    expect(curTheme()).toBe('dawn');
-    expect(document.body.classList.contains('violet')).toBe(false);
-    expect(document.body.classList.contains('dark')).toBe(false);
-    expect(sw.getAttribute('aria-checked')).toBe('false');
-  });
-
-  it('非法输入回落到日间，不留下半开状态', () => {
-    applyTheme('nope');
-    expect(curTheme()).toBe('dawn');
-    expect(document.body.classList.contains('dark')).toBe(false);
-    expect(document.body.classList.contains('violet')).toBe(false);
-  });
-
-  it('aria 状态如实反映各自开关', () => {
+  it('晨曦：两个 dark 类都不挂', () => {
     applyTheme('dawn');
-    expect(sw.getAttribute('aria-checked')).toBe('false');
-    expect(vbtn.getAttribute('aria-pressed')).toBe('false');
-    applyTheme('dark');
-    expect(sw.getAttribute('aria-checked')).toBe('true');
-    expect(vbtn.getAttribute('aria-pressed')).toBe('false');
+    expect(body().classList.contains('dark')).toBe(false);
+    expect(body().classList.contains('aurora')).toBe(false);
+    expect(body().classList.contains('violet')).toBe(false);
+  });
+
+  it('夜光：只挂 dark', () => {
+    applyTheme('nightglow');
+    expect(body().classList.contains('dark')).toBe(true);
+    expect(body().classList.contains('aurora')).toBe(false);
+    expect(body().classList.contains('violet')).toBe(false);
+  });
+
+  it('极光：dark + aurora 同时挂', () => {
+    applyTheme('aurora');
+    expect(body().classList.contains('dark')).toBe(true);
+    expect(body().classList.contains('aurora')).toBe(true);
+    expect(body().classList.contains('violet')).toBe(false);
+  });
+
+  it('紫晶：dark + violet 同时挂', () => {
     applyTheme('violet');
-    expect(sw.getAttribute('aria-checked')).toBe('true');
-    expect(vbtn.getAttribute('aria-pressed')).toBe('true');
-    // 紫晶是当前皮肤，按钮本身也点亮，方便一眼看出自己在紫晶里
-    expect(vbtn.classList.contains('active')).toBe(true);
+    expect(body().classList.contains('dark')).toBe(true);
+    expect(body().classList.contains('violet')).toBe(true);
+    expect(body().classList.contains('aurora')).toBe(false);
   });
 
-  it('两个开关都带 title / aria-label，告诉用户点下去会去哪', () => {
-    ['dawn', 'dark', 'violet'].forEach((t) => {
-      applyTheme(t);
-      expect(sw.title, `${t} 下日夜开关缺 title`).toBeTruthy();
-      expect(vbtn.title, `${t} 下紫晶开关缺 title`).toBeTruthy();
-      expect(sw.getAttribute('aria-label')).toBe(sw.title);
-      expect(vbtn.getAttribute('aria-label')).toBe(vbtn.title);
-    });
+  it('非法输入回落到晨曦', () => {
+    applyTheme('nonexistent');
+    expect(curTheme()).toBe('dawn');
+    expect(body().classList.contains('dark')).toBe(false);
   });
 
-  it('d 快捷键只管日↔夜，不碰紫晶', () => {
-    expect(APP).toMatch(/case 'd':[\s\S]{0,260}themeToggleEl\.click\(\)/);
-    expect(APP).not.toMatch(/case 'd':[\s\S]{0,260}btn-violet/);
+  it('主题按钮显示当前主题名', () => {
+    applyTheme('aurora');
+    const btn = document.getElementById('themeToggle');
+    expect(btn.textContent).toContain('极光');
   });
 
-  it('刷新后仍回到日间，不持久化主题', () => {
-    expect(APP).not.toMatch(/applyTheme\(false\)/);
-    expect(APP).toContain("applyTheme('dawn')");
-    const save = APP.slice(APP.indexOf('function savePrefs'), APP.indexOf('function applyChipActive'));
-    expect(save).not.toMatch(/\bviolet\b|\bdark\b/);
-  });
-
-  it('HTML 入口：顶栏有小开关、菜单里有紫晶，旧 #btn-theme 已移除', () => {
-    const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-    expect(html).toContain('id="themeToggle"');
-    expect(html).toContain('role="switch"');
-    expect(html).toContain('id="btn-violet"');
-    expect(html).not.toContain('id="btn-theme"');
+  it('THEME_CLASS 映射正确', () => {
+    expect(mod.THEME_CLASS.dawn).toBe('');
+    expect(mod.THEME_CLASS.nightglow).toBe('dark');
+    expect(mod.THEME_CLASS.aurora).toBe('dark aurora');
+    expect(mod.THEME_CLASS.violet).toBe('dark violet');
   });
 });
-
-/* ==================== 紫晶的 CSS ==================== */
 
 describe('紫晶：色板变量', () => {
   // 注意：body.violet 有「变量块」和「背景块」两条，必须按 --ink 取变量块

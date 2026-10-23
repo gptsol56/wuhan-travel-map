@@ -36,7 +36,7 @@
     --prism:linear-gradient(135deg, rgba(255,215,150,.7) 0%, rgba(255,255,255,.92) 30%, rgba(255,185,165,.5) 55%, rgba(255,255,255,.92) 80%, rgba(255,200,170,.7) 100%);   /* 金→珊瑚 */
   }
   body.dark{
-    --ink:#e8eaed; --muted:#9aa0a6; --line:#3a4048; --bg:#12151a; --accent:#34d399;
+    --ink:#e8eaed; --muted:#9aa0a6; --line:#3a4048; --bg:#12151a; --accent:#4ade80;   /* 夜光萤火绿 */
     --adv-hi:#ff8a8d; --adv-mid:#ffbf67; --adv-lo:#7fd9a8;   /* 深色下人流建议文字色 */
     --res-text:#c9b4ff; --tick-text:#a8c6e0;   /* 预约/购票角标文字色（深色） */
     --res-bg:rgba(140,113,242,.22); --tick-bg:rgba(120,155,185,.22);
@@ -541,6 +541,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
 
   /* ---------- 夜间模式 ---------- */
   body.dark{background:var(--bg);color:var(--ink)}
+  body.aurora{background:#0b1628;color:#e0f0f0}   /* 极光深空蓝底 */
   /* 夜间表面统一在 30,35,45 系（与 .route-panel/.pp-inner/.measure-panel 等一致）。
      这里曾是 rgba(18,21,26,.66) 的近黑异色 —— 侧栏与路线面板并排时色差刺眼。 */
   body.dark #panel{background:rgba(30,35,45,.72)}
@@ -984,6 +985,77 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
      一个一个列选择器（列表长，且新增组件容易漏）。
      transition 保留 transform/opacity 上的 0.01ms 触发器，避免
      某些用 :hover 触发的位置/层级突变没有过渡。 */
+
+  /* ================ 极光（Aurora）皮肤 ================
+     北极光在极夜天幕上流动：绿→青→紫→品红
+     复用 body.dark 的 133 条表面覆盖，只刷色相 */
+  body.aurora{
+    --ink:#e0f0f0; --muted:#7a9a9a; --line:#1e3040; --bg:#0b1628; --accent:#22d3ee;
+    --adv-hi:#ff8a8d; --adv-mid:#ffbf67; --adv-lo:#7fd9a8;
+    --res-text:#a0d8d0; --tick-text:#8ab8b0;
+    --res-bg:rgba(34,211,238,.18); --tick-bg:rgba(100,180,170,.18);
+    --glass:#0f1e30; --glass-soft:rgba(20,40,60,.55); --glass-strong:rgba(25,45,70,.7);
+    --glass-border:rgba(80,200,255,.15); --glass-hi:rgba(0,255,163,.12);
+    --glass-head:rgba(15,30,48,.55); --glass-head-border:rgba(80,200,255,.14);
+    --glass-shadow:rgba(0,10,20,.55);
+    --map-filter:brightness(.65) saturate(1.1) hue-rotate(170deg);
+    --prism:linear-gradient(135deg, rgba(0,255,163,.4) 0%, rgba(255,255,255,.3) 30%, rgba(167,139,250,.3) 55%, rgba(255,255,255,.3) 80%, rgba(232,121,249,.4) 100%);
+    --src-real:#7fd9a8; --src-mock:#e8c66d;
+    --src-real-bg:rgba(127,217,168,.18); --src-mock-bg:rgba(232,198,109,.18);
+    --lens-glow:rgba(0,255,163,.12);
+  }
+
+  /* 流动极光背景（纯 CSS transform，零重绘） */
+  body.aurora::before{
+    content:'';
+    position:fixed;
+    inset:-50%;
+    pointer-events:none;
+    z-index:0;
+    background:
+      linear-gradient(10deg,
+        transparent 30%,
+        rgba(0,255,163,.05) 40%,
+        rgba(34,211,238,.07) 50%,
+        rgba(167,139,250,.05) 60%,
+        transparent 70%),
+      linear-gradient(-35deg,
+        transparent 35%,
+        rgba(34,211,238,.03) 45%,
+        rgba(232,121,249,.04) 55%,
+        transparent 65%);
+    animation:auroraFlow 12s ease-in-out infinite alternate;
+  }
+  @keyframes auroraFlow{
+    0%  {transform:translate3d(-2%,-1%,0) rotate(-2deg);}
+    100%{transform:translate3d(2%,1%,0) rotate(2deg);}
+  }
+
+  /* 极光特定覆盖：active 态换荧光青 */
+  body.dark.aurora .chip.active,
+  body.dark.aurora .btn.active,
+  body.dark.aurora .menu-item.active,
+  body.dark.aurora .menu-item[aria-pressed="true"]{
+    background:rgba(34,211,238,.82);
+    color:#062030;
+  }
+  body.dark.aurora .rp-mode.active{
+    background:rgba(34,211,238,.78);
+    color:#062030;
+  }
+  body.dark.aurora .f-toggle.active{
+    background:rgba(34,211,238,.78);
+    border-color:rgba(0,255,163,.4);
+  }
+  body.dark.aurora :focus-visible{outline-color:#22d3ee}
+  body.dark.aurora .item-add{border-color:rgba(34,211,238,.4);background:rgba(34,211,238,.1);color:#22d3ee}
+  body.dark.aurora .item-add:hover,body.dark.aurora .item-add.added{background:#22d3ee;color:#062030}
+  body.dark.aurora #btnRoute:hover,body.dark.aurora #btnRoute.active{background:rgba(34,211,238,.82);color:#062030}
+  body.dark.aurora .pp-url{color:#22d3ee}
+  body.dark.aurora .list mark,body.dark.aurora .q-item mark{color:#22d3ee}
+  body.dark.aurora .rp-wp-chip .idx{color:#22d3ee}
+  body.dark.aurora .chip.active{box-shadow:0 2px 8px rgba(34,211,238,.3)}
+
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{transition-duration:.01ms !important;animation-duration:.01ms !important;animation-iteration-count:1 !important;scroll-behavior:auto !important}
   }
