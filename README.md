@@ -53,7 +53,7 @@ npm start                   # 监听 :3000，前端与 /api/crowd 同源
 
 | 真相源（改这里） | 产物（浏览器加载） | 生成命令 |
 |---|---|---|
-| `spots.src.json` | `spots.json` + `spots.data.js` | `npm run build:spots` |
+| `data/spots.src.json` | `data/spots.json` + `data/spots.data.js` | `npm run build:spots` |
 | `app.js` | `app.min.js` | `npm run build:js` |
 | `style.src.css` | `style.min.css` | `npm run build:css` |
 
@@ -61,7 +61,7 @@ npm start                   # 监听 :3000，前端与 /api/crowd 同源
 
 ```
 index.html    # 入口页（PWA）
-hubei.topo.json # 行政边界（湖北/武汉）：阿里 DataV GeoAtlas 1.6.3，已本地化随应用部署
+data/            # 数据层：spots 三件套（真相源+双产物）与湖北边界 TopoJSON
 app.js / style.src.css / spots.src.json    # 三份真相源
 server/              # 人流代理后端（Express，可选）
 test/frontend/       # 前端单测（vitest + jsdom，抽取真实源码执行）
@@ -88,6 +88,25 @@ npm run test:server   # 后端：149 个用例
 - **纯前端**：把仓库根目录的文件丢到任意静态托管即可（GitHub Pages / Vercel / Nginx），根路径与子路径都支持
 - **带后端**：`server/` 提供 Dockerfile 与 docker-compose.yml；后端仅暴露白名单内的静态资源，`/api/crowd` 供前端同源调用，`/metrics` 输出 Prometheus 指标
 - 后端内置：5 分钟 TTL + LRU + 请求合并缓存、每 IP 限流、上游熔断、配额耗尽时 last-good 快照兜底
+
+### Vercel（静态 + 人流 API 一体）
+
+根目录的 `api/index.js` 把整个 Express 应用注册为 Serverless 函数，`vercel.json` 将 `/api/crowd*`、`/health`、`/metrics` 路由过去，其余路径走 Vercel 静态托管（`server/`、`test/`、`tools/` 等源码路径返回 404）。关联 GitHub 仓库后，push 到 main 自动上线。
+
+```bash
+npm i -g vercel && vercel login
+vercel project add wuhan-travel-map        # 项目名即默认域名 wuhan-travel-map.vercel.app
+vercel link -y --project wuhan-travel-map
+vercel git connect                          # 关联 GitHub 仓库，push 即部署
+# 环境变量（production 与 preview 各一份，值参照 server/.env.example）
+echo "sk-..." | vercel env add JIKE_API_KEY production
+vercel env add JIKE_API_BASE production    # 其余：JIKE_API_PATH / CELL_LEVEL /
+                                           # HEAT_RADIUS_METERS / SPOT_COORD_SYS /
+                                           # CACHE_TTL_SECONDS / QUOTA_COOLDOWN_SECONDS
+git push                                    # 触发首次生产部署
+```
+
+Serverless 差异：缓存/限流/熔断为每函数实例独立；last-good 快照写入只读文件系统失败时自动回退系统临时目录，仅同一热实例内有效（冷启动即丢）。
 
 ## 配置与安全
 

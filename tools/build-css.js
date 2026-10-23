@@ -38,6 +38,9 @@ function minify(css) {
 
   let out = '';
   let pendingSpace = false;   // 攒着一个待定的空白，等到确认不在字面量里才吐出来
+  let lastNS = '';            // 最后一个已输出的非空白字符（calc 内二元 +/- 判定用）
+  let inCalc = 0;             // calc( 嵌套层数
+  let calcParens = [];        // 每层 calc 内部的普通括号深度
 
   const flushSpace = () => {
     if (pendingSpace) { out += ' '; pendingSpace = false; }
@@ -69,6 +72,7 @@ function minify(css) {
         i++;
       }
       pendingSpace = false;             // 字面量后面紧跟结构符时不需要空格
+      lastNS = out[out.length - 1];     // 字面量末字符参与 calc 二元判定
       continue;
     }
 
@@ -81,14 +85,49 @@ function minify(css) {
 
     // --- 结构符：两侧空格一律不要 ---
     if (STRUCT.indexOf(c) !== -1) {
+      // calc() 特例（真事故：calc(12px + env(...)) 被压成 calc(12px+ env(...))，
+      // CSS 规范要求 calc 内二元 +/- 两侧必须有空白 —— 粘连即整条失效，
+      // 定位按钮因此掉回流位置、与缩放控件叠死。这里对 calc 内、前一个非空字符
+      // 是 数字/%/)/x（即二元运算）的 +/- 强制两侧留一个空格；
+      // 标识符连字符（env(safe-area-inset-right) 的 -）前一字符是字母，不在此列。
+      if (inCalc > 0 && (c === '+' || c === '-') && lastNS && /[0-9)%x]$/.test(lastNS)) {
+        pendingSpace = false;          // 源空格丢弃，由这里统一注入单空格（避免双空格）
+        out += ' ' + c;
+        pendingSpace = true;   // 运算符后面也留一个空格
+        lastNS = c;
+        i++;
+        continue;
+      }
+      if (c === ')' && inCalc > 0) {
+        pendingSpace = false;
+        out += c;
+        lastNS = c;
+        if (calcParens[calcParens.length - 1] === 0) { inCalc--; calcParens.pop(); }
+        else calcParens[calcParens.length - 1]--;
+        i++;
+        continue;
+      }
       pendingSpace = false;
       out += c;
+      lastNS = c;
       i++;
       continue;
     }
 
+    // 普通字符：标识符/数字积累成词，标点单发
+    if (c === '(') {
+      flushSpace();
+      out += c;
+      lastNS = c;
+      // 进入 calc( ？（out 此刻恰以 'calc(' 结尾）
+      if (/calc\($/.test(out)) { inCalc++; calcParens.push(0); }
+      else if (inCalc > 0) calcParens[calcParens.length - 1]++;
+      i++;
+      continue;
+    }
     flushSpace();
     out += c;
+    lastNS = c;
     i++;
   }
 

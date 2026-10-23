@@ -86,17 +86,17 @@ describe('.sr-only 必须真的把 label 藏起来', () => {
   });
 });
 
-describe('主字体必须是微软雅黑', () => {
-  // 原本 html,body 的 font-family 把 PingFang SC / Segoe UI 排在 Microsoft YaHei 前面，
-  // 而且文件里还有第二条 html,body 规则覆盖上来（更短的字体栈）——
-  // 在 Windows 上 Microsoft YaHei 实际是被吃掉的，渲染走 system-ui。
-  // 修复：统一为一条规则，"Microsoft YaHei","微软雅黑" 排第一。
-  it('html,body 字体栈以 "Microsoft YaHei" 开头', () => {
+describe('字体栈：雅黑打头（Windows 中文渲染稳定）', () => {
+  // 曾试过 system-ui 打头——内嵌浏览器上中文回退链不稳导致模糊；ss01/ss03 改雅黑汉字字形
+  // ——那就是用户报的「某处文字不像系统字体」。新栈：system-ui 打头（Windows
+  // 拉丁字走 Segoe UI、Mac 走苹方），汉字回退 Microsoft YaHei，无网络字体。
+  it('html,body 字体栈雅黑打头，含 "Microsoft YaHei","微软雅黑"，无 ss01/ss03', () => {
     const m = CODE.match(/(^|})\s*html,body\s*\{([^}]*)\}/);
     expect(m, '找不到 html,body{} 规则').toBeTruthy();
     expect(m[2]).toMatch(/font-family\s*:\s*"Microsoft YaHei"/);
-    // 显式给出中文名，免得某些场景下字体回退丢字
-    expect(m[2]).toMatch(/微软雅黑/);
+    expect(m[2]).toMatch(/"Microsoft YaHei","微软雅黑"/);
+    expect(m[2], 'ss01/ss03 已随视觉升级移除').not.toMatch(/ss0[13]/);
+    expect(m[2], '等宽数字特性要保留').toMatch(/"tnum"/);
   });
 
   it('html,body 规则只有一条（之前的重复声明必须清掉）', () => {
@@ -104,10 +104,11 @@ describe('主字体必须是微软雅黑', () => {
     expect(matches.length, 'html,body{} 出现多次，后面的会覆盖前面的字体特性').toBe(1);
   });
 
-  it('#panel 字体栈也以 Microsoft YaHei 开头（侧栏单独指定了字体）', () => {
+  it('#panel 字体栈与全局一致（雅黑打头）', () => {
     const m = CODE.match(/(^|})\s*#panel\s*\{([^}]*)\}/);
     expect(m, '找不到 #panel{} 规则').toBeTruthy();
     expect(m[2]).toMatch(/font-family\s*:\s*"Microsoft YaHei"/);
+    expect(m[2]).toMatch(/Microsoft YaHei/);
   });
 
   it('.help-table kbd 仍然是等宽字体（不能被全局字体覆盖成微软雅黑）', () => {

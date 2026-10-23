@@ -12,7 +12,7 @@ import { loadPart } from './helpers/loadAppPart.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
-const SPOTS_SRC = JSON.parse(fs.readFileSync(path.join(ROOT, 'spots.src.json'), 'utf8'));
+const SPOTS_SRC = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'spots.src.json'), 'utf8'));
 
 // 基准值（2026-10 用 spots.src.json 实测；数据增删景点后这里要跟着改）
 const EXPECT_LINES = [1, 2, 3, 4, 5, 6, 7, 8, 11];

@@ -103,8 +103,8 @@ const HTML_FILE = 'index.html';
 const LEGACY_ENTRY = '武汉景点地图.html';
 const PUBLIC_ASSETS = new Set([
   '/app.min.js', '/app.js',           // app.js 是源文件（测试用），保留直连兼容
-  '/spots.data.js', '/spots.json',
-  '/hubei.topo.json',                 // 行政边界数据（O2 本地化）
+  '/data/spots.data.js', '/data/spots.json',
+  '/data/hubei.topo.json',                 // 行政边界数据（O2 本地化）
   '/style.min.css', '/sw.js', '/manifest.json',
 ]);
 const PUBLIC_PAGES = new Set(['/', '/index.html', '/' + LEGACY_ENTRY]);
@@ -165,6 +165,12 @@ app.use((err, _req, res, next) => {
   res.status(500).json({ ok: false, code: 'INTERNAL', message: err.message });
 });
 
+/* 导出 app 供 Vercel Serverless 函数（api/index.js）复用：
+   被 require 时只构建应用、不监听端口（Vercel 用平台自己的网关调用处理函数）；
+   只有作为主模块直接运行（npm start / node server.js）时才启动下面这段 HTTP 服务。 */
+module.exports = app;
+
+if (require.main === module) {
 const PORT = parseInt(process.env.PORT, 10) || 3000;
 let server;
 server = app.listen(PORT, () => {
@@ -215,6 +221,7 @@ function gracefulShutdown(signal) {
 }
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+}
 
 // 未捕获的 async 错误上报 metric（不导致静默崩溃）
 process.on('unhandledRejection', (reason) => {

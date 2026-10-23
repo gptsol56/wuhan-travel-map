@@ -1319,7 +1319,6 @@ function bindChips(el, setter){
     ch.onkeydown = function(ev){ if(ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); ch.onclick(); } };
   });
 }
-bindChips(document.getElementById('cf-crowd'), function(v){ crowdF = v; });
 bindChips(document.getElementById('cf-reserve'), function(v){ resF = v; });
 bindChips(document.getElementById('cf-sort'), function(v){ sortBy = v; if(sortBy === 'dist' && !myPos){ sortBy = ''; applyChipActive(document.getElementById('cf-sort'), ''); toast('未定位到你的位置，无法按距离排序，已切回默认', 'info'); } });
 
@@ -1606,62 +1605,229 @@ bindThemeButtons();
    必须传 window.__tmapMap：原来写的是裸 `map`，那个标识符在 TMap 的 with(map){}
    作用域下会被 SDK 污染，拿到的东西不是 TMap.Map 实例 ——
    控制台因此常驻一条「类型错误: map参数类型错误，应为TMap.Map」，📏 测距整个是坏的。 */
-var measureTool = new TMap.tools.MeasureTool({ map: window.__tmapMap });
+/* ================== 自建多段测距（替换 SDK MeasureTool）==================
+   SDK 的 MeasureTool 是黑盒：不支持每段独立距离、不支持选段、右键取消不可靠。
+   自建方案：
+   - 地图 click 加点，TMap.MultiPolyline 逐段画线
+   - 每段中点放一个 DOM 标签显示该段距离（pan/zoom 时跟随）
+   - 点线段 → 选中高亮 + 面板显示该段距离
+   - 双击或右键 → 结束测量（线段保留可交互）
+   - ✕ → 清除全部
+   总路程 = 各段之和；直线 = 首尾直线距离。 */
+var measurePts = [];         // [{lat,lng}] 测量点序列
+var measureLayers = [];      // MultiPolyline 数组（每段一条）
+var measureLabels = [];      // DOM 标签数组（每段一个）
+var measureMarkers = null;   // 节点标记
+var measureSelIdx = -1;      // 当前选中段索引
+var measureMode = false;     // 是否在测量模式
+
 var measureBtn = document.getElementById('btn-measure');
 var measurePanel = document.getElementById('measurePanel');
 var mpPath = document.getElementById('mpPath');
 var mpLine = document.getElementById('mpLine');
-var measuring = false;
+var mpSeg = document.getElementById('mpSeg');
 
 function fmtDist(m){
   if(m < 1000) return Math.round(m) + ' 米';
   return (m/1000).toFixed(2) + ' 公里';
 }
+
+function measureDist(a, b){
+  return TMap.geometry.computeDistance([a, b]);
+}
+
+/* 更新所有段距离标签的位置（地图 pan/zoom 时调用） */
+function positionMeasureLabels(){
+  measureLabels.forEach(function(lbl, i){
+    if(!lbl.el || !lbl.el.parentNode) return;
+    var a = measurePts[i], b = measurePts[i + 1];
+    if(!a || !b) return;
+    var mid = new TMap.LatLng((a.lat + b.lat) / 2, (a.lng + b.lng) / 2);
+    var px = window.__tmapMap.projectToContainer(mid);
+    lbl.el.style.left = Math.round(px.getX()) + 'px';
+    lbl.el.style.top = Math.round(px.getY()) + 'px';
+  });
+}
+
+/* 重绘全部测量覆盖物 */
+function redrawMeasure(){
+  // 清旧
+  measureLayers.forEach(function(l){ l.setMap(null); });
+  measureLayers = [];
+  measureLabels.forEach(function(l){ if(l.el && l.el.parentNode) l.el.parentNode.removeChild(l.el); });
+  measureLabels = [];
+  if(measureMarkers){ measureMarkers.setMap(null); measureMarkers = null; }
+  if(measurePts.length < 2) return;
+
+  // 节点标记
+  var markerGeoms = measurePts.map(function(p, i){
+    return { id: 'mp' + i, position: new TMap.LatLng(p.lat, p.lng) };
+  });
+  measureMarkers = new TMap.MultiMarker({
+    map: window.__tmapMap,
+    styles: { dot: new TMap.MarkerStyle({ width: 8, height: 8, anchor: { x: 4, y: 4 }, backgroundColor: '#0b7a4b', backgroundBorderWidth: 2, backgroundBorderColor: '#fff', backgroundBorderRadius: 4 }) },
+    geometries: markerGeoms
+  });
+
+  // 逐段画线 + 距离标签
+  for(var i = 0; i < measurePts.length - 1; i++){
+    var a = measurePts[i], b = measurePts[i + 1];
+    var dist = measureDist(new TMap.LatLng(a.lat, a.lng), new TMap.LatLng(b.lat, b.lng));
+    var isSel = i === measureSelIdx;
+    var line = new TMap.MultiPolyline({
+      map: window.__tmapMap,
+      styles: { seg: new TMap.PolylineStyle({
+        color: isSel ? 'rgba(229,72,77,.85)' : 'rgba(11,122,75,.7)',
+        width: isSel ? 4 : 3,
+        lineCap: 'round',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,.8)',
+        showArrow: true
+      })},
+      geometries: [{ id: 'seg' + i, styleId: 'seg', paths: [new TMap.LatLng(a.lat, a.lng), new TMap.LatLng(b.lat, b.lng)] }]
+    });
+    (function(idx, ln){
+      ln.on('click', function(){
+        measureSelIdx = measureSelIdx === idx ? -1 : idx;
+        redrawMeasure();
+        updateMeasurePanel();
+      });
+    })(i, line);
+    measureLayers.push(line);
+
+    // 距离标签
+    var lbl = document.createElement('div');
+    lbl.className = 'measure-label' + (isSel ? ' sel' : '');
+    lbl.textContent = fmtDist(dist);
+    lbl.dataset.idx = i;
+    lbl.addEventListener('click', function(e){
+      e.stopPropagation();
+      var idx = +this.dataset.idx;
+      measureSelIdx = measureSelIdx === idx ? -1 : idx;
+      redrawMeasure();
+      updateMeasurePanel();
+    });
+    document.getElementById('map').appendChild(lbl);
+    measureLabels.push({ el: lbl, dist: dist });
+  }
+  positionMeasureLabels();
+}
+
+function updateMeasurePanel(){
+  if(measurePts.length >= 2){
+    var total = 0;
+    measureLabels.forEach(function(l){ total += l.dist; });
+    mpPath.textContent = fmtDist(total);
+    var first = measurePts[0], last = measurePts[measurePts.length - 1];
+    mpLine.textContent = fmtDist(measureDist(new TMap.LatLng(first.lat, first.lng), new TMap.LatLng(last.lat, last.lng)));
+  } else {
+    mpPath.textContent = '—';
+    mpLine.textContent = '—';
+  }
+  if(measureSelIdx >= 0 && measureLabels[measureSelIdx]){
+    mpSeg.textContent = fmtDist(measureLabels[measureSelIdx].dist);
+  } else {
+    mpSeg.textContent = '—';
+  }
+}
+
+function clearMeasure(){
+  measureLayers.forEach(function(l){ l.setMap(null); });
+  measureLayers = [];
+  measureLabels.forEach(function(l){ if(l.el && l.el.parentNode) l.el.parentNode.removeChild(l.el); });
+  measureLabels = [];
+  if(measureMarkers){ measureMarkers.setMap(null); measureMarkers = null; }
+  measurePts = [];
+  measureSelIdx = -1;
+  updateMeasurePanel();
+}
+
+function endMeasureMode(){
+  measureMode = false;
+  clearTimeout(measureClickT);
+  measureBtn.style.background = '';
+  measureBtn.style.color = '';
+  measureBtn.setAttribute('aria-pressed', 'false');
+  var st = document.getElementById('mpState');
+  if(st){ st.textContent = '已完成'; st.className = 'mp-state done'; }
+  var dn = document.getElementById('mpDone');
+  if(dn) dn.style.display = 'none';
+}
+
 measureBtn.onclick = function(){
-  if(measuring) return;
-  measuring = true;
+  if(measureMode){
+    endMeasureMode();
+    return;
+  }
+  measureMode = true;
+  var st = document.getElementById('mpState');
+  if(st){ st.textContent = '测量中'; st.className = 'mp-state'; }
+  var dn = document.getElementById('mpDone');
+  if(dn) dn.style.display = '';
   closePopup();
-  /* 窄屏下测距面板贴在地图左下角（.measure-panel{left:12px;bottom:28px}），
-     而侧栏这时是盖在地图上的抽屉（z-index 1500 > 面板的 1150）—— 面板显示了却整个被盖住，
-     看上去就像「点了没反应」。测距本来就是要盯着地图点点量距离，
-     顺手把抽屉收掉最自然，宽屏侧栏常驻就不动了。 */
   if(window.innerWidth <= 820 && panelEl.classList.contains('open')){
     panelEl.classList.remove('open');
     syncPanelOpenState();
   }
   measureBtn.style.background = 'rgba(11,122,75,.85)';
   measureBtn.style.color = '#fff';
-  measureBtn.setAttribute('aria-pressed','true');
+  measureBtn.setAttribute('aria-pressed', 'true');
   measurePanel.style.display = 'block';
-  mpPath.textContent = '—'; mpLine.textContent = '—';
-  measureTool.measureDistance().then(function(info){
-    var path = info.path || [];
-    var total = info.totalDistance || 0;
-    mpPath.textContent = fmtDist(total);
-    if(path.length >= 2){
-      var line = TMap.geometry.computeDistance([path[0], path[path.length-1]]);
-      mpLine.textContent = fmtDist(line);
-    } else {
-      mpLine.textContent = '—';
-    }
-    measuring = false;
-    measureBtn.style.background = '';
-    measureBtn.style.color = '';
-    measureBtn.setAttribute('aria-pressed','false');
-  }).catch(function(){
-    resetMeasureUI();
-  });
+  clearMeasure();
 };
-// 右键取消测距
-window.__tmapMap.on('rightclick', function(){
-  if(measuring){
-    resetMeasureUI();
-    measureBtn.style.background = '';
-    measureBtn.style.color = '';
-    measurePanel.style.display = 'none';
-    measureTool.stop ? measureTool.stop() : null;
-  }
+
+// 地图 click → 加测量点（150ms 防抖：双击结束时不误加点）
+var measureClickT = 0;
+window.__tmapMap.on('click', function(e){
+  if(!measureMode) return;
+  clearTimeout(measureClickT);
+  var ll = e.latLng;
+  measureClickT = setTimeout(function(){
+    measurePts.push({ lat: ll.getLat(), lng: ll.getLng() });
+    redrawMeasure();
+    updateMeasurePanel();
+  }, 150);
 });
+
+// 双击或右键 → 结束测量（清掉防抖计时器，不误加点）
+window.__tmapMap.on('dblclick', function(){
+  if(!measureMode) return;
+  clearTimeout(measureClickT);
+  endMeasureMode();
+});
+window.__tmapMap.on('rightclick', function(){
+  if(!measureMode) return;
+  clearTimeout(measureClickT);
+  endMeasureMode();
+});
+// 测量模式时阻止地图上的右键菜单（否则右键被浏览器吃掉）
+document.getElementById('mapwrap').addEventListener('contextmenu', function(e){
+  if(measureMode) e.preventDefault();
+});
+
+// 地图 pan/zoom → 更新标签位置
+window.__tmapMap.on('center_changed', function(){ if(measureLabels.length) positionMeasureLabels(); });
+window.__tmapMap.on('zoom_changed', function(){ if(measureLabels.length) setTimeout(positionMeasureLabels, 50); });
+
+// ✕ 清除全部
+document.getElementById('mpClear').onclick = function(e){
+  e.stopPropagation();
+  clearMeasure();
+  measurePanel.style.display = 'none';
+  endMeasureMode();
+};
+
+// ✓ 完成 → 结束测量模式（线段保留可交互/选段）
+document.getElementById('mpDone').onclick = function(e){
+  e.stopPropagation();
+  endMeasureMode();
+};
+
+// Escape 结束
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && measureMode) endMeasureMode();
+});
+
 
 /* ================== 指南针 / 旋转 ================== */
 var northBtn = document.getElementById('btn-north');
@@ -2485,7 +2651,7 @@ function drawBoundary(){
   /* 边界数据已本地化（O2）：原为每次访问从第三方 file.geojson.cn 拉取（144KB，
      且它挂了边界就没了）。数据源：阿里 DataV GeoAtlas（geojson.cn）1.6.3 版
      湖北省 TopoJSON，收进仓库随应用部署，同源出 + SW 预缓存（离线也有边界）。 */
-  fetch('hubei.topo.json')
+  fetch('data/hubei.topo.json')
     .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
     .then(function(topo){
       var dec = decodeTopo(topo);
@@ -2953,17 +3119,18 @@ function parseWeather(j){
 function renderWeatherCard(w){
   var el = document.getElementById('weatherCard');
   if(!el || !w || !w.days.length) return;
+  /* 天气卡：紧凑双行（今天带描述+降水，明天简要），有视觉层级 */
   var labels = ['今天', '明天'];
-  el.innerHTML = '<div class="w-head">🌤 武汉天气</div>' +
-    '<div class="w-days">' + w.days.map(function(day, i){
-      var info = wmoInfo(day.code);
-      return '<div class="w-day" title="' + esc(labels[i] || day.date) + '">' +
-        '<span class="w-emoji">' + info.emoji + '</span>' +
-        '<span class="w-body"><b>' + (labels[i] || day.date) + '</b> ' + esc(info.txt) +
-        ' · ' + day.max + '° / ' + day.min + '°' +
-        (day.pop != null ? ' · 💧' + day.pop + '%' : '') + '</span></div>';
-    }).join('') + '</div>' +
-    (weatherAdvice(w.days[0]) ? '<div class="w-tip">💬 ' + esc(weatherAdvice(w.days[0])) + '</div>' : '');
+  el.innerHTML = w.days.map(function(day, i){
+    var info = wmoInfo(day.code);
+    var isToday = i === 0;
+    return '<div class="w-day' + (isToday ? ' w-today' : '') + '" title="' + esc(labels[i] || day.date) + '">' +
+      '<span class="w-emoji">' + info.emoji + '</span>' +
+      '<span class="w-info"><b>' + (labels[i] || day.date) + '</b> ' + esc(info.txt) +
+      ' <span class="w-temp">' + day.max + '°<i>/' + day.min + '°</i></span>' +
+      (day.pop != null && day.pop >= 40 ? '<span class="w-pop">💧' + day.pop + '%</span>' : '') +
+      '</span></div>';
+  }).join('');
   el.hidden = false;
 }
 
@@ -3051,6 +3218,45 @@ function fetchLiveData(){
     });
 }
 var liveStatus = document.getElementById('liveStatus');
+(function(){
+  var btn = document.getElementById('liveInfoBtn');
+  if(!btn) return;
+  var panel = null;
+  function ensurePanel(){
+    if(panel) return panel;
+    panel = document.createElement('div');
+    panel.className = 'live-info-panel';
+    panel.hidden = true;
+    panel.innerHTML =
+      '<div class="lp-head">人流数据说明<button class="lp-close" aria-label="关闭">✕</button></div>' +
+      '<div class="lp-body">' +
+      '<div class="lp-item"><span class="lp-dot ok"></span><div><b>及客智能 · 已连接</b><span>近 10 天历史热力（不含当天实时数据），10 分钟刷新一次</span></div></div>' +
+      '<div class="lp-item"><span class="lp-dot est"></span><div><b>本地动态估算</b><span>后端未连接，按「工作日/周末 × 时段」典型曲线估算</span></div></div>' +
+      '<div class="lp-item"><span class="lp-dot warn"></span><div><b>配额已用尽</b><span>显示最近一次成功获取的缓存数据</span></div></div>' +
+      '<div class="lp-legend"><span class="lp-lg" style="background:var(--red)">高</span><span class="lp-lg" style="background:var(--orange)">中</span><span class="lp-lg" style="background:var(--green)">低</span><span class="lp-note">近 10 天典型人流</span></div>' +
+      '</div>';
+    document.getElementById('panel').insertBefore(panel, document.querySelector('.filters'));
+    panel.querySelector('.lp-close').onclick = function(e){ e.stopPropagation(); hide(); };
+    return panel;
+  }
+  function show(){
+    ensurePanel();
+    panel.hidden = false;
+    btn.setAttribute('aria-expanded', 'true');
+  }
+  function hide(){
+    if(panel) panel.hidden = true;
+    btn.setAttribute('aria-expanded', 'false');
+  }
+  btn.onclick = function(e){
+    e.stopPropagation();
+    (panel && !panel.hidden) ? hide() : show();
+  };
+  document.addEventListener('click', function(e){
+    if(panel && !panel.hidden && !panel.contains(e.target) && e.target !== btn) hide();
+  });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') hide(); });
+})();
 if(liveStatus && !document.getElementById('liveRefreshBtn')){
   var btn = document.createElement('button');
   btn.id = 'liveRefreshBtn';
@@ -3202,7 +3408,6 @@ function restorePrefs(){
       b.setAttribute('aria-checked', isActive ? 'true' : 'false');
     });
   }
-  if(p.crowdF){ crowdF = p.crowdF; applyChipActive(document.getElementById('cf-crowd'), crowdF); } else { applyChipActive(document.getElementById('cf-crowd'), ''); }
   if(p.resF){ resF = p.resF; applyChipActive(document.getElementById('cf-reserve'), resF); } else { applyChipActive(document.getElementById('cf-reserve'), ''); }
   // 区域/地铁：restorePrefs 在 initZoneMetro 之后执行，metroChips 已渲染，可安全置 active
   if(p.zoneF){ zoneF = p.zoneF; applyChipActive(document.getElementById('zoneChips'), zoneF); }
@@ -3255,7 +3460,7 @@ function applyShareHash(h){
   var touched = false;
   if(ZONE_OK_LIST.indexOf(q.z) >= 0){ zoneF = q.z; applyChipActive(document.getElementById('zoneChips'), zoneF); touched = true; }
   if(/^\d+$/.test(q.ml || '')){ metroF = q.ml; applyChipActive(document.getElementById('metroChips'), metroF); touched = true; }
-  if(CROWD_OK_LIST.indexOf(q.crowd) >= 0){ crowdF = q.crowd; applyChipActive(document.getElementById('cf-crowd'), crowdF); touched = true; }
+  // crowdF UI removed; hash crowd param silently ignored
   if(q.reserve && RESERVE_TXT[q.reserve]){ resF = q.reserve; applyChipActive(document.getElementById('cf-reserve'), resF); touched = true; }
   if(SORT_OK_LIST.indexOf(q.sort) >= 0){ sortBy = q.sort; applyChipActive(document.getElementById('cf-sort'), sortBy); touched = true; }
   if(typeof q.wp === 'string' && q.wp){

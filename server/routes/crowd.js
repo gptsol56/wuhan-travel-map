@@ -29,14 +29,22 @@ const SPOT_COORD_SYS = process.env.SPOT_COORD_SYS || 'gcj02';
 // ---------------------------------------------------------------------------
 
 function loadSpots() {
-  try {
-    const p = path.resolve(__dirname, '../../spots.json');
-    const data = JSON.parse(fs.readFileSync(p, 'utf-8'));
-    return Array.isArray(data) ? data : [];
-  } catch (e) {
-    console.warn('[crowd] 无法读取 spots.json：' + e.message);
-    return [];
+  // 两个候选路径，先到先得：
+  //   1. 源码运行：server/routes → 上两级 = 项目根（本地 npm start / 测试）
+  //   2. Vercel Serverless：函数包根目录（/var/task）≈ 项目根，
+  //      data/spots.json 靠 vercel.json 的 includeFiles 带进包，按 cwd 相对定位
+  const candidates = [
+    path.resolve(__dirname, '../../data/spots.json'),
+    path.join(process.cwd(), 'data/spots.json'),
+  ];
+  for (const p of candidates) {
+    try {
+      const data = JSON.parse(fs.readFileSync(p, 'utf-8'));
+      if (Array.isArray(data)) return data;
+    } catch (_) { /* 换下一个候选路径 */ }
   }
+  console.warn('[crowd] 无法读取 spots.json（尝试过：' + candidates.join('、') + '）');
+  return [];
 }
 
 const ALL_SPOTS = loadSpots();

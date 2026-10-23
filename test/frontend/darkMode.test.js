@@ -31,7 +31,6 @@ const rule = (sel) => lastRule(new RegExp(`(?:^|[}\\n])\\s*${sel.replace(/[.\[\]
 describe('夜间模式：压在深色面板上的白色覆盖层都压下去了', () => {
   // 这些是直接盖住面板内容的大面积柔光，浅色下是玻璃质感，夜里必须调暗
   const highlights = [
-    ['.route-panel::before', '路线对话框顶部 20%（正好压着标题栏）'],
     ['.measure-panel::before', '测距面板顶部 30%'],
     ['.p-head::before', '侧栏标题栏顶部 6px'],
   ];
@@ -48,11 +47,7 @@ describe('夜间模式：压在深色面板上的白色覆盖层都压下去了'
     });
   }
 
-  it('.zoom-indicator::before 夜间从 .85 降到 ≤ .2', () => {
-    const dark = rule('body.dark .zoom-indicator::before');
-    expect(dark, '.zoom-indicator::before 没有夜间覆盖').not.toBeNull();
-    expect(maxWhiteAlpha(dark)).toBeLessThanOrEqual(0.2);
-  });
+  // zoom-indicator::before 已随缩放控件重设计移除（不再有光斑伪元素）
 
   // 这是个明确的写错：浅色那条是自上而下的柔光(180deg)，
   // 夜间却写成了左右方向(90deg)、白到 .55 —— 深色下弹窗正中间横糊一条白带。
@@ -66,16 +61,14 @@ describe('夜间模式：压在深色面板上的白色覆盖层都压下去了'
     expect(maxWhiteAlpha(dark)).toBeLessThanOrEqual(0.15);
   });
 
-  it('棱镜描边（::after）在夜间整体压暗，不是一圈白边', () => {
-    const dark = rule('body.dark .legend::after');
-    expect(dark, '棱镜 ::after 没有夜间降透明').not.toBeNull();
-    expect(Number(dark.match(/opacity:\s*([\d.]+)/)[1])).toBeLessThanOrEqual(0.4);
-    // 降透明要同时作用到所有用棱镜描边的组件
-    const block = CODE.match(/body\.dark \.route-panel::after,[\s\S]*?\{([^}]*)\}/);
-    expect(block, '棱镜 ::after 的夜间降透明名单不完整').not.toBeNull();
-    for (const sel of ['.measure-panel::after', '.btn::after', '.chip::after', '.legend::after']) {
-      expect(block[0], `${sel} 不在夜间降透明的名单里`).toContain(sel);
-    }
+  it('棱镜描边夜间整体压暗（--prism 令牌），不是一圈白边', () => {
+    // mask 版 ::after 棱镜已全量换成双背景 border-box 技法（遮罩修复），
+    // 压暗策略随之从「::after opacity .35 名单」迁到 body.dark 的 --prism 令牌。
+    const m = CODE.match(/body\.dark\{[^}]*--prism:([^;}]+)/);
+    expect(m, 'body.dark 未重定义 --prism').not.toBeNull();
+    const peaks = [...m[1].matchAll(/rgba\(\s*\d+,\s*\d+,\s*\d+,\s*([\d.]+)\s*\)/g)].map(x => Number(x[1]));
+    expect(peaks.length, '夜间 --prism 里没解析到 rgba').toBeGreaterThan(0);
+    expect(Math.max(...peaks), '夜间棱镜最高透明度应 ≤ .4').toBeLessThanOrEqual(0.4);
   });
 
   it('夜间没有任何光斑 ::before 残留（hover 反馈全部交给 background）', () => {

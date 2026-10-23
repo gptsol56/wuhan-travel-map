@@ -94,15 +94,10 @@ describe('移除光斑后，悬停反馈没有一起消失', () => {
     expect(CODE).toMatch(/:where\(\.zoom-btn,\.zoom-help,\.pp-close\):hover\{background:/);
   });
 
-  it('.legend 补上了 hover 底色——它原先完全依赖光斑', () => {
-    expect(CODE).toMatch(/(?:^|[}\n])\s*\.legend:hover\{[^}]*background:/);
-    // 深色下也要有，否则夜里悬停是一块蓝灰
-    expect(CODE).toMatch(/body\.dark \.legend:hover\{[^}]*background:/);
-    // 紫晶下同样要染紫
-    expect(CODE).toMatch(/body\.dark\.violet \.legend:hover\{[^}]*background:/);
-  });
+  // .legend 族规则已随「图例移除」整体删除（视觉升级批次：遮罩修复时清死代码），
+  // 相关 hover/描边断言随之移除。
 
-  it('position:relative 保留（.chip/.legend 的棱镜描边在 ::after 上是绝对定位）', () => {
-    expect(CODE).toMatch(/:where\([^)]*\.chip[^)]*\.legend[^)]*\)\{position:relative\}/);
+  it('position:relative 保留（部分控件的伪元素高光/流光是绝对定位）', () => {
+    expect(CODE).toMatch(/:where\(\.btn,\.chip,\.b-chip,\.rp-mode,\.menu-item,\.rp-card,\.item-add,\.pp-close,\.zoom-btn,\.zoom-help\)\{position:relative\}/);
   });
 });

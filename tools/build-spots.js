@@ -21,9 +21,9 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
-const SRC = path.join(ROOT, 'spots.src.json');
-const OUT_JSON = path.join(ROOT, 'spots.json');
-const OUT_JS = path.join(ROOT, 'spots.data.js');
+const SRC = path.join(ROOT, 'data', 'spots.src.json');
+const OUT_JSON = path.join(ROOT, 'data', 'spots.json');
+const OUT_JS = path.join(ROOT, 'data', 'spots.data.js');
 
 // 数据校验：字段写错名不会被任何代码报错（合并逻辑静默忽略未知键），
 // 只能在这里拦。经纬度范围按武汉大区放宽到 ±1°，抓的是「小数点敲错一位」这种错。

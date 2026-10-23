@@ -14,7 +14,7 @@ import { loadPart } from './helpers/loadAppPart.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
 const SRC = fs.readFileSync(path.join(ROOT, 'app.js'), 'utf8');
-const SPOTS_SRC = JSON.parse(fs.readFileSync(path.join(ROOT, 'spots.src.json'), 'utf8'));
+const SPOTS_SRC = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'spots.src.json'), 'utf8'));
 
 // ITINERARIES 是多行 var，grabVar 的「一行」假设不适用，这里自行截取
 function grabItineraries() {

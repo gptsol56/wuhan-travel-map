@@ -54,31 +54,51 @@ describe('小控件不得再挂 backdrop-filter（每个都是新合成层 + 模
   });
 });
 
-describe('spring 缓动 cubic-bezier(.34,1.56,.64,1) 不得用在频繁触发的位置', () => {
-  // 这种缓动会产生反向运动，对微小位移（3px、scale 1.04）毫无意义，
-  // 反而让动画帧数多算一遍。只允许在偶尔触发的 toast 这种一次性反馈里出现。
-  const hotSelectors = [
-    '.item',
-    '.chip',
-    '.sp-pin',
-    '.zoom-btn,.zoom-help',
-    '.btn',
-    '.rp-mode',
-    '.rp-swap',
-  ];
-  for (const sel of hotSelectors) {
-    it(`${sel} 不含 spring 缓动`, () => {
-      const body = ruleBody(sel);
-      if (!body) return;  // zoom-btn,.zoom-help 这种逗号合并的选择器在 ruleBody 里取不到，跳过
-      expect(body).not.toMatch(/cubic-bezier\(\.34,1\.56,\.64,1\)/);
+describe('Q 弹动效策略：spring 只许出现在 transform/opacity 过渡里', () => {
+  // 2026-10 视觉升级（用户要「明显 Q 弹」）后的新策略：过冲曲线解禁，
+  // 但只限合成器友好属性 —— transform / opacity。含布局属性（left/width/max-height）
+  // 或贵属性（box-shadow/background）的过渡列表一旦混入 spring 即红：
+  // 过冲意味着反向运动帧，布局/绘制类属性每帧都要重排重绘，掉帧是必然。
+  const SPRING = /cubic-bezier\(\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+\s*,\s*1\.\d+\s*\)|var\(--spring/;
+  const trans = [...CODE.matchAll(/transition\s*:\s*([^;}]+)/g)].map((m) => m[1]);
+  expect(trans.length, 'transition 一条都没解析到？').toBeGreaterThan(0);
+  // 按顶层逗号拆条目（cubic-bezier/var 括号里的逗号不算）：
+  // transition 的每一条目自带计时，spring 只约束它所在的那一条
+  function splitTop(str) {
+    const out = []; let depth = 0, cur = '';
+    for (const ch of str) {
+      if (ch === '(') depth++;
+      if (ch === ')') depth--;
+      if (ch === ',' && depth === 0) { out.push(cur); cur = ''; } else cur += ch;
+    }
+    out.push(cur);
+    return out;
+  }
+  const springEntries = [];
+  trans.forEach((t, i) => {
+    for (const entry of splitTop(t)) {
+      if (SPRING.test(entry)) {
+        const prop = entry.trim().split(/\s+/)[0];
+        springEntries.push({ i, prop, entry: entry.trim().slice(0, 60) });
+      }
+    }
+  });
+
+  it('spring 令牌确实被用上（定义了却没用 = 白定义）', () => {
+    expect(springEntries.length, 'style 里没有任何 spring 过渡条目').toBeGreaterThan(0);
+  });
+
+  for (const { i, prop, entry } of springEntries) {
+    it(`第 ${i} 条 transition 的 spring 条目属性为 ${prop}`, () => {
+      expect(['transform', 'opacity'].includes(prop), `spring 条目「${entry}」不是 transform/opacity —— 过冲帧会变成重排帧`).toBe(true);
     });
   }
 
-  it('.zoom-btn / .zoom-help 合并选择器里的 transition 不含 spring', () => {
-    // 这一条专门覆盖上面 ruleBody 漏掉的逗号合并选择器
-    const m = CODE.match(/\.zoom-btn,\.zoom-help\{transition:([^}]*)\}/);
-    expect(m, '找不到 .zoom-btn,.zoom-help{transition:...}').toBeTruthy();
-    expect(m[1]).not.toMatch(/cubic-bezier\(\.34/);
+  it('.route-panel 的 left/width 过渡保持 ease（布局属性绝不过冲）', () => {
+    const m = CODE.match(/\.route-panel\{transition:([^}]*)\}/);
+    expect(m, '找不到 .route-panel{transition:...}').toBeTruthy();
+    expect(m[1]).toMatch(/left[^}]*width/);
+    expect(m[1]).not.toMatch(SPRING);
   });
 });
 
@@ -121,30 +141,42 @@ describe('主玻璃面板（route-panel / .menu / #panel 等）仍保留 backdro
   }
 });
 
-describe('主玻璃的模糊半径不能开太大（移动端 GPU 贵）', () => {
-  // 这次"优化性能"第二轮：常驻的玻璃面板，模糊半径从 12/14/16 砍到 10/12。
-  // 上限钉死防止以后又被"加一点玻璃感"加回去。
-  const maxBlur = {
-    '#panel': 10,
-    '.route-panel': 10,
-    '.measure-panel': 10,
-    '.pp-inner': 10,
-    '.filters': 12,
-    '.q-list': 12,
-    '.cluster-list': 12,
-    '.menu': 16,         // 只在打开时出现，开大点没关系
-    '.zoom-indicator': 14,
+describe('玻璃模糊令牌：半径有上限、面板引用令牌、移动端降档', () => {
+  // 视觉升级后 17 处字面 blur 收敛为三档令牌（10/12/14），单一调参入口；
+  // 上限语义不变（防「再加一点玻璃感」加回去），另加两条新约束：
+  // 面板必须引用令牌（不允许字面值回流）、820px 断点整体降档。
+  const TOKENS = { '--glass-blur': 10, '--glass-blur-md': 12, '--glass-blur-lg': 14 };
+  for (const [tok, limit] of Object.entries(TOKENS)) {
+    it(`${tok} 定义且 ≤ ${limit}px`, () => {
+      const m = CODE.match(new RegExp(tok.replace(/-/g, '\\-') + '\\s*:\\s*(\\d+)px'));
+      expect(m, `${tok} 未定义`).toBeTruthy();
+      expect(Number(m[1]), `${tok} 超上限`).toBeLessThanOrEqual(limit);
+    });
+  }
+  const blurPx = (body) => {
+    const lit = body.match(/backdrop-filter\s*:\s*blur\((\d+)px\)/);
+    if (lit) return Number(lit[1]);
+    const v = body.match(/backdrop-filter\s*:\s*blur\\?\(var\\?\?/);  // placeholder
+    const vv = body.match(/blur\(var\((--[\w-]+)\)\)/);
+    return vv ? TOKENS[vv[1]] : null;
   };
-  for (const [sel, limit] of Object.entries(maxBlur)) {
-    it(`${sel} 模糊半径 ≤ ${limit}px`, () => {
+  const caps = {
+    '#panel': 10, '.route-panel': 10, '.measure-panel': 10, '.pp-inner': 10,
+    '.filters': 12, '.q-list': 12, '.cluster-list': 12,
+    '.menu': 16, '.zoom-indicator': 14,
+  };
+  for (const [sel, limit] of Object.entries(caps)) {
+    it(`${sel} 模糊半径 ≤ ${limit}px（字面值或令牌解析）`, () => {
       const body = ruleBody(sel);
       expect(body, `${sel} 规则不见了`).toBeTruthy();
-      const m = body.match(/backdrop-filter\s*:\s*blur\((\d+)px\)/);
-      expect(m, `${sel} 找不到 backdrop-filter:blur(Npx)`).toBeTruthy();
-      const px = Number(m[1]);
+      const px = blurPx(body);
+      expect(px, `${sel} 解析不到模糊半径`).not.toBeNull();
       expect(px, `${sel} 模糊半径 ${px}px 超过 ${limit}px`).toBeLessThanOrEqual(limit);
     });
   }
+  it('移动端 820px 断点：三档令牌整体降档（GPU O(像素×半径)）', () => {
+    expect(CODE.match(/@media \(max-width:820px\)\{[\s\S]{0,400}?--glass-blur:8px/), '断点内未找到降档令牌').toBeTruthy();
+  });
 });
 
 describe('不要再用 filter:blur() 给伪元素加模糊（.5px 那个毫无意义）', () => {
@@ -181,14 +213,30 @@ describe('#expandBtn 不再带绿色光晕（用户要求"去除光效"）', () 
   });
 });
 
-describe('一次性弹窗（toast / help-card / cluster-list）用 ease 而不是 spring', () => {
-  // spring cubic-bezier(.34,1.56,.64,1) 会有反向运动帧，帧数多算一遍；
-  // 一次性弹窗不需要那种"弹"的手感，ease 已够。
-  it('.toast 不再用 spring', () => {
-    const body = ruleBody('.toast');
-    expect(body, '.toast 规则不见了').toBeTruthy();
-    expect(body, '.toast 还在用 cubic-bezier(.34,1.56,.64,1)').not.toMatch(
-      /cubic-bezier\(\.34,1\.56,\.64,1\)/
-    );
+describe('入场/流光 keyframes 只动 transform/opacity（合成器友好）', () => {
+  // Q 弹升级的有意决策：toast/help-card/cluster-list/menu/popup 的入场
+  // 换成 --spring-soft。前提是 keyframes 只动 transform/opacity —— 否则
+  // 过冲帧会变成重排帧。流光 sheenSweep 同理（纯 transform 循环）。
+  const kfs = ['live-spin', 'clIn', 'fadeIn', 'slideUp', 'toastPop', 'menuIn', 'ppIn', 'sheenSweep'];
+  for (const name of kfs) {
+    it(`@keyframes ${name} 只含 transform/opacity`, () => {
+      const m = CODE.match(new RegExp('@keyframes ' + name + '\\{((?:[^{}]|\\{[^{}]*\\})*)\\}'));
+      expect(m, `${name} 不见了`).toBeTruthy();
+      const props = [...m[1].matchAll(/([a-z-]+)\s*:/g)].map((x) => x[1]);
+      const bad = props.filter((pr) => !['transform', 'opacity'].includes(pr));
+      expect(bad, `${name} 里混入了 ${bad.join(',')}`).toEqual([]);
+    });
+  }
+});
+
+describe('遮罩与玻璃守卫（视觉升级固化）', () => {
+  it('mask-composite 全量清零（旧棱镜技法在部分浏览器退化成整块渐变盖住控件）', () => {
+    expect(CODE.match(/mask-composite/g) || []).toHaveLength(0);
+  });
+  it('backdrop-filter 模糊声明点只减不增（≤16 处 × 双前缀 = 32；.folding 的 none 不计）', () => {
+    expect((CODE.match(/backdrop-filter\s*:[^;]*blur\(/g) || []).length).toBeLessThanOrEqual(32);
+  });
+  it('流光在折叠动画窗口暂停（不与 max-height 动画叠加抢帧）', () => {
+    expect(CODE).toMatch(/\.route-panel\.folding \.rp-body::after\{animation-play-state:paused\}/);
   });
 });

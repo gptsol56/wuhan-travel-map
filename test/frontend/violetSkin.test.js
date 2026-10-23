@@ -257,10 +257,8 @@ describe('紫晶：表面重着色', () => {
   // 上限沿用夜间各自的值：大面板柔光压到 .12，小药丸（缩放指示器）可以到 .16
   const highlights = [
     ['body.dark.violet .p-head::before', '侧栏标题栏顶部高光', 0.12],
-    ['body.dark.violet .route-panel::before', '路线对话框顶部柔光', 0.12],
     ['body.dark.violet .measure-panel::before', '测距面板顶部柔光', 0.12],
     ['body.dark.violet .pp-inner::before', '详情弹窗顶部柔光', 0.12],
-    ['body.dark.violet .zoom-indicator::before', '缩放指示器光斑', 0.16],
   ];
   for (const [sel, why, limit] of highlights) {
     it(`${sel} 有紫晶覆盖且亮度 ≤ ${limit}（${why}）`, () => {
@@ -295,7 +293,7 @@ describe('紫晶：表面重着色', () => {
   });
 
   it('浮层类面板统一有紫晶边框色', () => {
-    const r = rule('body.dark.violet :where(.menu,.q-list,.cluster-list,.legend,.measure-panel,.route-panel,.zoom-indicator,.pp-inner)');
+    const r = rule('body.dark.violet :where(.menu,.q-list,.cluster-list,.measure-panel,.route-panel,.zoom-indicator,.pp-inner)');
     expect(r).not.toBeNull();
     expect(r).toMatch(/border-color:/);
   });

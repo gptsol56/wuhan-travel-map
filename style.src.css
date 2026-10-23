@@ -9,13 +9,28 @@
     --glass-border:rgba(255,255,255,.65); --glass-hi:rgba(255,255,255,.85);
     --glass-head:rgba(255,255,255,.38); --glass-head-border:rgba(255,255,255,.6);
     --glass-shadow:rgba(0,0,0,.2);
-    --glass-blur:blur(14px) saturate(160%);
     --map-filter:none;
     --src-real: #30a46c;
     --src-mock: #b58a00;
     --src-real-bg: rgba(48,164,108,.14);
     --src-mock-bg: rgba(181,138,0,.14);
     --live-loading: #4a6fa5;
+    /* Q 弹动效令牌（仅限 transform/opacity 过渡 —— 策略由 perfAudit 钉死） */
+    --spring-pop:cubic-bezier(.34,1.56,.64,1);
+    --spring-soft:cubic-bezier(.3,1.3,.5,1);
+    /* iOS 液态玻璃：柔和档两段式动效 */
+    --ios-spring:cubic-bezier(0.25,0.9,0.3,1.05);   /* iOS 微过冲 */
+    --ios-track:140ms;                              /* 跟手 */
+    --ios-settle:520ms;                             /* 回弹 */
+    /* 液态玻璃多层阴影令牌 */
+    --glass-hi:inset 0 1px 0 rgba(255,255,255,0.40);                        /* 顶缘 1px 高光 */
+    --glass-deep:inset 0 -20px 40px rgba(0,0,0,0.12);                      /* 底部内阴影（深度感） */
+    --glass-drop:0 20px 60px rgba(0,0,0,0.18);                             /* 大投影 */
+    /* 玻璃模糊令牌：原 17 处字面值统一于此（移动端在 820px 断点统一降档） */
+    --glass-blur:10px; --glass-blur-md:12px; --glass-blur-lg:14px;
+    /* 棱镜描边（双背景 border-box 技法；mask-composite 已全量移除 ——
+       那套 mask 在部分浏览器退化成整块渐变盖住控件，即「边缘黑块/残缺」的来源） */
+    --prism:linear-gradient(135deg, rgba(167,199,255,.75) 0%, rgba(255,255,255,.95) 30%, rgba(255,200,225,.65) 55%, rgba(255,255,255,.95) 80%, rgba(186,165,255,.75) 100%);
   }
   body.dark{
     --ink:#e8eaed; --muted:#9aa0a6; --line:#3a4048; --bg:#12151a; --accent:#34d399;
@@ -26,8 +41,9 @@
     --glass-border:rgba(255,255,255,.16); --glass-hi:rgba(255,255,255,.12);
     --glass-head:rgba(30,35,45,.55); --glass-head-border:rgba(255,255,255,.14);
     --glass-shadow:rgba(0,0,0,.55);
-    --glass-blur:blur(14px) saturate(160%);
     --map-filter:brightness(.78) saturate(.85);
+    /* 夜间棱镜整体压暗（原 ::after opacity:.35 的策略迁移到令牌） */
+    --prism:linear-gradient(135deg, rgba(120,150,200,.3) 0%, rgba(255,255,255,.38) 30%, rgba(255,200,225,.26) 55%, rgba(255,255,255,.38) 80%, rgba(170,150,230,.3) 100%);
     --src-real: #7fd9a8;
     --src-mock: #e8c66d;
     --src-real-bg: rgba(127,217,168,.18);
@@ -62,6 +78,8 @@
        只压一点饱和、往冷推一点、提亮，让它安静地待在紫色玻璃后面。
        真想要整张紫的 duotone 地图，改这一行就能开。 */
     --map-filter:saturate(.88) hue-rotate(-12deg) brightness(1.05) contrast(.93);
+    /* 紫晶棱镜：蓝粉刷成紫/品红 */
+    --prism:linear-gradient(135deg, rgba(196,132,252,.42) 0%, rgba(255,224,246,.5) 30%, rgba(255,168,214,.34) 55%, rgba(255,224,246,.5) 80%, rgba(150,110,240,.42) 100%);
     --src-real:#8ee2ca; --src-mock:#ffd18c;
     --src-real-bg:rgba(142,226,202,.18); --src-mock-bg:rgba(255,209,140,.18);
   }
@@ -80,12 +98,11 @@
        · 整列内容右移，和面板右边缘对不齐。
      标准做法：不 display:none（那样读屏也读不到），而是移出可视区且压成 1px。 */
   .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
-  /* 主字体换成微软雅黑。原本堆了两条 html,body 规则（51 / 54），下面 54 那条是
-     上一版简化时漏删的「重复声明」，把上面那条的字体特性（ss03）覆盖掉了，
-     而且自己的字体栈更短（缺 Microsoft YaHei UI），Mac 还会被 PingFang 抢到第一。
-     现在统一为一条，Windows 优先 Microsoft YaHei，Mac 顺位落到 PingFang SC，
-     都不在的时候回到 system-ui / sans-serif，不至于乱字。 */
-  html,body{margin:0;height:100%;font-family:"Microsoft YaHei","微软雅黑",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei UI",system-ui,sans-serif;color:var(--ink);overflow:hidden;font-feature-settings:"tnum","ss01","ss03";font-variant-numeric:tabular-nums}
+  /* 字体栈：雅黑打头（中文应用中文优先，Windows 渲染最稳）。曾试过 system-ui
+     打头——在内嵌浏览器上中文回退链不稳导致字体模糊，已回退。
+     ss01/ss03 已移除（会改雅黑汉字字形，是「不像系统字体」的元凶）；
+     tnum（等宽数字）保留。不引入任何网络字体。 */
+  html,body{margin:0;height:100%;font-family:"Microsoft YaHei","微软雅黑",system-ui,-apple-system,"Segoe UI","PingFang SC","HarmonyOS Sans SC","MiSans",sans-serif;color:var(--ink);overflow:hidden;font-feature-settings:"tnum";font-variant-numeric:tabular-nums}
   /* 缩放数字、坐标、距离等数字使用等宽 */
   .zoom-level,.live-status,.heat-scale .hs-txt{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
   /* 上面已统一 html,body 字体栈，这里删掉遗留的重复声明
@@ -122,33 +139,48 @@
   /* 主玻璃面板：模糊半径从 12px 砍到 10px。
      12 → 10 在视觉上几乎无差，但高斯模糊本身是 O(像素数 × 半径)，
      侧栏整列常驻，砍 17% 半径直接等于砍 30%+ 移动端 GPU 时间。 */
-  #panel{width:320px;min-width:320px;height:100%;background:linear-gradient(180deg, rgba(255,255,255,.85) 0%, rgba(252,253,255,.72) 50%, rgba(248,250,252,.8) 100%);backdrop-filter:blur(10px) saturate(1.5);-webkit-backdrop-filter:blur(10px) saturate(1.5);border-right:1px solid transparent;font-family:"Microsoft YaHei","微软雅黑",-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei UI",system-ui,sans-serif;font-size:13px;display:flex;flex-direction:column;z-index:1200;box-shadow:0 1px 2px rgba(15,30,60,.08), 8px 0 40px rgba(15,30,60,.15), inset 1px 0 0 rgba(255,255,255,.95), inset -1px 0 0 rgba(255,255,255,.18);transition:width .28s ease,min-width .28s ease;position:relative;overflow:hidden;background-clip:padding-box}
+  #panel{width:320px;min-width:320px;height:100%;background:linear-gradient(180deg, rgba(255,255,255,.72) 0%, rgba(252,253,255,.6) 50%, rgba(248,250,252,.68) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-right:1px solid var(--glass-border);font-family:"Microsoft YaHei","微软雅黑",system-ui,-apple-system,"Segoe UI","PingFang SC","HarmonyOS Sans SC","MiSans",sans-serif;font-size:13px;display:flex;flex-direction:column;z-index:1200;box-shadow:0 1px 2px rgba(15,30,60,.08), 8px 0 40px rgba(15,30,60,.15), inset 1px 0 0 rgba(255,255,255,.95), inset -1px 0 0 rgba(255,255,255,.18);transition:width .28s ease,min-width .28s ease;position:relative;overflow:hidden;background-clip:padding-box}
 /* 水晶棱镜边框 — 右侧蓝→白→粉→紫渐变模拟光线色散（保留，这是玻璃材质的主体观感） */
 #panel::after{content:'';position:absolute;top:0;right:-1px;bottom:0;width:2px;background:linear-gradient(180deg, rgba(167,199,255,0) 0%, rgba(167,199,255,.95) 25%, rgba(255,255,255,1) 50%, rgba(255,200,225,.9) 75%, rgba(167,199,255,0) 100%);pointer-events:none}
 body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40,50,.78),rgba(30,34,42,.85));border-right-color:rgba(255,255,255,.1);box-shadow:0 1px 2px rgba(0,0,0,.3), 8px 0 40px rgba(0,0,0,.6), inset 1px 0 0 rgba(255,255,255,.12)}
-  .p-head{padding:14px 16px 10px;border-bottom:1px solid rgba(255,255,255,.55);background:linear-gradient(180deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.4) 60%, rgba(245,247,250,.45) 100%);backdrop-filter:blur(10px) saturate(1.4);-webkit-backdrop-filter:blur(10px) saturate(1.4);position:relative}
+  .p-head{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.55);background:linear-gradient(180deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.4) 60%, rgba(245,247,250,.45) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(1.4);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.4);position:relative}
 .p-head::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,0));pointer-events:none;border-radius:0 0 6px 6px}
   .p-head::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg, transparent, rgba(0,0,0,.12), transparent)}
   body.dark .p-head{background:linear-gradient(180deg, rgba(45,50,60,.55), rgba(35,40,50,.32));border-bottom-color:rgba(255,255,255,.1)}
   .p-head h1{font-size:19px;margin:0 0 3px;letter-spacing:.5px;color:var(--ink);text-shadow:0 1px 0 rgba(255,255,255,.5)}
   .p-head .sub{font-size:12px;color:var(--muted);line-height:1.5}
-  .p-head .weather{margin-top:7px;font-size:12px;color:#0b5d3b;background:rgba(240,250,244,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(207,232,219,.85);border-radius:8px;padding:4px 8px;line-height:1.5}
-  .p-head .note{margin-top:7px;font-size:11px;color:#8a5a00;background:rgba(255,246,230,.5);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(245,217,168,.8);border-radius:7px;padding:5px 8px;line-height:1.5}
-  .filters{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.3);/* 模糊 16→12（侧栏工具栏常驻） */backdrop-filter:blur(12px) saturate(1.4);-webkit-backdrop-filter:blur(12px) saturate(1.4)}
+  .p-head .weather{margin-top:7px;font-size:12px;color:#0b5d3b;background:rgba(240,250,244,.55);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border:1px solid rgba(207,232,219,.85);border-radius:8px;padding:4px 8px;line-height:1.5}
+  .p-head .note{margin-top:7px;font-size:11px;color:#8a5a00;background:rgba(255,246,230,.5);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border:1px solid rgba(245,217,168,.8);border-radius:7px;padding:5px 8px;line-height:1.5}
+  /* 天气卡：紧凑双行，有层级有边框 */
+  .weather-card{margin:6px 10px 0;padding:6px 10px;border-radius:10px;border:1px solid rgba(180,210,190,.55);background:linear-gradient(180deg, rgba(240,250,244,.65), rgba(235,244,250,.5));font-size:12px;line-height:1.6;overflow:hidden}
+  .weather-card .w-day{display:flex;align-items:center;gap:7px;padding:1px 0}
+  .weather-card .w-today{font-weight:600}
+  .weather-card .w-emoji{font-size:16px;flex:none}
+  .weather-card .w-info{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .weather-card .w-temp{font-weight:700;font-size:13px;color:var(--ink)}
+  .weather-card .w-temp i{font-style:normal;font-weight:400;font-size:11px;color:var(--muted)}
+  .weather-card .w-pop{margin-left:6px;font-size:11px;color:#4a7fa5;font-weight:600}
+  body.dark .weather-card{background:linear-gradient(180deg, rgba(20,55,40,.55), rgba(24,40,55,.45));border-color:rgba(60,110,80,.5)}
+  body.dark .weather-card .w-pop{color:#8cb8d8}
+  .filters{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.3);backdrop-filter:blur(var(--glass-blur-md)) saturate(1.4);-webkit-backdrop-filter:blur(var(--glass-blur-md)) saturate(1.4)}
   /* 筛选折叠成 3 个图标：原来是 4 组「label + chips」常驻，把列表挤到只剩一小条 */
   .f-row{display:flex;align-items:center;gap:6px}
   .f-row .q-wrap{flex:1;min-width:0;margin-top:0}
-  .f-toggle{flex:none;width:30px;height:30px;border-radius:9px;border:1px solid rgba(255,255,255,.7);background:rgba(255,255,255,.5);cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;color:var(--ink);transition:background .15s,border-color .15s}
+  .f-toggle{flex:none;width:30px;height:30px;border-radius:9px;border:1px solid rgba(255,255,255,.7);background:rgba(255,255,255,.5);cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;color:var(--ink);transition:background .15s,border-color .15s,transform .3s var(--spring-pop)}
+  .f-toggle:active{transform:scale(.92)}
   .f-toggle:hover{background:rgba(255,255,255,.8)}
   .f-toggle.active{background:rgba(11,122,75,.85);border-color:rgba(255,255,255,.7);color:#fff}
   .f-panel{padding-top:7px}
   /* 工具菜单：收纳原 .ctl 常驻工具条与图例 */
-  .menu{position:absolute;top:52px;right:12px;z-index:1250;width:190px;max-height:min(82vh,640px);overflow-y:auto;padding:8px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,.9), rgba(248,250,252,.85));backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);border:1px solid rgba(255,255,255,.8);box-shadow:0 6px 24px rgba(15,30,60,.18);display:flex;flex-direction:column;gap:3px}
+  .menu{position:absolute;top:52px;right:12px;z-index:1250;width:190px;max-height:min(82vh,640px);overflow-y:auto;padding:8px;border-radius:18px 12px 18px 12px;background:linear-gradient(180deg, rgba(255,255,255,.72), rgba(248,250,252,.65));backdrop-filter:blur(var(--glass-blur-lg)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur-lg)) saturate(1.8);border:1px solid rgba(255,255,255,.7);box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);display:flex;flex-direction:column;gap:3px}
   .menu[hidden]{display:none}
   /* .menu-item 自带 display:flex，会盖掉 hidden 属性的 UA 样式 —— 显式守卫（安装按钮默认隐藏用） */
   .menu-item[hidden]{display:none}
+    .menu{animation:menuIn .22s var(--spring-soft);transform-origin:top right}
+  @keyframes menuIn{from{opacity:0;transform:scale(.95) translateY(-6px)}to{opacity:1;transform:none}}
   .menu-head{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.4px;padding:6px 8px 3px}
-  .menu-item{display:flex;align-items:center;gap:7px;width:100%;padding:7px 9px;border-radius:9px;border:1px solid transparent;background:transparent;color:var(--ink);font-size:13px;font-family:inherit;text-align:left;cursor:pointer;transition:background .15s,border-color .15s}
+  .menu-item{display:flex;align-items:center;gap:7px;width:100%;padding:7px 9px;border-radius:9px;border:1px solid transparent;background:transparent;color:var(--ink);font-size:13px;font-family:inherit;text-align:left;cursor:pointer;transition:background .15s,border-color .15s,transform .3s var(--spring-pop)}
+  .menu-item:active{transform:scale(.96)}
   .menu-item:hover{background:rgba(255,255,255,.85);border-color:rgba(255,255,255,.9)}
   .menu-item.active,.menu-item[aria-pressed="true"]{background:rgba(11,122,75,.85);color:#fff;border-color:rgba(255,255,255,.7)}
   /* 图例已按需求移除（原吸底样式随之删除；.lg/.dot 等残留规则无人命中，无害） */
@@ -161,12 +193,10 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
      功能按钮上面」，比没有反馈更糟；深色模式还得再单独把光斑调暗一遍。
      现在统一交给控件自己的 hover 背景 / 位移 / 阴影，命中与否一眼可辨，
      也少一层合成和一次 mousemove 重绘。
-     position:relative 仍要保留：.chip / .legend 的棱镜描边在 ::after 上是绝对定位。 */
-  :where(.btn,.chip,.b-chip,.rp-mode,.menu-item,.rp-card,.item-add,.pp-close,.zoom-btn,.zoom-help,.legend){position:relative}
+     position:relative 保留：部分控件仍有绝对定位的伪元素（高光/流光）。 */
+  :where(.btn,.chip,.b-chip,.rp-mode,.menu-item,.rp-card,.item-add,.pp-close,.zoom-btn,.zoom-help){position:relative}
   :where(.rp-mode,.b-chip):hover{background:rgba(255,255,255,.75)}
   :where(.zoom-btn,.zoom-help,.pp-close):hover{background:rgba(255,255,255,.8)}
-  /* .legend 原先只靠光斑给反馈，去掉之后补一条底色，否则完全看不出鼠标停在哪 */
-  .legend:hover{background:linear-gradient(180deg, rgba(255,255,255,.9) 0%, rgba(248,250,252,.72) 50%, rgba(240,243,247,.76) 100%)}
   body.dark .menu{background:rgba(30,35,45,.94);border-color:rgba(255,255,255,.12);color:#fff}
   body.dark .menu-item:hover{background:rgba(55,62,75,.9)}
   .p-head-row{display:flex;align-items:center;gap:8px}
@@ -175,26 +205,14 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
   .mi-btn:hover{background:rgba(255,255,255,.9)}
   body.dark .mi-btn{background:rgba(40,46,56,.7);border-color:rgba(255,255,255,.12);color:#fff}
   .chips{display:flex;flex-wrap:wrap;gap:5px}
-  /* 天气卡（F1）：侧栏顶部 今明两天 + 出行建议。初始 hidden，拉到数据才现身 */
-  .weather-card{margin:8px 10px 0;padding:8px 10px;border-radius:11px;border:1px solid rgba(207,232,219,.9);background:linear-gradient(180deg, rgba(240,250,244,.6), rgba(235,244,250,.55));font-size:12px;line-height:1.5}
-  .weather-card .w-head{font-weight:700;color:#0b5d3b;margin-bottom:2px}
-  .weather-card .w-days{display:flex;flex-direction:column;gap:1px}
-  .weather-card .w-day{display:flex;align-items:center;gap:6px}
-  .weather-card .w-emoji{font-size:15px;flex:none}
-  .weather-card .w-tip{margin-top:3px;color:#5a6b62;border-top:1px dashed rgba(11,93,59,.18);padding-top:3px}
-  body.dark .weather-card{background:linear-gradient(180deg, rgba(20,55,40,.5), rgba(24,40,55,.5));border-color:rgba(50,110,80,.55)}
-  body.dark .weather-card .w-head{color:#8fd9b0}
-  body.dark .weather-card .w-tip{color:#9fb3a8;border-top-color:rgba(143,217,176,.25)}
-  /* 区域·地铁面板（cf-zone）里两行 chips 的间隔 */
+      .weather-card .w-day{display:inline-flex;align-items:center;gap:3px;color:var(--ink)}
+  .weather-card .w-day b{font-weight:700}
+  .weather-card .w-sep{color:var(--muted);opacity:.5}
+          /* 区域·地铁面板（cf-zone）里两行 chips 的间隔 */
   .f-panel .chips + .chips{margin-top:6px}
   /* 同 .item：只在 :active 那一瞬间缩一下，不需要常驻图层。
      留着 will-change 会让每个 chip 常驻一个合成层，还和上面的 backdrop-filter 抢图层预算。 */
-/* spring 缓动换成 ease（小控件上的反向运动不值这个帧数）；
-     backdrop-filter 摘掉（小到模糊基本看不见，反而每个 chip 都要新合成层 + 模糊整张地图）。
-     玻璃质感靠它自身的渐变 + 内层 ::after 棱镜边来撑。
-     渐变透明度从 .65/.5/.55 抬到 .78/.66/.7，补偿失去的 backdrop 模糊。 */
-  .chip{border-radius:14px;padding:3px 10px;font-size:12px;cursor:pointer;user-select:none;transition:transform .15s ease, background-color .15s ease, color .15s ease;box-shadow:inset 0 .5px 0 rgba(255,255,255,.95), inset 0 -.5px 0 rgba(255,255,255,.35), 0 3px 8px rgba(15,30,60,.06);position:relative;color:var(--ink);overflow:hidden;background:linear-gradient(180deg, rgba(255,255,255,.78) 0%, rgba(248,250,252,.66) 50%, rgba(240,243,247,.7) 100%);border:1px solid transparent;background-clip:padding-box}
-.chip::after{content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(135deg, rgba(167,199,255,.75) 0%, rgba(255,255,255,.95) 30%, rgba(255,200,225,.65) 55%, rgba(255,255,255,.95) 80%, rgba(186,165,255,.75) 100%);-webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.85}
+  .chip{border-radius:14px;padding:3px 10px;font-size:12px;cursor:pointer;user-select:none;transition:transform .3s var(--spring-pop), background-color .15s ease, color .15s ease;box-shadow:inset 0 .5px 0 rgba(255,255,255,.95), inset 0 -.5px 0 rgba(255,255,255,.35), 0 3px 8px rgba(15,30,60,.06);position:relative;color:var(--ink);overflow:hidden;background:linear-gradient(180deg, rgba(255,255,255,.78) 0%, rgba(248,250,252,.66) 50%, rgba(240,243,247,.7) 100%) padding-box, var(--prism) border-box;border:1px solid transparent}
 .chip:hover{transform:translateY(-1px) scale(1.04);box-shadow:inset 0 .5px 0 rgba(255,255,255,.95), inset 0 -.5px 0 rgba(255,255,255,.4), 0 6px 14px rgba(15,30,60,.12)}
 .chip:active{transform:translateY(0) scale(.97);transition:transform .12s cubic-bezier(.4,0,.2,1)}
   .chip.active{background:rgba(11,122,75,.85);color:#fff;border-color:rgba(255,255,255,.7);box-shadow:0 2px 8px rgba(11,122,75,.35)}
@@ -210,7 +228,7 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
      transition 保留，hover 动画照旧。 */
   /* spring/.34 缓动换成 ease；去掉 box-shadow 过渡（box-shadow 模糊半径变化很贵）；
      duration 从 .35s 砍到 .15s。hover 视觉差别极小但帧数少一半以上。 */
-  .item{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:10px;cursor:pointer;transition:transform .15s ease, background .15s ease, border-color .15s ease;border:1px solid transparent}
+  .item{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:10px;cursor:pointer;transition:transform .3s var(--spring-soft), background .15s ease, border-color .15s ease;border:1px solid transparent}
   /* :hover / .sel 摘掉 backdrop-filter（hover 临时触发也会强制重新模糊整张地图）；
      渐变/border 透明度上调一档补偿：.55/.4→.72/.58, .6→.78 */
   .item:hover{background:linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.58));border-color:rgba(255,255,255,.7);box-shadow:0 2px 8px rgba(0,0,0,.06);transform:translateX(3px) scale(1.005)}
@@ -281,19 +299,10 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
   .tag.t-off{background:rgba(245,165,36,.18);color:var(--adv-mid);display:inline-flex;align-items:center;gap:4px;border-color:rgba(255,255,255,.3)} .tag.t-off::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--adv-mid)}
   .tag.t-closed{background:rgba(229,72,77,.16);color:var(--adv-hi);display:inline-flex;align-items:center;gap:4px;border-color:rgba(255,255,255,.3)} .tag.t-closed::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--adv-hi)}
 
-  /* 人流优化：侧栏「现在适合去 / 建议避开」榜单 */
-  .board{padding:10px 12px 0;font-size:12px}
-  .b-row{display:flex;flex-direction:column;gap:5px;margin-bottom:9px}
-  .b-t{font-weight:700;font-size:12px}
-  .b-t.ok{color:#30a46c}
-  .b-t.warn{color:#e5484d}
-  .b-c{display:flex;flex-wrap:wrap;gap:5px}
-  .b-chip{font-size:11px;padding:3px 8px;border-radius:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);color:var(--text);cursor:pointer;transition:.15s}
-  .b-chip:hover{background:rgba(255,255,255,.22)}
-  .b-empty{color:var(--muted);font-size:11px}
 
   /* 添加到路线的「+」按钮 */
-  .item-add{flex:none;width:26px;height:26px;border-radius:50%;border:1px solid rgba(11,122,75,.4);background:rgba(11,122,75,.08);color:var(--accent);font-size:17px;font-weight:600;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;transition:.15s;flex-shrink:0}
+  .item-add{flex:none;width:26px;height:26px;border-radius:50%;border:1px solid rgba(11,122,75,.4);background:rgba(11,122,75,.08);color:var(--accent);font-size:17px;font-weight:600;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;transition:background .15s ease,border-color .15s ease,transform .3s var(--spring-pop);flex-shrink:0}
+  .item-add:active{transform:scale(.86)}
   .item-add:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
   .item-add.added{background:var(--accent);color:#fff;border-color:var(--accent)}
 
@@ -344,10 +353,43 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   .sp-res-need_ticket{background:var(--tick-bg);color:var(--tick-text)}
 
 
+
+  /* 缩放组：[-] [11] [+] + ? 独立圆钮，纵排右下角 */
+  .zoom-group{position:absolute;right:12px;bottom:12px;z-index:1150;display:flex;align-items:center;gap:8px}
+  .zoom-indicator{display:flex;align-items:center;gap:0;border-radius:14px;overflow:hidden;border:1px solid rgba(0,0,0,.1);background:rgba(255,255,255,.82);backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);box-shadow:var(--glass-hi),0 4px 16px rgba(0,0,0,.15)}
+  .zoom-indicator .zoom-btn{width:34px;height:34px;border:none;background:transparent;color:var(--ink);font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s ease,transform .2s var(--spring-pop)}
+  .zoom-indicator .zoom-btn:hover{background:rgba(0,0,0,.06)}
+  .zoom-indicator .zoom-btn:active{transform:scale(.88)}
+  .zoom-indicator .zoom-btn:first-child{border-radius:14px 0 0 14px}
+  .zoom-indicator .zoom-btn:last-child{border-radius:0 14px 14px 0}
+  .zoom-level{min-width:34px;text-align:center;font-weight:700;font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums;user-select:none}
+  .zoom-help{width:44px;height:44px;border-radius:50%;font-size:18px;border:1px solid rgba(0,0,0,.1);background:rgba(255,255,255,.82);backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);color:var(--accent);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--glass-hi),0 4px 16px rgba(0,0,0,.12);transition:background .15s ease,transform .2s var(--spring-pop)}
+  .zoom-help:hover{background:rgba(11,122,75,.08);transform:scale(1.08)}
+  .zoom-help:active{transform:scale(.9)}
+  body.dark .zoom-indicator{background:rgba(35,40,50,.82);border-color:rgba(255,255,255,.12)}
+  body.dark .zoom-indicator .zoom-btn{color:var(--ink)}
+  body.dark .zoom-indicator .zoom-btn:hover{background:rgba(255,255,255,.08)}
+  body.dark .zoom-help{background:rgba(35,40,50,.82);border-color:rgba(255,255,255,.12);color:var(--accent)}
+
+  /* 自建测距：每段距离标签（绝对定位在地图上，pan/zoom 跟随） */
+  .measure-label{position:absolute;z-index:1190;pointer-events:auto;cursor:pointer;padding:2px 8px;border-radius:8px;background:rgba(11,122,75,.88);color:#fff;font-size:11px;font-weight:700;white-space:nowrap;transform:translate(-50%,-50%);box-shadow:0 2px 8px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.3);transition:background .15s ease,transform .25s var(--spring-soft);user-select:none}
+  .measure-label:hover{background:rgba(9,110,68,.95);transform:translate(-50%,-50%) scale(1.08)}
+  .measure-label.sel{background:rgba(229,72,77,.92);transform:translate(-50%,-50%) scale(1.1)}
+  .measure-label.sel::after{content:' ✓'}
+  /* 清除按钮 */
+
+  .measure-panel .mp-state{font-size:10px;font-weight:400;color:var(--muted);margin-left:4px}
+  .measure-panel .mp-state.done{color:var(--green)}
+  .measure-panel .mp-done{float:right;margin-left:4px;padding:1px 8px;border-radius:6px;border:1px solid rgba(11,122,75,.4);background:rgba(11,122,75,.08);color:var(--accent);font-size:11px;font-weight:600;cursor:pointer;transition:background .15s ease}
+  .measure-panel .mp-done:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .measure-panel .mp-clear{float:right;width:20px;height:20px;border-radius:50%;border:1px solid rgba(0,0,0,.12);background:rgba(255,255,255,.6);color:var(--muted);font-size:11px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:background .15s ease}
+  .measure-panel .mp-clear:hover{background:#e5484d;color:#fff;border-color:#e5484d}
+
   /* 自建弹窗（液态玻璃）——完全自定义，无 TMap 默认容器 */
   .spot-popup{position:absolute;top:0;left:0;z-index:3000;will-change:transform;pointer-events:none;display:none}
   /* 弹窗模糊 14→10（252px 宽的小弹窗，玻璃感差异肉眼几乎看不出） */
-  .pp-inner{pointer-events:auto;box-sizing:border-box;width:252px;background:linear-gradient(180deg, rgba(255,255,255,.65) 0%, rgba(250,251,253,.55) 50%, rgba(245,247,250,.65) 100%);backdrop-filter:blur(10px) saturate(1.5);-webkit-backdrop-filter:blur(10px) saturate(1.5);border-radius:16px;padding:13px 15px;box-shadow:0 8px 24px rgba(0,0,0,.28);border:1px solid rgba(0,0,0,.06);font-size:13.5px;line-height:1.55;overflow-wrap:break-word;word-break:break-word;white-space:normal;position:relative;overflow:hidden;background-clip:padding-box;will-change:transform}
+  .pp-inner{pointer-events:auto;box-sizing:border-box;width:252px;background:linear-gradient(180deg, rgba(255,255,255,.6) 0%, rgba(250,251,253,.5) 50%, rgba(245,247,250,.6) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-radius:20px 12px 20px 12px;padding:13px 15px;box-shadow:var(--glass-hi),var(--glass-deep),0 12px 40px rgba(0,0,0,.3);border:1px solid rgba(0,0,0,.06);font-size:13.5px;line-height:1.55;overflow-wrap:break-word;word-break:break-word;white-space:normal;position:relative;overflow:hidden;will-change:transform;animation:ppIn .26s var(--spring-pop);transform-origin:50% 15%}
+  @keyframes ppIn{from{opacity:0;transform:scale(.9) translateY(6px)}to{opacity:1;transform:none}}
 /* 原来这里有 4 条伪元素规则、其中 2 条互相覆盖（191 被 194 覆盖、192 被 193 覆盖），
    即 mask-composite 渐变边框和径向高光从来没生效过。合并成一条顶部高光。 */
   .pp-inner::before{content:'';position:absolute;top:0;left:0;right:0;height:40px;border-radius:16px 16px 0 0;background:linear-gradient(180deg,rgba(255,255,255,.32) 0%,rgba(255,255,255,0) 100%);pointer-events:none}
@@ -358,7 +400,8 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   /* 摘掉 backdrop-filter：14×14 小三角上模糊 20px 地图基本看不见；bg .6→.8 补偿 */
   .pp-arrow{position:absolute;left:50%;bottom:-7px;margin-left:-7px;width:14px;height:14px;background:rgba(255,255,255,.8);border-right:1px solid rgba(255,255,255,.7);border-bottom:1px solid rgba(255,255,255,.7);transform:rotate(45deg);box-shadow:4px 4px 12px rgba(0,0,0,.12);pointer-events:none}
   /* 摘掉 backdrop-filter：22×22 关闭按钮上模糊收益低；bg .55→.78 补偿 */
-  .pp-close{position:absolute;top:9px;right:9px;z-index:2;width:22px;height:22px;border-radius:50%;border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.78);color:var(--muted);font-size:12px;font-weight:700;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s}
+  .pp-close{position:absolute;top:9px;right:9px;z-index:2;width:22px;height:22px;border-radius:50%;border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.78);color:var(--muted);font-size:12px;font-weight:700;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s ease,color .15s ease,transform .3s var(--spring-pop)}
+  .pp-close:active{transform:scale(.86)}
   .pp-close:hover{background:#e5484d;color:#fff;border-color:#e5484d}
   body.dark .pp-close{background:rgba(40,45,56,.6);border-color:rgba(255,255,255,.18);color:var(--muted)}
   body.dark .pp-close:hover{background:#e5484d;color:#fff;border-color:#e5484d}
@@ -371,18 +414,16 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   .iw .t-hi{color:var(--red)} .iw .t-mid{color:var(--orange)} .iw .t-lo{color:var(--green)}
   body.dark .iw .t-mid{color:#ffb054}   /* 深色弹窗里中档人流用亮橙，避免深橙文字隐形 */
   .iw .peak{color:#8a5a00}
-  .iw .c-tip{margin-top:9px;padding:7px 9px;background:rgba(240,250,244,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(207,232,219,.9);border-radius:9px;font-size:12px;line-height:1.5;color:#0b5d3b;overflow-wrap:break-word;word-break:break-word;white-space:normal}
+  .iw .c-tip{margin-top:9px;padding:7px 9px;background:rgba(240,250,244,.72);border:1px solid rgba(207,232,219,.9);border-radius:9px;font-size:12px;line-height:1.5;color:#0b5d3b;overflow-wrap:break-word;word-break:break-word;white-space:normal}
   /* 弹窗「周边」节（F3）：胶囊可点，点了切到那个景点（高亮行 + 平移 + 开弹窗） */
   .iw .c-near{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:8px;font-size:12px}
   .iw .c-near b{font-weight:600;opacity:.72;white-space:nowrap}
-  .iw .c-near .pp-near{border:1px solid rgba(11,122,75,.32);background:rgba(11,122,75,.07);color:#0b5d3b;border-radius:12px;padding:2px 9px;font-size:12px;cursor:pointer;transition:background .15s,transform .15s ease}
+  .iw .c-near .pp-near{border:1px solid rgba(11,122,75,.32);background:rgba(11,122,75,.07);color:#0b5d3b;border-radius:12px;padding:2px 9px;font-size:12px;cursor:pointer;transition:background .15s,transform .25s var(--spring-soft)}
   .iw .c-near .pp-near:hover{background:rgba(11,122,75,.15);transform:translateY(-1px)}
 
   /* 右上角控件 */
   /* 摘掉 backdrop-filter（右上角小按钮组，模糊收益低）；spring 换 ease + 去掉 box-shadow 过渡 */
-  .btn{background:linear-gradient(180deg, rgba(255,255,255,.85) 0%, rgba(248,251,253,.72) 50%, rgba(240,243,247,.78) 100%);border-radius:11px;padding:6px 11px;font-size:12px;cursor:pointer;box-shadow:0 1px 2px rgba(15,30,60,.08), 0 6px 18px rgba(15,30,60,.12), inset 0 .5px 0 rgba(255,255,255,.95), inset 0 -.5px 0 rgba(255,255,255,.4), inset 1px 0 0 rgba(255,255,255,.55), inset -1px 0 0 rgba(255,255,255,.18);position:relative;color:var(--ink);transition:transform .15s ease, background .15s ease;overflow:hidden;border:1px solid transparent;background-clip:padding-box}
-/* 水晶棱镜边框 — 用渐变边框模拟光线色散（普鲁斯特蓝→粉） */
-.btn::after{content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(135deg, rgba(167,199,255,.85) 0%, rgba(255,255,255,.95) 25%, rgba(255,200,225,.7) 50%, rgba(255,255,255,.95) 75%, rgba(186,165,255,.85) 100%);-webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.85}
+  .btn{background:linear-gradient(180deg, rgba(255,255,255,.85) 0%, rgba(248,251,253,.72) 50%, rgba(240,243,247,.78) 100%) padding-box, var(--prism) border-box;border-radius:11px;padding:6px 11px;font-size:12px;cursor:pointer;box-shadow:0 1px 2px rgba(15,30,60,.08), 0 6px 18px rgba(15,30,60,.12), inset 0 .5px 0 rgba(255,255,255,.95), inset 0 -.5px 0 rgba(255,255,255,.4), inset 1px 0 0 rgba(255,255,255,.55), inset -1px 0 0 rgba(255,255,255,.18);position:relative;color:var(--ink);transition:transform .3s var(--spring-pop), background .15s ease;overflow:hidden;border:1px solid transparent}
 /* 双光源高光：左上方 + 右上方两束点光叠加（真实玻璃在两个倾斜光源下的反射） */
 .btn:hover{transform:translateY(-2px) scale(1.025);box-shadow:0 1px 2px rgba(15,30,60,.1), 0 14px 28px rgba(15,30,60,.18), inset 0 .5px 0 rgba(255,255,255,.95), inset 0 -.5px 0 rgba(255,255,255,.4), inset 1px 0 0 rgba(255,255,255,.65), inset -1px 0 0 rgba(255,255,255,.22)}
 /* 摘掉 box-shadow 过渡：box-shadow 模糊半径变化每一帧都要重新光栅化阴影，
@@ -391,16 +432,11 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
 .btn:active{transform:translateY(0) scale(.975);box-shadow:0 1px 2px rgba(15,30,60,.06), 0 4px 10px rgba(15,30,60,.1), inset 0 2px 4px rgba(0,0,0,.06), inset 0 -.5px 0 rgba(255,255,255,.5);transition:transform .12s ease}
 .btn:active{transform:translateY(0);box-shadow:0 4px 12px rgba(15,30,60,.08), inset 0 2px 4px rgba(0,0,0,.05)}
   .btn:hover{background:rgba(255,255,255,.95)}
-  .legend{background:linear-gradient(180deg, rgba(255,255,255,.72) 0%, rgba(248,250,252,.5) 50%, rgba(240,243,247,.55) 100%);backdrop-filter:blur(12px) saturate(1.8);-webkit-backdrop-filter:blur(12px) saturate(1.8);border-radius:12px;padding:9px 12px;font-size:12px;box-shadow:0 1px 2px rgba(15,30,60,.08), 0 4px 14px rgba(15,30,60,.1), inset 0 .5px 0 rgba(255,255,255,.95), inset 0 -.5px 0 rgba(255,255,255,.35), 0 0 8px rgba(167,199,255,.18), 0 0 12px rgba(255,200,225,.15);line-height:1.7;position:relative;overflow:hidden;border:1px solid transparent;background-clip:padding-box}
-.legend::after{content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(135deg, rgba(167,199,255,.8) 0%, rgba(255,255,255,.95) 25%, rgba(255,200,225,.65) 50%, rgba(255,255,255,.95) 75%, rgba(186,165,255,.8) 100%);-webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.8}
-.legend .lg{display:inline-flex;align-items:center;gap:5px;margin-right:12px}
-  .dot{width:11px;height:11px;border-radius:50%;display:inline-block;box-shadow:0 0 6px currentColor,0 0 12px currentColor}
-  .lg-res{display:inline-flex;align-items:center;gap:4px;margin-right:10px;font-size:11px;color:var(--muted)}
-  .heat-scale{display:flex;align-items:center;gap:6px;margin-top:7px;font-size:10px;color:var(--muted)}
-  .heat-scale .hs-bar{display:inline-block;width:96px;height:6px;border-radius:3px;background:linear-gradient(90deg,#30a46c,#c2410c,#e5484d);box-shadow:0 0 6px rgba(0,0,0,.18)}
 
   #toggle{display:none}
   @media (max-width:820px){
+    /* 移动端降模糊档：10/12/14 → 8/9/10（模糊开销 O(像素×半径)） */
+    :root{--glass-blur:8px;--glass-blur-md:9px;--glass-blur-lg:10px}
     #panel{position:absolute;left:0;top:0;bottom:0;transform:translateX(-100%);transition:.25s;box-shadow:0 0 30px rgba(0,0,0,.25);width:min(320px,88vw);min-width:0}
     #panel.open{transform:translateX(0)}
     #toggle{display:inline-flex;align-items:center;gap:5px;position:absolute;top:calc(12px + env(safe-area-inset-top));left:calc(12px + env(safe-area-inset-left));z-index:1400}
@@ -448,7 +484,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   #collapseBtn{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;font-size:11px;border-radius:8px;cursor:pointer;border:1px solid rgba(255,255,255,.7);background:rgba(255,255,255,.72);color:var(--muted);transition:background .12s ease, color .12s ease}
   #collapseBtn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
   /* 同上：摘 backdrop-filter；bg .5→.72 补偿 */
-  #btnRoute{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;font-size:11px;font-weight:600;border-radius:8px;cursor:pointer;border:1px solid rgba(255,255,255,.7);background:rgba(255,255,255,.72);color:var(--muted);transition:background .12s ease, color .12s ease, border-color .12s ease;position:relative}
+  #btnRoute{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;font-size:11px;font-weight:600;border-radius:8px;cursor:pointer;border:1px solid rgba(255,255,255,.7);background:rgba(255,255,255,.72);color:var(--muted);transition:background .12s ease, color .12s ease, border-color .12s ease, transform .3s var(--spring-soft);position:relative}
 #btnRoute:hover{background:rgba(255,255,255,.85);color:#0b5d3b;border-color:rgba(11,93,59,.5);transform:translateY(-1px)}
 #btnRoute.active{background:linear-gradient(135deg, #10b981, #34d399);color:#fff;border-color:rgba(11,93,59,.6);box-shadow:0 4px 14px rgba(11,93,59,.35), inset 0 1px 0 rgba(255,255,255,.35);transform:translateY(-1px)}
   #btnRoute:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
@@ -470,7 +506,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   body.dark .p-head .weather{background:rgba(20,60,40,.5);border-color:rgba(50,110,80,.6);color:#7fd9a8}
   body.dark .p-head .note{background:rgba(60,45,10,.5);border-color:rgba(120,95,30,.6);color:#e5c37a}
   body.dark .filters{background:rgba(30,35,45,.45);border-bottom:1px solid var(--glass-head-border)}
-  body.dark .chip{background:rgba(40,45,56,.6);border-color:var(--glass-border);color:var(--ink);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+  body.dark .chip{background:linear-gradient(rgba(40,45,56,.6),rgba(40,45,56,.6)) padding-box, var(--prism) border-box;border-color:var(--glass-border);color:var(--ink);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
   body.dark .chip.active{background:rgba(52,211,153,.85);color:#06281a;border-color:rgba(255,255,255,.25)}
   body.dark .search{background:rgba(40,45,56,.6);border-color:var(--glass-border);color:var(--ink)}
   body.dark .search::placeholder{color:var(--muted)}
@@ -479,12 +515,10 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   body.dark .it-emoji{background:rgba(40,45,56,.6);border-color:var(--glass-border);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
   body.dark .item-add{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#34d399}
   body.dark .item-add:hover,body.dark .item-add.added{background:#34d399;color:#06281a;border-color:#34d399}
-  body.dark .btn{background:rgba(40,45,56,.7);border-color:var(--glass-border);color:var(--ink)}
+  body.dark .btn{background:linear-gradient(rgba(40,45,56,.7),rgba(40,45,56,.7)) padding-box, var(--prism) border-box;border-color:var(--glass-border);color:var(--ink)}
   body.dark .btn:hover{background:rgba(52,58,72,.9)}
-  body.dark .legend{background:rgba(40,45,56,.7);border-color:var(--glass-border);color:var(--ink)}
   body.dark .pp-inner{background:rgba(30,35,45,.6);border-color:rgba(255,255,255,.18);box-shadow:0 10px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.14)}
   body.dark .pp-inner::before{background:linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.55) 20%,rgba(255,255,255,.55) 80%,rgba(255,255,255,0) 100%)}
-  body.dark .pp-inner::after{background:linear-gradient(180deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,0) 100%)}
   body.dark .pp-arrow{background:rgba(30,35,45,.6);border-color:rgba(255,255,255,.18)}
   body.dark .iw .c-tip{background:rgba(20,55,40,.55);border-color:rgba(50,110,80,.55);color:#8fd9b0}
   body.dark .iw .c-near .pp-near{border-color:rgba(90,180,140,.4);background:rgba(20,55,40,.5);color:#8fd9b0}
@@ -493,7 +527,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   body.dark #map canvas{filter:var(--map-filter)}
   /* 腾讯 SDK 内部用 canvas 渲染地名/道路标签，CSS 无法直接控制文字字体，
      但可以让 canvas 元素继承字体声明以加速 SDK 字体回退 */
-  #map canvas{font-family:"Microsoft YaHei","微软雅黑",-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei UI",system-ui,sans-serif}
+  #map canvas{font-family:"Microsoft YaHei","微软雅黑",system-ui,-apple-system,"Segoe UI","PingFang SC","HarmonyOS Sans SC","MiSans",sans-serif}
   #collapseBtn.dark, body.dark #collapseBtn, body.dark #btnRoute{background:rgba(40,45,56,.6);border-color:var(--glass-border);color:var(--muted)}
   body.dark #btnRoute:hover, body.dark #btnRoute.active{background:rgba(52,211,153,.85);color:#06281a}
 
@@ -511,6 +545,31 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   .live-status.loading{color:var(--live-loading)}
   .live-status.loading::before{content:'';display:inline-block;width:10px;height:10px;border-radius:50%;border:2px solid var(--live-loading);border-top-color:transparent;animation:live-spin .8s linear infinite;margin-right:6px;vertical-align:-1px}
   @keyframes live-spin{to{transform:rotate(360deg)}}
+  .live-info-btn{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin-left:6px;border-radius:50%;border:1px solid rgba(0,0,0,.15);background:rgba(255,255,255,.6);color:var(--muted);font-size:11px;font-weight:700;font-style:italic;line-height:1;cursor:pointer;vertical-align:middle;padding:0;transition:background .15s ease,transform .25s var(--spring-soft)}
+  .live-info-btn:hover{background:rgba(255,255,255,.9);transform:scale(1.1)}
+  .live-info-btn:active{transform:scale(.9)}
+  body.dark .live-info-btn{background:rgba(40,45,56,.6);border-color:rgba(255,255,255,.18);color:var(--muted)}
+  /* 人流数据说明面板（ⓘ 按钮展开，嵌入侧栏不飘浮） */
+  .live-info-panel{margin:4px 10px 6px;border-radius:11px;border:1px solid rgba(0,0,0,.1);background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(248,250,252,.9));overflow:hidden;font-size:12px;line-height:1.5;animation:menuIn .22s var(--spring-soft)}
+  .live-info-panel .lp-head{display:flex;align-items:center;justify-content:space-between;padding:8px 10px 6px;font-weight:700;font-size:12px;color:var(--ink);border-bottom:1px solid rgba(0,0,0,.06)}
+  .live-info-panel .lp-close{width:22px;height:22px;border-radius:50%;border:1px solid rgba(0,0,0,.12);background:rgba(255,255,255,.6);color:var(--muted);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s ease}
+  .live-info-panel .lp-close:hover{background:#e5484d;color:#fff;border-color:#e5484d}
+  .live-info-panel .lp-body{padding:8px 10px}
+  .live-info-panel .lp-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px}
+  .live-info-panel .lp-item:last-of-type{margin-bottom:0}
+  .live-info-panel .lp-item b{display:block;color:var(--ink);font-size:11.5px}
+  .live-info-panel .lp-item span:not(.lp-dot){display:block;color:var(--muted);font-size:11px;line-height:1.45}
+  .live-info-panel .lp-dot{width:8px;height:8px;border-radius:50%;flex:none;margin-top:4px}
+  .live-info-panel .lp-dot.ok{background:var(--green)}
+  .live-info-panel .lp-dot.est{background:#b58a00}
+  .live-info-panel .lp-dot.warn{background:var(--orange)}
+  .live-info-panel .lp-legend{display:flex;align-items:center;gap:6px;margin-top:8px;padding-top:6px;border-top:1px dashed rgba(0,0,0,.1)}
+  .live-info-panel .lp-lg{width:20px;height:16px;border-radius:4px;color:#fff;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+  .live-info-panel .lp-note{color:var(--muted);font-size:10.5px;margin-left:auto}
+  body.dark .live-info-panel{background:linear-gradient(180deg, rgba(35,40,50,.95), rgba(30,34,42,.9));border-color:rgba(255,255,255,.12)}
+  body.dark .live-info-panel .lp-head{border-bottom-color:rgba(255,255,255,.1)}
+  body.dark .live-info-panel .lp-close{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15)}
+  body.dark .live-info-panel .lp-legend{border-top-color:rgba(255,255,255,.12)}
   .live-refresh{cursor:pointer;border:none;background:transparent;color:inherit;opacity:.7;font-size:14px;margin-left:8px;padding:2px 6px;border-radius:4px;line-height:1}
   .live-refresh:hover{opacity:1;background:rgba(0,0,0,.08)}
   .live-refresh:active{transform:scale(.95)}
@@ -538,7 +597,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   /* ---------- 搜索联想下拉 ---------- */
   .q-wrap{position:relative}
   /* 搜索下拉 18→12（仅在搜索框聚焦时出现，按需付出） */
-  .q-list{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:1200;background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.88));backdrop-filter:blur(12px) saturate(1.4);border:1px solid rgba(255,255,255,.6);border-radius:13px;box-shadow:0 12px 36px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.9);overflow:hidden;max-height:250px;overflow-y:auto}
+  .q-list{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:1200;background:linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.7));backdrop-filter:blur(var(--glass-blur-md)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur-md)) saturate(1.8);border:1px solid rgba(255,255,255,.6);border-radius:16px 10px 16px 10px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);overflow:hidden;max-height:250px;overflow-y:auto}
   body.dark .q-list{background:rgba(34,40,52,.96);border-color:rgba(255,255,255,.14)}
   .q-list .q-empty{padding:9px 11px;font-size:12.5px;color:var(--muted)}
   .q-item{display:flex;align-items:center;gap:7px;font-size:12.5px;padding:7px 11px;cursor:pointer;color:var(--ink)}
@@ -551,9 +610,9 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   body.dark .list mark{color:#34d399}
   /* ---------- 聚合气泡点击 → 快捷列表 ---------- */
   /* 聚合点列表 18→12（仅点击聚合气泡时出现） */
-  .cluster-list{position:absolute;z-index:1180;background:linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.88));backdrop-filter:blur(12px) saturate(1.4);border:1px solid rgba(255,255,255,.7);border-radius:14px;box-shadow:0 12px 36px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.7);overflow:hidden;min-width:200px;max-width:260px;animation:clIn .15s ease-out}
+  .cluster-list{position:absolute;z-index:1180;background:linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.68));backdrop-filter:blur(var(--glass-blur-md)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur-md)) saturate(1.8);border:1px solid rgba(255,255,255,.7);border-radius:18px 12px 18px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);overflow:hidden;min-width:200px;max-width:260px;animation:clIn .25s var(--spring-soft)}
   body.dark .cluster-list{background:rgba(30,36,46,.95);border-color:rgba(255,255,255,.15)}
-  @keyframes clIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+  @keyframes clIn{from{opacity:0;transform:translateY(-8px) scale(.98)}to{opacity:1;transform:none}}
   .cluster-list .cl-head{padding:9px 12px;font-size:12.5px;font-weight:700;background:linear-gradient(90deg,var(--cl-accent,#0b7a4b) 0%,transparent 30%),rgba(255,255,255,.5);border-bottom:1px solid rgba(120,130,145,.18);display:flex;align-items:center;gap:6px}
   body.dark .cluster-list .cl-head{background:linear-gradient(90deg,var(--cl-accent,#0b7a4b) 0%,transparent 30%),rgba(255,255,255,.06)}
   .cluster-list .cl-head .cl-title{flex:1}
@@ -577,14 +636,14 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
      结果整个面板掉到视口外，「路程 / 直线」读数被屏幕底边切掉，
      看上去就像「点了测距没反应」。 */
   /* 测距面板模糊 12→10（按需弹出，砍 17% 半径省 GPU） */
-  .measure-panel{position:absolute;left:12px;bottom:28px;z-index:1150;background:linear-gradient(180deg, rgba(255,255,255,.72) 0%, rgba(248,250,252,.5) 50%, rgba(240,243,247,.55) 100%);backdrop-filter:blur(10px) saturate(1.5);-webkit-backdrop-filter:blur(10px) saturate(1.5);border-radius:14px;padding:9px 12px;box-shadow:0 1px 2px rgba(15,30,60,.08), 0 10px 30px rgba(15,30,60,.18), 0 0 12px rgba(167,199,255,.2), 0 0 18px rgba(255,200,225,.18), inset 0 .5px 0 rgba(255,255,255,.95), inset 0 -.5px 0 rgba(255,255,255,.35);font-size:12.5px;line-height:1.6;overflow:hidden;border:1px solid transparent;background-clip:padding-box}
-.measure-panel::after{content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(135deg, rgba(167,199,255,.8) 0%, rgba(255,255,255,.95) 25%, rgba(255,200,225,.65) 50%, rgba(255,255,255,.95) 75%, rgba(186,165,255,.8) 100%);-webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.85}
+  .measure-panel{position:absolute;left:12px;bottom:28px;z-index:1150;backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-radius:18px 12px 18px 12px;padding:9px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);font-size:12.5px;line-height:1.6;overflow:hidden;background:linear-gradient(180deg, rgba(255,255,255,.72) 0%, rgba(248,250,252,.5) 50%, rgba(240,243,247,.55) 100%) padding-box, var(--prism) border-box;border:1px solid transparent}
+
 .measure-panel::before{content:'';position:absolute;top:1px;left:10%;right:10%;height:30%;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,.5), transparent);pointer-events:none}
   .measure-panel .mp-title{font-weight:700;margin-bottom:2px}
   .measure-panel .mp-row{color:var(--muted)}
   .measure-panel .mp-row b{color:var(--ink);font-weight:700}
   .measure-panel .mp-hint{font-size:10.5px;color:var(--muted);opacity:.85;margin-top:2px}
-  body.dark .measure-panel{background:rgba(30,35,45,.65);border-color:rgba(255,255,255,.18);box-shadow:0 6px 24px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.12)}
+  body.dark .measure-panel{background:linear-gradient(rgba(30,35,45,.65),rgba(30,35,45,.65)) padding-box, var(--prism) border-box;border-color:rgba(255,255,255,.18);box-shadow:0 6px 24px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.12)}
 
   /* ---------- 路线查询面板 ---------- */
   /* overflow 改成 visible（原来是 hidden），原因是折叠键被面板圆角啃掉了角。
@@ -607,23 +666,32 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
      .prism ::after 的 mask 边框依赖父级 overflow 边界（其实不依赖，
      mask-composite 只看自身的 border-radius），所以这个改法 0 风险。
      面板的圆角还在，只是子元素不再被圆角裁切。 */
-  .route-panel{position:absolute;left:12px;top:12px;z-index:1300;width:260px;background:linear-gradient(180deg, rgba(255,255,255,.84) 0%, rgba(250,251,253,.74) 50%, rgba(245,247,250,.78) 100%);backdrop-filter:blur(10px) saturate(1.5);-webkit-backdrop-filter:blur(10px) saturate(1.5);border-radius:18px;padding:11px 12px;box-shadow:0 1px 2px rgba(15,30,60,.08), 0 12px 40px rgba(15,30,60,.2), 0 0 14px rgba(167,199,255,.2), 0 0 22px rgba(255,200,225,.18), inset 0 .5px 0 rgba(255,255,255,.95), inset 0 -.5px 0 rgba(255,255,255,.4);font-size:12.5px;overflow:visible;border:1px solid transparent;background-clip:padding-box}
+  .route-panel{position:absolute;left:12px;top:12px;z-index:1300;width:260px;background:linear-gradient(180deg, rgba(255,255,255,.75) 0%, rgba(250,251,253,.65) 50%, rgba(245,247,250,.7) 100%) padding-box, var(--prism) border-box;backdrop-filter:blur(var(--glass-blur)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-radius:22px 14px 22px 14px;padding:11px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);font-size:12.5px;overflow:visible;border:1px solid transparent}
   /* 抽屉开关时对话框要整体挪位/收窄，这里给它补上 left / width 的过渡，
      否则 body.panel-open 那条规则会瞬移，看起来像闪了一下。
      注意只动 left 和 width，不碰 transform —— .rp-body 的折叠用的是 max-height。 */
   .route-panel{transition:left .25s ease, width .25s ease}
-.route-panel::after{content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(135deg, rgba(167,199,255,.85) 0%, rgba(255,255,255,.95) 25%, rgba(255,200,225,.7) 50%, rgba(255,255,255,.95) 75%, rgba(186,165,255,.85) 100%);-webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.85}
-.route-panel::before{content:'';position:absolute;top:1px;left:10%;right:10%;height:20%;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,.25), transparent);pointer-events:none}
+/* 顶光改为 inset 顶线：原来是独立圆角白色渐变块（border-radius:10px + height:20%），
+   在 overflow:visible 的面板上就是一块看得见的「白玻璃片」贴在标题区，对比度突兀。
+   inset box-shadow 贴合面板自身 18px 圆角、零溢出。 */
+.route-panel::before{content:none}
   .route-panel.hidden{display:none}
+  /* 流光（玻璃完整化·动态）：斜光带每 7s 扫过一次 —— 纯 transform 循环（合成器
+     动画，零重绘），低透明度不抢内容；reduced-motion 被全局 0.01ms 压制；
+     折叠动画窗口 .folding 暂停，不与 max-height 动画叠加抢帧。 */
+  .route-panel .rp-body::after{content:'';position:absolute;top:0;bottom:0;left:0;width:64px;background:linear-gradient(100deg,transparent,rgba(255,255,255,.12),transparent);transform:skewX(-18deg) translateX(-90px);animation:sheenSweep 7s linear infinite;pointer-events:none}
+  .route-panel.folding .rp-body::after{animation-play-state:paused}
+  .pp-inner::after{content:'';position:absolute;top:0;bottom:0;left:0;width:56px;background:linear-gradient(100deg,transparent,rgba(255,255,255,.14),transparent);transform:skewX(-18deg) translateX(-80px);animation:sheenSweep 7s linear 1.2s infinite;pointer-events:none}
+  @keyframes sheenSweep{0%,42%{transform:skewX(-18deg) translateX(-90px)}68%,100%{transform:skewX(-18deg) translateX(340px)}}
   .route-panel .rp-title{font-weight:700;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
   /* 折叠键尺寸必须跟同排控件对齐：.rp-mode 实测 28px、查询路线/清除 31px，
    这里原来只有 22×22、圆角 6px、字号 11px —— 一个 11px 的 ▾ 挤在 22px 白框里，
    渲染出来就是标题栏右边一个看不出是什么的白点（用户报的「尺寸没有调好」）。
    统一到 28×28 / 圆角 8px（与 .rp-mode 一致），字号 13px，并用 flex 真正居中，
    不再依赖 line-height 去凑垂直位置。 */
-  .route-panel .rp-title button{width:28px;height:28px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid rgba(255,255,255,.7);background:rgba(255,255,255,.45);cursor:pointer;font-size:13px;color:var(--muted);line-height:1;transition:background .15s,transform .2s}
+  .route-panel .rp-title button{width:28px;height:28px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid rgba(255,255,255,.7);background:rgba(255,255,255,.45);cursor:pointer;font-size:13px;color:var(--muted);line-height:1;transition:background .15s ease,transform .35s var(--spring-pop)}
   .route-panel .rp-title button:hover{background:rgba(255,255,255,.8)}
-  .route-panel .rp-body{overflow:hidden;max-height:min(540px, calc(100vh - 80px));max-height:min(540px, calc(100dvh - 80px));transition:max-height .25s ease}
+  .route-panel .rp-body{overflow:hidden;position:relative;max-height:min(540px, calc(100vh - 80px));max-height:min(540px, calc(100dvh - 80px));transition:max-height .25s ease}
   .route-panel.collapsed .rp-body{max-height:0}
   /* 折叠动画期间临时摘掉 backdrop-filter：
      收起/展开动的是 max-height，面板自身 + 里面 4 个 .rp-mode + 2 个 input + .rp-swap
@@ -638,7 +706,8 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   .rp-modes{display:flex;gap:5px;margin-bottom:8px}
   /* 摘掉 backdrop-filter（4 个 chip 上 blur 6px 地图，折叠动画里更是一帧一模糊）；
      bg .45→.7 补偿；折叠动画期间再临时关一次（见 .route-panel.folding） */
-  .rp-mode{flex:1;padding:6px 0;font-size:12px;border-radius:8px;cursor:pointer;border:1px solid rgba(255,255,255,.7);background:rgba(255,255,255,.7);color:var(--muted);transition:background .12s ease, color .12s ease}
+  .rp-mode{flex:1;padding:6px 0;font-size:12px;border-radius:8px;cursor:pointer;border:1px solid rgba(255,255,255,.7);background:rgba(255,255,255,.7);color:var(--muted);transition:background .12s ease, color .12s ease, transform .3s var(--spring-pop)}
+  .rp-mode:active{transform:scale(.94)}
   .rp-mode.active{background:rgba(11,122,75,.85);color:#fff;border-color:rgba(255,255,255,.7);box-shadow:0 2px 8px rgba(11,122,75,.35)}
   .route-panel .rp-row{display:flex;align-items:center;gap:8px;margin:7px 0}
   .route-panel .rp-ico{flex:none;width:11px;height:11px;border-radius:50%;border:2.5px solid}
@@ -648,15 +717,13 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
      （高德 / Google Maps 的做法），省掉 16px 死白，
      也让两个输入框在视觉上连成一对「起终点」。
      z-index 必须高于 input，否则按钮会被压到输入框底下点不到。 */
-  .route-panel .rp-row-swap{position:relative;height:0;margin:0;z-index:2}
-  /* 文案也去掉了，只留 ⇅：带「互换」二字时按钮 53px，会盖住输入框右侧 53px；
-     现在固定 26px 圆形（和 .item-add 同一套尺寸语言），只盖 26px，一半。
-     代价是文字上的直白没了，所以 HTML 里 title 和 aria-label 都必须留着 ——
-     去掉可见文字却不给 aria-label，按钮的无障碍名称就空了，屏幕阅读器只念「按钮」。
-
-     top 必须等于「按钮高度的一半」，按钮才正好骑在两行的缝上。
-     按钮高固定 26px → -13px。改 height 时要回来同步这个数，否则会偏上/偏下。 */
-  .route-panel .rp-row-swap .rp-swap{position:absolute;right:8px;top:-13px;width:26px;height:26px;padding:0;gap:0;justify-content:center;font-size:14px;border-radius:50%;box-shadow:0 2px 6px rgba(15,30,60,.16)}
+  /* 互换按钮（用户要求「互不叠合」后重排）：原来是骑缝设计（height:0 + top:-13px
+     半个按钮压在出发点输入框上），在 260px 窄面板里就是「压住输入框」。
+     现在给它一行真实高度，按钮右置、与上下输入框各留间隙，零重叠；
+     多出的 26px 高度在窄面板里并不挤。z-index 不再需要（无重叠）。 */
+  .route-panel .rp-row-swap{display:flex;justify-content:flex-end;margin:2px 0}
+  .route-panel .rp-row-swap .rp-swap{width:26px;height:26px;padding:0;gap:0;justify-content:center;font-size:14px;border-radius:50%;box-shadow:0 2px 6px rgba(15,30,60,.16);transition:background .12s ease, color .12s ease, border-color .12s ease, transform .3s var(--spring-pop)}
+  .route-panel .rp-row-swap .rp-swap:active{transform:rotate(180deg) scale(.9)}
   .route-panel .rp-from{background:#30a46c;border-color:#30a46c}
   .route-panel .rp-to{background:#e5484d;border-color:#e5484d}
   /* 摘掉 backdrop-filter（2 个 input 上 blur 8px 地图，折叠动画里每帧重模糊）；
@@ -666,8 +733,8 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   .route-panel input:focus{border-color:var(--accent)}
 
   /* 键盘快捷键面板 */
-  #helpOverlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);animation:fadeIn .15s ease}
-  #helpOverlay .help-card{background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.85));backdrop-filter:blur(20px) saturate(1.6);border:1px solid rgba(255,255,255,.7);border-radius:18px;padding:18px 22px;min-width:340px;box-shadow:0 20px 60px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.95);animation:slideUp .2s ease}
+  #helpOverlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fadeIn .15s ease}
+  #helpOverlay .help-card{background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.85));backdrop-filter:blur(20px) saturate(1.6);border:1px solid rgba(255,255,255,.7);border-radius:18px;padding:18px 22px;min-width:340px;box-shadow:0 20px 60px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.95);animation:slideUp .3s var(--spring-soft)}
   body.dark #helpOverlay .help-card{background:linear-gradient(180deg, rgba(35,40,50,.92),rgba(30,34,42,.85));border-color:rgba(255,255,255,.15);box-shadow:0 20px 60px rgba(0,0,0,.6)}
   .help-head{font-weight:700;font-size:15px;letter-spacing:.5px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;color:var(--ink)}
   .help-x{width:26px;height:26px;border-radius:50%;border:1px solid rgba(0,0,0,.12);background:rgba(255,255,255,.6);color:#1a1f2e;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;transition:.15s}
@@ -683,22 +750,9 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
   /* 缩放指示器 */
-  .zoom-indicator{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;margin-top:2px;border-radius:11px;background:linear-gradient(180deg, rgba(255,255,255,.78) 0%, rgba(248,250,252,.55) 50%, rgba(240,243,247,.6) 100%);border:1px solid rgba(255,255,255,.7);backdrop-filter:blur(14px) saturate(1.5);-webkit-backdrop-filter:blur(14px) saturate(1.5);box-shadow:0 1px 2px rgba(15,30,60,.08), 0 6px 18px rgba(15,30,60,.1), inset 0 .5px 0 rgba(255,255,255,.95), inset 0 -.5px 0 rgba(255,255,255,.3);font-size:11.5px;position:relative;color:var(--ink);overflow:hidden}
-/* filter:blur(.5px) 已删除：.5px 模糊肉眼基本看不出，但 filter 会创建独立合成层 + 渲染通道，
-   在常驻的缩放指示器上毫无意义。渐变本身已经有从 .85 渐变到 transparent 的过渡。 */
-.zoom-indicator::before{content:'';position:absolute;top:1px;right:6%;width:36%;height:38%;border-radius:50%/40%;background:radial-gradient(ellipse at 70% 30%, rgba(255,255,255,.85) 0%, rgba(255,255,255,.3) 55%, transparent 90%);pointer-events:none}
-  body.dark .zoom-indicator{background:linear-gradient(180deg, rgba(50,55,65,.7),rgba(35,40,50,.45));border-color:rgba(255,255,255,.12)}
-  .zoom-label{color:var(--muted);padding:0 4px}
-  .zoom-level{display:inline-block;min-width:30px;text-align:center;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
-  .zoom-btn,.zoom-help{width:24px;height:24px;border-radius:8px;border:1px solid rgba(255,255,255,.7);background:linear-gradient(180deg, rgba(255,255,255,.92) 0%, rgba(248,250,252,.55) 50%, rgba(240,243,247,.55) 100%);color:#1a1f2e;cursor:pointer;font-size:13px;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center;transition:.12s;box-shadow:inset 0 .5px 0 rgba(255,255,255,.95), inset 0 -.5px 0 rgba(255,255,255,.35), 0 2px 6px rgba(15,30,60,.08);position:relative;overflow:hidden}
-/* spring 缓动换成 ease + 去掉 box-shadow 过渡（按 24px 小按钮的 hover 视觉收益低） */
-.zoom-btn,.zoom-help{transition:transform .12s ease}
-.zoom-btn:hover,.zoom-help:hover{transform:translateY(-1px) scale(1.08);box-shadow:inset 0 .5px 0 rgba(255,255,255,.95), inset 0 -.5px 0 rgba(255,255,255,.4), 0 4px 10px rgba(15,30,60,.15)}
-.zoom-btn:active,.zoom-help:active{transform:translateY(0) scale(.94);transition:transform .1s cubic-bezier(.4,0,.2,1)}
-  body.dark .zoom-btn,body.dark .zoom-help{background:linear-gradient(180deg, rgba(70,75,85,.85),rgba(45,50,60,.5));color:#fff;border-color:rgba(255,255,255,.18)}
-  .zoom-btn:hover,.zoom-help:hover{background:rgba(255,255,255,.95);transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,0,0,.15)}
-  .zoom-btn:active,.zoom-help:active{transform:translateY(0)}
-  .zoom-help{font-weight:700;color:var(--accent);background:linear-gradient(180deg, rgba(52,211,153,.18),rgba(52,211,153,.08))}
+  
+        /* spring 缓动换成 ease + 去掉 box-shadow 过渡（按 24px 小按钮的 hover 视觉收益低） */
+  body.dark .zoom-btn,body.dark       .zoom-help{font-weight:700;color:var(--accent);background:linear-gradient(180deg, rgba(52,211,153,.18),rgba(52,211,153,.08))}
   .route-panel .rp-actions{display:flex;gap:8px;margin-top:10px}
   .route-panel .rp-actions button{flex:1;padding:7px 0;font-size:13px;border-radius:8px;cursor:pointer;border:1px solid transparent;font-weight:600;transition:.15s}
   .route-panel .rp-actions #rpGo{background:linear-gradient(135deg,#e5484d,#c22b30);color:#fff;box-shadow:0 2px 8px rgba(229,72,77,.4)}
@@ -747,11 +801,10 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   .rp-wp-chip .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px}
   .rp-wp-chip .x{cursor:pointer;color:#c22b30;font-weight:700;font-size:14px;line-height:1;margin-left:2px}
   .rp-wp-chip .x:hover{color:#e5484d}
-  .rp-row-swap{display:flex;justify-content:flex-end;margin:2px 0 2px}
   /* 摘掉 backdrop-filter（互换按钮上 blur 8px 地图收益低）；bg .55→.78 补偿 */
   .rp-swap{display:inline-flex;align-items:center;gap:3px;padding:3px 7px;font-size:11.5px;border-radius:7px;border:1px solid rgba(255,255,255,.8);background:rgba(255,255,255,.78);color:var(--muted);cursor:pointer;transition:background .12s ease, color .12s ease, border-color .12s ease}
   .rp-swap:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
-  body.dark .route-panel{background:rgba(30,35,45,.68);border-color:rgba(255,255,255,.18);box-shadow:0 6px 24px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.12)}
+  body.dark .route-panel{background:linear-gradient(rgba(30,35,45,.68),rgba(30,35,45,.68)) padding-box, var(--prism) border-box;border-color:rgba(255,255,255,.18);box-shadow:0 6px 24px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.12)}
   body.dark .route-panel input{background:rgba(40,45,56,.6);border-color:var(--glass-border);color:var(--ink)}
   body.dark .route-panel .rp-title button{background:rgba(40,45,56,.6);border-color:var(--glass-border);color:var(--muted)}
   /* 摘掉 backdrop-filter 后深色背景也要补：.5→.72 补偿 */
@@ -788,10 +841,10 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
      右下是「回到我的位置」(x>=1230)，y 620~656 这条带上什么都没有。
      收起/弹出方向也跟着镜像成自下而上。
      spring 缓动换 ease（.34,1.56,.64,1 会算反向运动帧；toast 一次性弹窗，ease 已够用）。 */
-  .toast{position:fixed;bottom:64px;left:50%;transform:translate(-50%,12px) scale(.95);z-index:4000;background:linear-gradient(180deg, rgba(50,56,66,.9) 0%, rgba(35,40,50,.85) 50%, rgba(28,32,38,.95) 100%);color:#fff;padding:9px 16px;border-radius:11px;font-size:12.5px;backdrop-filter:blur(16px) saturate(1.5);-webkit-backdrop-filter:blur(16px) saturate(1.5);box-shadow:0 10px 32px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.12);pointer-events:none;opacity:0;transition:opacity .25s ease, transform .35s ease;max-width:min(420px,76vw);text-align:center}
+  .toast{position:fixed;bottom:64px;left:50%;transform:translate(-50%,12px) scale(.95);z-index:4000;background:linear-gradient(180deg, rgba(50,56,66,.82) 0%, rgba(35,40,50,.78) 50%, rgba(28,32,38,.88) 100%);color:#fff;padding:9px 16px;border-radius:16px 10px 16px 10px;font-size:12.5px;backdrop-filter:blur(var(--glass-blur-lg)) saturate(1.8);-webkit-backdrop-filter:blur(var(--glass-blur-lg)) saturate(1.8);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -16px 32px rgba(0,0,0,.25),0 16px 48px rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.14);pointer-events:none;opacity:0;transition:opacity .25s ease, transform .45s var(--spring-soft);max-width:min(420px,76vw);text-align:center}
 body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-gradient(180deg, rgba(255,255,255,.92),rgba(245,247,250,.85));color:#1a1f2e;border-color:rgba(255,255,255,.6);box-shadow:0 10px 32px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.95)}
-  .toast.show{opacity:1;transform:translate(-50%,0) scale(1);animation:toastPop .35s ease}
-@keyframes toastPop{0%{transform:translate(-50%,12px) scale(.92);opacity:0}100%{transform:translate(-50%,0) scale(1);opacity:1}}
+  .toast.show{opacity:1;transform:translate(-50%,0) scale(1);animation:toastPop .45s var(--spring-soft)}
+@keyframes toastPop{0%{transform:translate(-50%,14px) scale(.9);opacity:0}100%{transform:translate(-50%,0) scale(1);opacity:1}}
   .toast.ok{background:rgba(20,122,74,.94)}
   .toast.error{background:rgba(200,45,50,.94)}
   .toast.info{background:rgba(38,78,128,.94)}
@@ -813,20 +866,11 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
      策略：顶部柔光降到 .07~.09，棱镜描边整体压到 .35，
      并补上 hover 状态缺失的深色底 —— 深色里一点白就刺眼，悬停反馈改用低透明冷白。 */
   body.dark .p-head::before{background:linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,0))}
-  body.dark .route-panel::before{background:linear-gradient(180deg, rgba(255,255,255,.07), transparent)}
   body.dark .measure-panel::before{background:linear-gradient(180deg, rgba(255,255,255,.09), transparent)}
   body.dark .pp-inner::before{background:linear-gradient(180deg,rgba(255,255,255,.10) 0%,rgba(255,255,255,0) 100%)}
-  body.dark .zoom-indicator::before{background:radial-gradient(ellipse at 70% 30%, rgba(255,255,255,.16) 0%, rgba(255,255,255,.06) 55%, transparent 90%)}
-  /* 棱镜描边：夜里保留一点色散，别变成一圈白边 */
-  body.dark .route-panel::after,
-  body.dark .measure-panel::after,
-  body.dark .btn::after,
-  body.dark .chip::after,
-  body.dark .legend::after{opacity:.35}
-  /* 深色下的悬停反馈：浅色下是「底色变白」，夜间得压到 .14~.16，否则是一块白斑 */
+    /* 深色下的悬停反馈：浅色下是「底色变白」，夜间得压到 .14~.16，否则是一块白斑 */
   body.dark :where(.rp-mode,.b-chip):hover{background:rgba(255,255,255,.14)}
   body.dark :where(.zoom-btn,.zoom-help,.pp-close):hover{background:rgba(255,255,255,.16)}
-  body.dark .legend:hover{background:rgba(58,65,80,.8)}
   body.dark .f-toggle:hover{background:rgba(255,255,255,.14)}
   body.dark .mi-btn:hover{background:rgba(255,255,255,.16)}
   body.dark .route-panel .rp-title button:hover{background:rgba(255,255,255,.14)}
@@ -857,19 +901,16 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
   body.dark.violet #panel::after{background:linear-gradient(180deg, rgba(196,132,252,0) 0%, rgba(196,132,252,.95) 25%, rgba(255,214,245,1) 50%, rgba(255,168,214,.9) 75%, rgba(196,132,252,0) 100%)}
   /* 玻璃高光：白改紫粉。白高光落在紫底上就是一块块死白，比夜色模式还刺眼 */
   body.dark.violet .p-head::before{background:linear-gradient(180deg, rgba(226,196,255,.10), rgba(226,196,255,0))}
-  body.dark.violet .route-panel::before{background:linear-gradient(180deg, rgba(226,196,255,.09), transparent)}
   body.dark.violet .measure-panel::before{background:linear-gradient(180deg, rgba(226,196,255,.10), transparent)}
   body.dark.violet .pp-inner::before{background:linear-gradient(180deg,rgba(226,196,255,.11) 0%,rgba(226,196,255,0) 100%)}
-  body.dark.violet .zoom-indicator::before{background:radial-gradient(ellipse at 70% 30%, rgba(232,206,255,.15) 0%, rgba(232,206,255,.06) 55%, transparent 90%)}
-  /* 地图上的名字标签 */
+    /* 地图上的名字标签 */
   body.dark.violet .sp-name{background:rgba(38,20,68,.9);border-color:rgba(206,170,255,.22)}
   /* 浮层类面板统一染紫 */
-  body.dark.violet :where(.menu,.q-list,.cluster-list,.legend,.measure-panel,.route-panel,.zoom-indicator,.pp-inner){border-color:rgba(206,170,255,.18)}
+  body.dark.violet :where(.menu,.q-list,.cluster-list,.measure-panel,.route-panel,.zoom-indicator,.pp-inner){border-color:rgba(206,170,255,.18)}
   body.dark.violet .toast{background:linear-gradient(180deg, rgba(74,42,126,.94) 0%, rgba(52,29,94,.92) 50%, rgba(40,21,76,.96) 100%);border-color:rgba(206,170,255,.2)}
   /* 悬停反馈跟着染色：光斑移除后 hover 全部落在 background 上，
      不覆写就会在紫晶面板上留下一块中性白 / 蓝灰。
      同样必须带 .dark 前缀压过 body.dark 那几条。 */
-  body.dark.violet .legend:hover{background:rgba(96,64,160,.82)}
   body.dark.violet :where(.rp-mode,.b-chip):hover{background:rgba(196,132,252,.2)}
   body.dark.violet :where(.zoom-btn,.zoom-help,.pp-close):hover{background:rgba(206,170,255,.22)}
 

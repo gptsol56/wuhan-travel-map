@@ -106,30 +106,30 @@ describe('筛选折叠成 3 个图标', () => {
   let ui;
   beforeEach(() => { ui = setup(); });
 
-  it('4 个图标分别对应人群/预约/排序/区域地铁，默认全部收起', () => {
-    expect(ui.toggles.map((b) => b.dataset.f)).toEqual(['cf-crowd', 'cf-reserve', 'cf-sort', 'cf-zone']);
+  it('3 个图标分别对应预约/排序/区域地铁（人流筛选已砍），默认全部收起', () => {
+    expect(ui.toggles.map((b) => b.dataset.f)).toEqual(['cf-reserve', 'cf-sort', 'cf-zone']);
     expect(openPanels(ui.toggles)).toEqual([]);
     for (const b of ui.toggles) expect(b.getAttribute('aria-expanded')).toBe('false');
   });
 
   it('点图标展开对应面板并标记 active', () => {
-    ui.toggles[0].click();
-    expect(openPanels(ui.toggles)).toEqual(['cf-crowd']);
-    expect(ui.toggles[0].classList.contains('active')).toBe(true);
-    expect(ui.toggles[0].getAttribute('aria-expanded')).toBe('true');
+    ui.toggles[1].click();
+    expect(openPanels(ui.toggles)).toEqual(['cf-sort']);
+    expect(ui.toggles[1].classList.contains('active')).toBe(true);
+    expect(ui.toggles[1].getAttribute('aria-expanded')).toBe('true');
   });
 
   it('再点同一个图标收起（toggle）', () => {
-    ui.toggles[0].click();
-    ui.toggles[0].click();
+    ui.toggles[1].click();
+    ui.toggles[1].click();
     expect(openPanels(ui.toggles)).toEqual([]);
     expect(ui.toggles[0].classList.contains('active')).toBe(false);
   });
 
   it('切到另一个图标时前一个自动收起（手风琴）', () => {
     ui.toggles[0].click();
-    ui.toggles[1].click();
-    expect(openPanels(ui.toggles)).toEqual(['cf-reserve']);
+    ui.toggles[2].click();
+    expect(openPanels(ui.toggles)).toEqual(['cf-zone']);
     expect(ui.toggles[0].getAttribute('aria-expanded')).toBe('false');
   });
 

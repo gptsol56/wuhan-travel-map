@@ -94,15 +94,19 @@ describe('weatherAdvice（真实源码执行）', () => {
 });
 
 describe('renderWeatherCard（真实源码执行）', () => {
-  it('渲染两天 + 建议，并解除 hidden', () => {
+  it('渲染两天紧凑卡（有层级），并解除 hidden', () => {
     const { mod, cardEl } = loadWeather();
     mod.renderWeatherCard(mod.parseWeather(FIXTURE));
     expect(cardEl.hidden).toBe(false);
-    expect(cardEl.innerHTML).toContain('今天');
-    expect(cardEl.innerHTML).toContain('明天');
-    expect(cardEl.innerHTML).toContain('雨');        // code 61
-    expect(cardEl.innerHTML).toContain('带伞');      // pop 70 → 建议
-    expect(cardEl.innerHTML).toContain('💧70%');
+    expect(cardEl.innerHTML).toContain('w-day');
+    expect(cardEl.innerHTML).toContain('w-today');     // 今天行有强调
+    expect(cardEl.innerHTML).toContain('28°');         // 最高温
+    expect(cardEl.innerHTML).toContain('雨');           // code 61 → 天气描述
+    // pop ≥ 40% 显示降水
+    expect(cardEl.innerHTML).toContain('70%');
+    // 无 w-head / w-tip（旧的标题和建议行已去）
+    expect(cardEl.innerHTML).not.toContain('w-head');
+    expect(cardEl.innerHTML).not.toContain('w-tip');
   });
 
   it('坏数据不改卡片（保持 hidden）', () => {

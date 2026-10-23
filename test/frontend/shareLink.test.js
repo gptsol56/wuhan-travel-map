@@ -120,7 +120,6 @@ describe('分享链接往返一致', () => {
   it('build → apply 到全新模块，状态完全还原', () => {
     const a = loadShare();
     a.mod.zoneF = '武昌';
-    a.mod.crowdF = '高';
     a.mod.waypoints = ['黄鹤楼', '户部巷', '汉口江滩'];
     a.mod.curMode = 'walking';
     const hash = a.mod.buildShareHash();
@@ -129,7 +128,6 @@ describe('分享链接往返一致', () => {
     const b = loadShare();
     expect(b.mod.applyShareHash(hash)).toBe(true);
     expect(b.mod.zoneF).toBe('武昌');
-    expect(b.mod.crowdF).toBe('高');
     expect(b.mod.waypoints).toEqual(['黄鹤楼', '户部巷', '汉口江滩']);
     expect(b.mod.curMode).toBe('walking');
   });

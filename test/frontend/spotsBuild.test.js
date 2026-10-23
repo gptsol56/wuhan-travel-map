@@ -13,9 +13,9 @@ import { describe, expect, it } from 'vitest';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
 
-const SRC = path.join(ROOT, 'spots.src.json');
-const OUT_JSON = path.join(ROOT, 'spots.json');
-const OUT_JS = path.join(ROOT, 'spots.data.js');
+const SRC = path.join(ROOT, 'data', 'spots.src.json');
+const OUT_JSON = path.join(ROOT, 'data', 'spots.json');
+const OUT_JS = path.join(ROOT, 'data', 'spots.data.js');
 const APP = path.join(ROOT, 'app.js');
 const HTML = path.join(ROOT, 'index.html');
 

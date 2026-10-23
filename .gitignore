@@ -12,3 +12,7 @@ server/.cache/
 
 # 本地杂项（PowerShell 重定向残留的空文件）
 $null
+
+# ZCode 会话目录
+.zcode/
+.v2c/
