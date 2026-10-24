@@ -978,7 +978,10 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
   body.dark.violet .sp-name{background:rgba(38,20,68,.9);border-color:rgba(206,170,255,.22)}
   /* 浮层类面板统一染紫 */
   body.dark.violet :where(.menu,.q-list,.cluster-list,.measure-panel,.route-panel,.zoom-indicator,.pp-inner){border-color:rgba(206,170,255,.18)}
-  body.dark.violet .toast{background:linear-gradient(180deg, rgba(74,42,126,.94) 0%, rgba(52,29,94,.92) 50%, rgba(40,21,76,.96) 100%);border-color:rgba(206,170,255,.2)}
+  body.dark.violet .toast{--glass-bri:.82;--glass-sat:130%;background:linear-gradient(180deg, rgba(43,22,82,.98) 0%, rgba(33,16,64,.97) 50%, rgba(26,12,50,.99) 100%);border-color:rgba(206,170,255,.28);color:#f4edff;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+  body.dark.violet .toast.ok{background:linear-gradient(180deg, rgba(14,88,54,.98), rgba(10,66,40,.99));border-color:rgba(140,240,190,.35)}
+  body.dark.violet .toast.error{background:linear-gradient(180deg, rgba(148,28,34,.98), rgba(112,20,26,.99));border-color:rgba(255,160,160,.35)}
+  body.dark.violet .toast.info{background:linear-gradient(180deg, rgba(24,52,94,.98), rgba(18,38,70,.99));border-color:rgba(150,190,255,.35)}
   /* 悬停反馈跟着染色：光斑移除后 hover 全部落在 background 上，
      不覆写就会在紫晶面板上留下一块中性白 / 蓝灰。
      同样必须带 .dark 前缀压过 body.dark 那几条。 */

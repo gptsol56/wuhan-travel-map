@@ -1563,19 +1563,14 @@ document.getElementById('expandBtn').onclick = function(){
    两个类，CSS 里 body.dark 那套深色玻璃覆盖全部照常生效，body.violet 排在它后面
    （同特异性，靠源码顺序）把色相刷成紫。两边共用一套结构，就不会出现
    「夜间调好的深色表面在紫晶里没被覆盖、露出一块白斑」这种漏改。 */
-/* 主题。两个**独立**开关，而不是一个三态循环按钮：
-   themeToggle 是侧栏顶栏的日↔夜小拨动开关（d 快捷键的行为保持原样，少一点意外），
-   btn-violet（☰ 菜单里）单独开/关紫晶。之前做成三态循环（点一次夜间、点两次紫晶）
-   看着优雅，实际很坑：用户点一下看到「夜间」，以为功能坏了就判定「没显示出颜色」。
-   两个开关各自只做一件事。小开关的语义是「深色表面开没开」：夜间、紫晶都算开
-   （aria-checked=true），所以它和紫晶不打架 —— 紫晶里关掉小开关就是回日间，
-   开着小开关再点紫晶只是在深色表面上换色相。 */
+/* 主题：单一循环入口。侧栏顶栏按钮与快捷键 D 都走 THEME_ORDER 四态循环
+   （晨曦→夜光→极光→紫晶）。aria-checked 表达「深色表面开没开」：
+   夜光/极光/紫晶都算开。紫晶不再有独立开关，避免「两个入口改同一状态」。 */
 var THEME_ORDER = ['dawn', 'nightglow', 'aurora', 'violet'];
 var THEME_CLASS = { dawn:'', nightglow:'dark', aurora:'dark aurora', violet:'dark violet' };
 var THEME_LABEL = { dawn:'🌅 晨曦', nightglow:'🌙 夜光', aurora:'🌌 极光', violet:'💜 紫晶' };
 var curTheme = 'dawn';
 var themeToggle = document.getElementById('themeToggle');
-var violetBtn = document.getElementById('btn-violet');
 function applyTheme(next){
   curTheme = THEME_ORDER.indexOf(next) >= 0 ? next : 'dawn';
   var cls = THEME_CLASS[curTheme] || '';
@@ -1588,21 +1583,12 @@ function applyTheme(next){
     themeToggle.setAttribute('aria-checked', curTheme !== 'dawn' ? 'true' : 'false');
     themeToggle.setAttribute('aria-label', themeToggle.title);
   }
-  if(violetBtn){
-    var onViolet = curTheme === 'violet';
-    violetBtn.textContent = onViolet ? THEME_LABEL.nightglow : THEME_LABEL.violet;
-    violetBtn.title = onViolet ? '退出紫晶，回到夜光' : '切换到紫晶模式';
-    violetBtn.setAttribute('aria-label', violetBtn.title);
-    violetBtn.setAttribute('aria-pressed', onViolet ? 'true' : 'false');
-    violetBtn.classList.toggle('active', onViolet);
-  }
 }
 function bindThemeButtons(){
   if(themeToggle) themeToggle.onclick = function(){
     var ix = THEME_ORDER.indexOf(curTheme);
     applyTheme(THEME_ORDER[(ix + 1) % THEME_ORDER.length]); savePrefs();
   };
-  if(violetBtn) violetBtn.onclick = function(){ applyTheme(curTheme === 'violet' ? 'nightglow' : 'violet'); savePrefs(); };
 }
 bindThemeButtons();
 

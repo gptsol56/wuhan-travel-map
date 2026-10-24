@@ -50,12 +50,12 @@ function maxAlpha(decls) {
 
 /* ==================== 主题开关 ==================== */
 
-// themeToggle / violetBtn 是 var x = document.getElementById(...)，
+// themeToggle 是 var x = document.getElementById(...)，
 // 必须在 loadPart 求值前就存在于文档里，否则拿到 null。
-document.body.innerHTML = '<button id="themeToggle" role="switch"></button><button id="btn-violet"></button>';
+document.body.innerHTML = '<button id="themeToggle" role="switch"></button>';
 
 const mod = loadPart({
-  parts: ['var:THEME_ORDER', 'var:THEME_CLASS', 'var:THEME_LABEL', 'var:curTheme', 'var:themeToggle', 'var:violetBtn', 'applyTheme', 'bindThemeButtons'],
+  parts: ['var:THEME_ORDER', 'var:THEME_CLASS', 'var:THEME_LABEL', 'var:curTheme', 'var:themeToggle', 'applyTheme', 'bindThemeButtons'],
   stubs: { savePrefs: () => {} },
   exports: ['applyTheme', 'curTheme', 'THEME_ORDER', 'THEME_CLASS', 'THEME_LABEL', 'bindThemeButtons'],
 });
@@ -67,7 +67,6 @@ const bindThemeButtons = mod.bindThemeButtons;
 const curTheme = () => mod.curTheme;
 
 const sw = document.getElementById('themeToggle');
-const vbtn = document.getElementById('btn-violet');
 // 让两个开关真正带上 onclick，才能测「点了会发生什么」而不是对着源码断言
 bindThemeButtons();
 
