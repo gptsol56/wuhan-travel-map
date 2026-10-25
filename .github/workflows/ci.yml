@@ -36,3 +36,18 @@ jobs:
             server/package-lock.json
       - run: npm --prefix server ci
       - run: npm --prefix server test
+
+  # 海外 runner 冒烟生产站点：Vercel 部署是否真的对外可用（国内网络探测 vercel.app 会被墙，无参考性）
+  deploy-smoke:
+    name: 线上冒烟（生产站点）
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 探测生产站点
+        run: |
+          # push 会同时触发 Vercel 自动部署，重试窗口给它留出构建时间
+          sleep 30
+          curl -fsS --retry 10 --retry-delay 15 --retry-connrefused https://wuhan-travel-map.vercel.app/health
+          curl -fsS --retry 10 --retry-delay 15 --retry-connrefused -o /dev/null https://wuhan-travel-map.vercel.app/
+          curl -fsS --retry 10 --retry-delay 15 --retry-connrefused -o /dev/null -G \
+            --data-urlencode "spots=黄鹤楼" https://wuhan-travel-map.vercel.app/api/crowd
