@@ -15,7 +15,7 @@ function loadFilters() {
   const renderListRows = vi.fn();
   const mod = loadPart({
     parts: [
-      'var:_spotIndexMap', 'getSpotIndex', 'var:crowdF',
+      'var:_spotIndexMap', 'getSpotIndex', 'var:resF', 'var:favOnly', 'var:favs', 'isFav',
       'kwMatch', 'spotPassesFilters', 'var:selectedId', 'applyFilters',
     ],
     stubs: {
@@ -28,7 +28,7 @@ function loadFilters() {
       markerCluster: undefined,
       distTo: () => 0,
     },
-    exports: ['crowdF', 'resF', 'zoneF', 'metroF', 'keyword', 'sortBy', 'applyFilters'],
+    exports: ['favOnly', 'favs', 'resF', 'zoneF', 'metroF', 'keyword', 'sortBy', 'applyFilters'],
   });
   return { mod, renderListRows };
 }
@@ -43,9 +43,10 @@ describe('applyFilters（真实源码执行）', () => {
     expect(namesOf(renderListRows)).toEqual(['黄鹤楼', '归元禅寺', '汉口江滩', '月湖公园']);
   });
 
-  it('人流筛选', () => {
+  it('收藏筛选（favOnly）', () => {
     const { mod, renderListRows } = loadFilters();
-    mod.crowdF = '中';
+    mod.favs = ['归元禅寺', '汉口江滩'];
+    mod.favOnly = true;
     mod.applyFilters();
     expect(namesOf(renderListRows)).toEqual(['归元禅寺', '汉口江滩']);
   });
@@ -72,9 +73,10 @@ describe('applyFilters（真实源码执行）', () => {
     expect(namesOf(renderListRows)).toEqual(['黄鹤楼', '归元禅寺', '汉口江滩', '月湖公园']);   // 高 → 中中 → 低
   });
 
-  it('组合：人流 + 区域', () => {
+  it('组合：收藏 + 区域', () => {
     const { mod, renderListRows } = loadFilters();
-    mod.crowdF = '中';
+    mod.favs = ['黄鹤楼', '汉口江滩'];
+    mod.favOnly = true;
     mod.zoneF = '汉口';
     mod.applyFilters();
     expect(namesOf(renderListRows)).toEqual(['汉口江滩']);

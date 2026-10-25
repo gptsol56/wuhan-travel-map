@@ -47,11 +47,11 @@ describe('行节点按钮缓存', () => {
     expect(addBtn(0).isConnected).toBe(true); // 其余行正常
   });
 
-  it('行内不再渲染收藏按钮（已下线）', () => {
+  it('行内渲染收藏星标按钮（F1 回归）', () => {
     mod.renderListRows([A, B, C, D]);
-    expect(nodeOf(0).querySelector('.item-fav')).toBeNull();
-    expect(nodeOf(0)._favBtn).toBeUndefined();
-    expect(mod.rowInnerHTML(A)).not.toContain('item-fav');
+    expect(nodeOf(0).querySelector('.item-fav')).toBeTruthy();
+    expect(mod.rowInnerHTML(A)).toContain('item-fav');
+    expect(mod.rowInnerHTML(A)).toContain('aria-pressed');
   });
 });
 

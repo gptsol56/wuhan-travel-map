@@ -29,6 +29,8 @@ function loadShare() {
     renderWaypoints: vi.fn(),
     syncAddButtons: vi.fn(),
     setRoutePanel: vi.fn(),
+    saveFavs: vi.fn(),
+    applyFilters: vi.fn(),
     setRouteMode: undefined,       // 用真实源码（见 parts）
     document: { getElementById: () => null },
     RESERVE_TXT: { need_reserve: 1, need_ticket: 1, free: 1 },
@@ -36,12 +38,12 @@ function loadShare() {
   delete stubs.setRouteMode;       // parts 里带真实 setRouteMode，这里不桩
   const mod = loadPart({
     parts: [
-      'var:crowdF', 'var:waypoints', 'var:curMode', 'var:routeModeName',
+      'var:resF', 'var:favs', 'var:waypoints', 'var:curMode', 'var:routeModeName',
       'var:ZONE_OK_LIST', 'var:CROWD_OK_LIST', 'var:SORT_OK_LIST',
       'setRouteMode', 'buildShareHash', 'applyShareHash',
     ],
     stubs,
-    exports: ['crowdF', 'resF', 'zoneF', 'metroF', 'sortBy', 'waypoints', 'curMode', 'buildShareHash', 'applyShareHash'],
+    exports: ['favs', 'resF', 'zoneF', 'metroF', 'sortBy', 'waypoints', 'curMode', 'buildShareHash', 'applyShareHash'],
   });
   return { mod, stubs };
 }
@@ -56,12 +58,12 @@ describe('buildShareHash', () => {
     const { mod } = loadShare();
     mod.zoneF = '汉阳';
     mod.metroF = '6';
-    mod.crowdF = '高';
+    mod.favs = ['黄鹤楼'];
     mod.sortBy = 'heat';
     mod.waypoints = ['黄鹤楼', '汉口江滩'];
     mod.curMode = 'transit';
     expect(mod.buildShareHash()).toBe(
-      '#z=%E6%B1%89%E9%98%B3&ml=6&crowd=%E9%AB%98&sort=heat' +
+      '#z=%E6%B1%89%E9%98%B3&ml=6&fav=%E9%BB%84%E9%B9%A4%E6%A5%BC&sort=heat' +
       '&wp=%E9%BB%84%E9%B9%A4%E6%A5%BC%E2%86%92%E6%B1%89%E5%8F%A3%E6%B1%9F%E6%BB%A9&mode=transit'
     );
   });
@@ -88,7 +90,7 @@ describe('applyShareHash（外部输入，白名单校验）', () => {
     expect(r).toBe(false);
     expect(mod.zoneF).toBe('');
     expect(mod.metroF).toBe('');
-    expect(mod.crowdF).toBe('');
+    expect(mod.favs).toEqual([]);   // 旧 crowd 参数已下线；收藏名单不受伪造 hash 影响
     expect(mod.resF).toBe('');
     expect(mod.sortBy).toBe('');
     expect(mod.waypoints).toEqual(['户部巷']);
@@ -142,7 +144,7 @@ describe('onShareHashChange（F4：已打开的标签页点分享链接）', () 
     const refreshView = vi.fn();
     const mod = loadPart({
       parts: [
-        'var:crowdF', 'var:waypoints', 'var:curMode', 'var:routeModeName',
+        'var:resF', 'var:favs', 'var:waypoints', 'var:curMode', 'var:routeModeName',
         'var:ZONE_OK_LIST', 'var:CROWD_OK_LIST', 'var:SORT_OK_LIST',
         'setRouteMode', 'buildShareHash', 'applyShareHash', 'armShareHashClear', 'onShareHashChange',
       ],

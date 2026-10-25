@@ -39,7 +39,7 @@ function setup() {
 }
 
 const openPanels = (toggles) =>
-  toggles.filter((b) => !document.getElementById(b.dataset.f).hidden).map((b) => b.dataset.f);
+  toggles.filter((b) => b.dataset.f && !document.getElementById(b.dataset.f).hidden).map((b) => b.dataset.f);   // ⭐开关无面板（无 data-f），跳过
 
 describe('☰ 工具菜单（原 .ctl 工具条收纳而来）', () => {
   let ui;
@@ -105,14 +105,16 @@ describe('☰ 工具菜单（原 .ctl 工具条收纳而来）', () => {
   });
 });
 
-describe('筛选折叠成 3 个图标', () => {
+describe('筛选折叠成 4 个图标', () => {
   let ui;
   beforeEach(() => { ui = setup(); });
 
-  it('3 个图标分别对应预约/排序/区域地铁（人流筛选已砍），默认全部收起', () => {
-    expect(ui.toggles.map((b) => b.dataset.f)).toEqual(['cf-reserve', 'cf-sort', 'cf-zone']);
+  it('预约/排序/区域地铁 3 个面板图标 + 第 4 个⭐收藏开关（无人流筛选），默认全部收起', () => {
+    expect(ui.toggles.map((b) => b.dataset.f)).toEqual(['cf-reserve', 'cf-sort', 'cf-zone', undefined]);
+    expect(document.getElementById('favBtn')).toBeTruthy();
     expect(openPanels(ui.toggles)).toEqual([]);
-    for (const b of ui.toggles) expect(b.getAttribute('aria-expanded')).toBe('false');
+    for (const b of ui.toggles) { if (b.id !== 'favBtn') expect(b.getAttribute('aria-expanded')).toBe('false'); }
+    expect(document.getElementById('favBtn').getAttribute('aria-pressed')).toBe('false');   // ⭐开关用 pressed 表达开关态
   });
 
   it('点图标展开对应面板并标记 active', () => {

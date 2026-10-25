@@ -70,9 +70,9 @@ describe('地铁数据覆盖（真实 spots.src.json）', () => {
 
 describe('spotPassesFilters 谓词（真实源码执行）', () => {
   const mod = loadPart({
-    parts: ['var:crowdF', 'kwMatch', 'spotPassesFilters'],
+    parts: ['var:resF', 'var:favOnly', 'var:favs', 'isFav', 'kwMatch', 'spotPassesFilters'],
     stubs: {},
-    exports: ['crowdF', 'resF', 'zoneF', 'metroF', 'keyword', 'spotPassesFilters'],
+    exports: ['favOnly', 'favs', 'resF', 'zoneF', 'metroF', 'keyword', 'spotPassesFilters'],
   });
 
   const SPOT = {
@@ -109,12 +109,13 @@ describe('spotPassesFilters 谓词（真实源码执行）', () => {
     mod.zoneF = '';
   });
 
-  it('与人群/预约条件兼容', () => {
-    mod.crowdF = '高';
-    expect(mod.spotPassesFilters(SPOT, 0)).toBe(true);
-    mod.crowdF = '低';
+  it('与收藏/预约条件兼容', () => {
+    mod.favOnly = true;
+    mod.favs = [];
     expect(mod.spotPassesFilters(SPOT, 0)).toBe(false);
-    mod.crowdF = '';
+    mod.favs = [SPOT.name];
+    expect(mod.spotPassesFilters(SPOT, 0)).toBe(true);
+    mod.favOnly = false;
     mod.resF = 'need_ticket';
     expect(mod.spotPassesFilters(SPOT, 0)).toBe(false);
     mod.resF = '';

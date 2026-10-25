@@ -83,6 +83,7 @@ export function listStubs(list, SPOTS) {
     list,
     SPOTS,
     favs: [],
+    isFav: () => false,
     keyword: '',
     CROWD_TXT: {},
     CROWD_CLS: {},

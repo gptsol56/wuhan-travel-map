@@ -88,6 +88,7 @@ describe('spotHTML 的「周边」节（真实源码执行）', () => {
       openState: () => null,
       getCrowdAdvice: () => ({ full: '' }),
       trendHTML: () => '',
+      isFav: () => false,
     },
     exports: ['spotHTML'],
   });

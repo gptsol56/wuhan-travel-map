@@ -208,7 +208,7 @@ function spotHTML(s){
   if(s.metro)   infoRows += '<div class="c-row"><b>交通</b><span>'+esc(s.metro)+'</span></div>';
   var score = s.score ? '<span class="pp-score">⭐ '+esc(s.score)+'</span>' : '';
   var os = openState(s), osChip = os ? ' <span class="tag t-'+os.cls+'">'+esc(os.text)+'</span>' : '';
-  var actions = '<div class="pp-actions"><button data-act="go">📍 到这去</button></div>';
+  var actions = '<div class="pp-actions"><button data-act="go">📍 到这去</button><button data-act="fav" class="'+(isFav(s)?'on':'')+'" aria-pressed="'+(isFav(s)?'true':'false')+'">'+(isFav(s)?'★ 已收藏':'☆ 收藏')+'</button></div>';
   if(s.url) actions += '<a class="pp-url" href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">🔗 官方预约 / 购票</a>';
   return '<div class="iw">'+
     '<div class="c-title">'+esc(s.emoji)+' '+esc(s.name)+' '+score+osChip+'</div>'+
@@ -1155,9 +1155,10 @@ setTimeout(function(){
 var list = document.getElementById('list');
 /* 列表事件委托：只在容器上注册一次，选中/加入路线统一处理，避免每次重建列表都逐个绑定 */
 list.addEventListener('click', function(e){
-  var t = e.target && e.target.closest ? e.target.closest('.item-add, .item') : null;
+  var t = e.target && e.target.closest ? e.target.closest('.item-add, .item-fav, .item') : null;
   if(!t || !list.contains(t)) return;
   if(t.classList.contains('item-add')){ e.stopPropagation(); toggleWaypoint(t.dataset.name); return; }
+  if(t.classList.contains('item-fav')){ e.stopPropagation(); toggleFav(spotByName(t.dataset.name)); return; }
   if(t.classList.contains('item')) select(t.dataset.id, true);
 });
 list.addEventListener('keydown', function(e){
@@ -1200,10 +1201,61 @@ function rowInnerHTML(s){
       '<div class="it-sub">'+esc(s.cat)+'</div>'+
       '<div class="it-tags"><span class="tag '+crowdCls+'">'+CROWD_TXT[s.crowd]+'</span>'+osTag+'<span class="tag t-adv '+advice.shortCls+'">'+esc(advice.short)+'</span><span class="tag '+resCls+'">'+esc(rname)+'</span>'+srcBadge+'</div>'+
     '</div>'+
+    '<button class="item-fav'+(isFav(s)?' on':'')+'" title="收藏 '+esc(s.name)+'" data-name="'+esc(s.name)+'" aria-label="收藏 '+esc(s.name)+'" aria-pressed="'+(isFav(s)?'true':'false')+'">'+(isFav(s)?'★':'☆')+'</button>'+
     '<button class="item-add" title="添加到路线" data-name="'+esc(s.name)+'" aria-label="添加 '+esc(s.name)+' 到路线" aria-pressed="false">+</button>';
 }
-var crowdF = '', resF = '', zoneF = '', metroF = '', keyword = '', sortBy = '', lastGeoKey = null;   // lastGeoKey：setGeometries 去重，成员集未变则不重复聚合
+var resF = '', zoneF = '', metroF = '', keyword = '', sortBy = '', lastGeoKey = null;   // lastGeoKey：setGeometries 去重，成员集未变则不重复聚合
+var favOnly = false;      // 只看收藏（瞬时筛选态，不持久化）
+
+/* ---- 收藏/心愿单（F1）----
+   独立 localStorage key：收藏是高频小操作，不混进行程 prefs。
+   loadFavs 顶层立即执行 —— SPOTS 由 spots.data.js 先于本文件加载。 */
+var FAVS_KEY = 'wuhan_map_favs';
+var favs = [];
+function loadFavs(){
+  try{ favs = JSON.parse(localStorage.getItem(FAVS_KEY) || '[]').filter(function(n){ return typeof n === 'string'; }); }
+  catch(e){ favs = []; }
+  if(!Array.isArray(favs)) favs = [];
+}
+function saveFavs(){ lsSet(FAVS_KEY, JSON.stringify(favs)); }
+function isFav(s){ return favs.indexOf(s.name) >= 0; }
+function spotByName(n){ for(var i = 0; i < SPOTS.length; i++){ if(SPOTS[i].name === n) return SPOTS[i]; } return null; }
+function toggleFav(s){
+  if(!s) return;
+  var i = favs.indexOf(s.name);
+  if(i >= 0) favs.splice(i, 1); else favs.push(s.name);
+  saveFavs();
+  syncPopupFav(s);
+  applyFilters();
+  toast(isFav(s) ? '⭐ 已收藏 ' + s.name : '已取消收藏 ' + s.name, 'ok');
+}
+/* 弹窗里的收藏按钮态同步（弹窗正展示该景点时） */
+function syncPopupFav(s){
+  if(!popupContent || !s) return;
+  var b = popupContent.querySelector('[data-act="fav"]');
+  if(!b) return;
+  var on = isFav(s);
+  b.classList.toggle('on', on);
+  b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  b.textContent = on ? '★ 已收藏' : '☆ 收藏';
+}
+loadFavs();
 function kwMatch(s, kw){ kw = String(kw||'').toLowerCase(); return s.name.toLowerCase().indexOf(kw)>=0 || s.cat.toLowerCase().indexOf(kw)>=0 || (s.tip||'').toLowerCase().indexOf(kw)>=0 || (s.metro||'').toLowerCase().indexOf(kw)>=0; }
+
+/* 只看收藏开关（f-row 第 4 个图标按钮）：直接翻转布尔并重筛。
+   无 data-f 属性，initFilterToggles 的泛型面板绑定会自动跳过它。 */
+(function initFavorites(){
+  var favBtn = document.getElementById('favBtn');
+  if(!favBtn) return;
+  favBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    favOnly = !favOnly;
+    favBtn.classList.toggle('active', favOnly);
+    favBtn.setAttribute('aria-pressed', favOnly ? 'true' : 'false');
+    favBtn.title = favOnly ? '显示全部景点' : '只看收藏';
+    applyFilters();
+  });
+})();
 
 /* ---- 列表 keyed DOM diff ----
    以前每次筛选都用 innerHTML 整块重建：50+ 行 × 8 个子节点全部销毁重建，
@@ -1260,7 +1312,7 @@ function renderListRows(all){
    拆成独立谓词是为了可测：zoneMetro.test.js 直接抽真实源码跑。
    metroN 是预解析的线路号（0 = 不筛），避免热路径里反复 parseInt。 */
 function spotPassesFilters(s, metroN){
-  if(crowdF && s.crowd !== crowdF) return false;
+  if(favOnly && !isFav(s)) return false;
   if(resF && s.reserve !== resF) return false;
   if(zoneF && s.zone !== zoneF) return false;
   if(metroN && (!s._lines || s._lines.indexOf(metroN) < 0)) return false;   // spots.json 合并新推入的景点可能没 _lines
@@ -2015,6 +2067,8 @@ function navTo(s){
 function bindPopupActions(s){
   var goBtn = popupContent.querySelector('[data-act="go"]');
   if(goBtn) goBtn.onclick = function(){ navTo(s); };
+  var favBtnP = popupContent.querySelector('[data-act="fav"]');
+  if(favBtnP) favBtnP.onclick = function(){ toggleFav(s); };
   // 周边胶囊（F3）：点击切到那个景点 —— 高亮列表行 + 平移聚焦 + 打开它的弹窗。
   // dataset.i 保持字符串传入（select 内部用 el.dataset.id === id 严格比较，传数字会失配）
   popupContent.querySelectorAll('.pp-near').forEach(function(nb){
@@ -2261,6 +2315,41 @@ function syncRouteInputs(){
   wpEcho.from = f || null;
   wpEcho.to = t || null;
 }
+/* 行程智能排序（F3）：最近邻贪心 + 2-opt 消交叉。
+   n ≤ 50 纯同步毫秒级；首点视为起点保持不动。spots 参数可注入（单测用合成坐标）。 */
+function sortWaypointsNearest(names, spotsArg){
+  var src = spotsArg || SPOTS;
+  if(!names || names.length < 3) return names ? names.slice() : [];
+  var byName = {};
+  src.forEach(function(s){ byName[s.name] = s; });
+  var pts = names.filter(function(n){ return byName[n]; }).map(function(n){ return byName[n]; });
+  if(pts.length < 3) return names.slice();
+  var rest = pts.slice(1), route = [pts[0]];
+  while(rest.length){
+    var bi = 0, bd = Infinity;
+    for(var i = 0; i < rest.length; i++){
+      var d = distMeters(route[route.length - 1], rest[i]);
+      if(d < bd){ bd = d; bi = i; }
+    }
+    route.push(rest.splice(bi, 1)[0]);
+  }
+  var improved = true;
+  while(improved){
+    improved = false;
+    for(var x = 1; x < route.length - 2; x++){
+      for(var y = x + 1; y < route.length - 1; y++){
+        var before = distMeters(route[x-1], route[x]) + distMeters(route[y], route[y+1]);
+        var after  = distMeters(route[x-1], route[y]) + distMeters(route[x], route[y+1]);
+        if(after + 1 < before){
+          var seg = route.slice(x, y + 1).reverse();
+          route.splice.apply(route, [x, seg.length].concat(seg));
+          improved = true;
+        }
+      }
+    }
+  }
+  return route.map(function(s){ return s.name; });
+}
 function renderWaypoints(){
   // 空列表也要同步：否则「取消最后一个途经点」时起点框会残留那个景点。
   syncRouteInputs();
@@ -2294,6 +2383,18 @@ function toggleWaypoint(name){
     routePanel.classList.remove('collapsed');
   }
 }
+/* ✨ 就近排序：贪心 TSP + 2-opt 重排途经点（首点不动） */
+document.getElementById('wpSort').onclick = function(){
+  if(waypoints.length < 3){ toast('途经点不足 3 个，不需要排序', 'info'); return; }
+  var sorted = sortWaypointsNearest(waypoints);
+  if(sorted.join('/') === waypoints.join('/')){ toast('当前顺序已是最优', 'info'); return; }
+  waypoints = sorted;
+  renderWaypoints();
+  savePrefs();
+  fitItineraryView(waypoints);
+  toast('✨ 已按就近原则重排 ' + waypoints.length + ' 站，折返更少', 'ok');
+};
+
 /* 互换起点与目的地 */
 document.getElementById('rpSwap').onclick = function(){
   if(waypoints.length >= 2){
@@ -2368,7 +2469,8 @@ function ensureOrigin(cb){
     if(myPos){ rpFrom.value = "我的位置"; cb(); return; }
     if(navigator.geolocation){
       navigator.geolocation.getCurrentPosition(function(pos){
-        myPos = new TMap.LatLng(pos.coords.latitude, pos.coords.longitude);
+        var gcj = wgsToGcj(pos.coords.latitude, pos.coords.longitude);   // WGS-84 → GCJ-02：不转会有 ~50-500m 起点偏移
+        myPos = new TMap.LatLng(gcj.lat, gcj.lng);
         rpFrom.value = "我的位置"; toast("已定位到你的位置", "ok"); cb();
       }, function(){ toast("无法获取你的位置，请在路线面板填写起点", "info"); }, {timeout:8000});
     } else {
@@ -2599,7 +2701,6 @@ renderLegend();
 
 /* ================== 实时数据层（天气 / 行政区划 / 路况 / 动态人流 + 外部数据源）================== */
 
-/* ---- 天气：Open-Meteo（免费无 key，CORS 支持） ---- */
 function pad2(n){ return (n<10?'0':'')+n; }
 
 /* ---- 行政区划：geojson.cn 湖北省 TopoJSON（实时拉取，CORS 支持） ---- */
@@ -3015,18 +3116,32 @@ function boardChips(arr){
     return '<button class="b-chip" data-i="' + getSpotIndex(s) + '" title="' + esc(s.name + ' · 人流' + s.crowd) + '">' + esc(s.emoji) + ' ' + esc(s.name) + '</button>';
   }).join('');
 }
+/* 榜单数据源（F2 升级）：静态 s.crowd → 实时信号。
+   适合 = 当前开放 && 实时等级 ≤ 中（低优先排前）；避开 = 实时等级高。
+   抽成带注入参数的纯函数便于单测（不注入则用真实 SPOTS）。 */
+function boardPartitions(srcList){
+  var good = [], bad = [];
+  (srcList || SPOTS).forEach(function(s){
+    var os = openState(s);
+    if(os && os.cls !== 'open') return;          // 未开放/闭馆不上「适合去」
+    var lv = 1, fc = crowdForecast(s);
+    for(var i = 0; i < fc.length; i++){ if(fc[i].now){ lv = fc[i].lv; break; } }
+    if(lv >= 2) bad.push(s);
+    else good.push({ s: s, lv: lv });
+  });
+  good.sort(function(a, b){ return a.lv - b.lv || a.s.name.localeCompare(b.s.name); });
+  return { good: good.map(function(g){ return g.s; }), bad: bad };
+}
 function renderBoard(){
   if(!boardEl) return;
-  var good = [], bad = [];
-  SPOTS.forEach(function(s){
-    if(s.crowd === '低') good.push(s);
-    else if(s.crowd === '高') bad.push(s);
-  });
-  var gHTML = good.length ? '<div class="b-row"><span class="b-t ok">✅ 现在人少 · 适合去</span><div class="b-c">' + boardChips(good.slice(0, 5)) + '</div></div>' : '';
+  var parts = boardPartitions();
+  var good = parts.good, bad = parts.bad;
+  var gHTML = good.length ? '<div class="b-row"><span class="b-t ok">✅ 现在适合去</span><div class="b-c">' + boardChips(good.slice(0, 5)) + '</div></div>' : '';
   var bHTML = bad.length ? '<div class="b-row"><span class="b-t warn">⚠ 人流高 · 建议避开</span><div class="b-c">' + boardChips(bad.slice(0, 5)) + '</div></div>' : '';
   // 性能优化：用 DOM diff 替代完整 innerHTML 重建，避免 60 秒一次的 GC 压力
   var newHtml = (gHTML + bHTML) || '<div class="b-empty">没有需要提醒的景点</div>';
   if(boardEl._lastHtml !== newHtml){
+    boardEl.hidden = false;
     boardEl.innerHTML = newHtml;
     boardEl._lastHtml = newHtml;
     // 事件委托：一次绑定替代每次重建后逐个绑 onclick
@@ -3118,9 +3233,43 @@ function fetchWeather(){
   return withTimeout(fetch(WEATHER_URL).then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }), 9000, '天气超时')
     .then(function(j){
       var w = parseWeather(j);
-      if(w) renderWeatherCard(w);
+      if(w){ renderWeatherCard(w); return true; }
+      return false;
     })
-    .catch(function(e){ console.warn('[weather] 获取失败：', e && e.message); });
+    .catch(function(e){ console.warn('[weather] 获取失败：', e && e.message); return false; });
+}
+/* 天气失败节流：30 分钟内不重试（失败大概率是网络问题，空转请求只费电） */
+var _wxTryAt = 0, _wxFail = false;
+function fetchWeatherThrottled(){
+  if(_wxFail && Date.now() - _wxTryAt < 30 * 60 * 1000) return;
+  _wxTryAt = Date.now();
+  fetchWeather().then(function(ok){ _wxFail = !ok; });
+}
+
+/* ---- 轮询退避（P1）----
+   固定 10 分钟 setInterval 的问题：后端故障/断网时每 10 分钟空转一次还打扰。
+   改为自调度 setTimeout：失败指数退避，成功恢复基频；后台标签页跳过执行。 */
+var POLL_BASE = 10 * 60 * 1000, POLL_CAP = 2 * 60 * 60 * 1000;
+var pollFails = 0, lastPollAt = 0, lastPollOkAt = 0, pollTimer = 0;
+function nextPollDelay(fails){
+  var d = POLL_BASE;
+  for(var i = 0; i < fails && d < POLL_CAP; i++) d *= 2;
+  return Math.min(d, POLL_CAP);
+}
+function pollOnce(){
+  lastPollAt = Date.now();
+  return pollExternal().then(function(ok){
+    if(ok){ pollFails = 0; lastPollOkAt = Date.now(); }
+    else { pollFails++; }
+    renderBoard();          // 人流数据到达/失效后榜单随之刷新
+  });
+}
+function pollLoopStart(){
+  if(pollTimer) clearTimeout(pollTimer);
+  pollTimer = setTimeout(function tick(){
+    if(document.hidden){ pollTimer = setTimeout(tick, nextPollDelay(pollFails)); return; }
+    pollOnce().then(function(){ pollTimer = setTimeout(tick, nextPollDelay(pollFails)); });
+  }, POLL_BASE);
 }
 
 function fetchLiveData(){
@@ -3339,25 +3488,34 @@ function refreshtick(){                     // 60s 轻量刷新：只做人流�
 function startLive(){
   SPOTS.forEach(function(s){ s.crowd0 = s.crowd; });   // 保存原始基线
   refreshView();
-  setInterval(function(){ if(!document.hidden) refreshtick(); }, 60000);   // 人流/状态每 60s（轻量 patch）
+  setInterval(function(){ if(!document.hidden){ refreshtick(); renderBoard(); } }, 60000);   // 人流/状态每 60s（轻量 patch + 榜单）
   // 性能优化（E）：把天气和人流数据合并到同一个 setInterval 周期性并发请求（10 分钟）
   // 启动时：一次性并发拉取首屏数据
   function pollExternal(){
-    fetchWeather();   // 天气与人流并发拉取：天气独立成败，失败不打扰人流链路
+    fetchWeatherThrottled();   // 天气与人流并发拉取：天气独立成败，失败不打扰人流链路
     return fetchLiveData().then(function(){
       // 成功路径已在 fetchLiveData 内部重绘（refreshView + 徽标），这里不用再动
-    }, function(err){ console.warn('[live] 更新失败', err); });
+      return true;
+    }, function(err){ console.warn('[live] 更新失败', err); return false; });
   }
-  pollExternal();
+  /* 轮询自调度 + 失败指数退避（P1）：10min → 20 → 40 → 80（封顶 2h），成功归位。
+     纯函数 nextPollDelay 供单测直抽。 */
+  pollOnce();
+  pollLoopStart();
   initMenu();                                            // ☰ 工具菜单（收纳原工具条与图例）
   initFilterToggles();                                   // 筛选折叠成图标
   initHeatLayer();                                      // 真实热力图层（读 _cells）
   drawBoundary();                                       // 行政区划
-  setInterval(function(){ if(!document.hidden) pollExternal(); }, 10 * 60 * 1000);   // 10 分钟一次，2 个请求并发
 }
-/* 后台标签页暂停轮询（省电）；回到前台立即补一次人流刷新 */
+/* 后台标签页暂停轮询（省电）；回到前台：
+   立即补一次本地刷新；距上次成功拉取已超当前轮询周期时，网络拉取也立即补一次（60s 防抖）。 */
 document.addEventListener('visibilitychange', function(){
-  if(!document.hidden && typeof refreshtick === 'function') refreshtick();
+  if(document.hidden) return;
+  if(typeof refreshtick === 'function') refreshtick();
+  renderBoard();
+  if(Date.now() - Math.max(lastPollOkAt, lastPollAt) > nextPollDelay(pollFails) && Date.now() - lastPollAt > 60000){
+    pollOnce().then(pollLoopStart);
+  }
 });
 /* ---- 行程 / 筛选 / 主题 持久化（刷新后恢复） ---- */
 var PREFS_KEY = 'wuhan_map_prefs';
@@ -3368,7 +3526,7 @@ function savePrefs(){
   _savePrefsTimer = setTimeout(function(){
     _savePrefsTimer = 0;
     lsSet(PREFS_KEY, JSON.stringify({
-      waypoints: waypoints, mode: curMode, crowdF: crowdF, resF: resF,
+      waypoints: waypoints, mode: curMode, resF: resF,
       zoneF: zoneF, metroF: metroF,
       crowdColorOn: crowdColorOn, sortBy: sortBy
     }));
@@ -3420,7 +3578,7 @@ function buildShareHash(){
   var p = [];
   if(zoneF) p.push('z=' + encodeURIComponent(zoneF));
   if(metroF) p.push('ml=' + encodeURIComponent(metroF));
-  if(crowdF) p.push('crowd=' + encodeURIComponent(crowdF));
+  if(favs.length) p.push('fav=' + encodeURIComponent(favs.slice(0, 50).join(',')));
   if(resF) p.push('reserve=' + encodeURIComponent(resF));
   if(sortBy) p.push('sort=' + encodeURIComponent(sortBy));
   if(waypoints.length){
@@ -3440,7 +3598,13 @@ function applyShareHash(h){
   var touched = false;
   if(ZONE_OK_LIST.indexOf(q.z) >= 0){ zoneF = q.z; applyChipActive(document.getElementById('zoneChips'), zoneF); touched = true; }
   if(/^\d+$/.test(q.ml || '')){ metroF = q.ml; applyChipActive(document.getElementById('metroChips'), metroF); touched = true; }
-  // crowdF UI removed; hash crowd param silently ignored
+  // 人群筛选已下线：旧链接的 crowd 参数静默忽略
+  if(typeof q.fav === 'string' && q.fav){
+    // 收藏白名单：名字必须仍存在于 SPOTS，防伪造/防过期
+    var fbn = {}; SPOTS.forEach(function(s){ fbn[s.name] = s; });
+    var fs = q.fav.split(',').map(function(x){ return x.trim(); }).filter(function(n){ return !!fbn[n]; }).slice(0, 50);
+    if(fs.length){ favs = fs; saveFavs(); applyFilters(); touched = true; }
+  }
   if(q.reserve && RESERVE_TXT[q.reserve]){ resF = q.reserve; applyChipActive(document.getElementById('cf-reserve'), resF); touched = true; }
   if(SORT_OK_LIST.indexOf(q.sort) >= 0){ sortBy = q.sort; applyChipActive(document.getElementById('cf-sort'), sortBy); touched = true; }
   if(typeof q.wp === 'string' && q.wp){
