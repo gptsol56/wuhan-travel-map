@@ -3256,6 +3256,14 @@ function nextPollDelay(fails){
   for(var i = 0; i < fails && d < POLL_CAP; i++) d *= 2;
   return Math.min(d, POLL_CAP);
 }
+/* 天气 + 人流并发拉取（原 startLive 内嵌函数，P1 改造提升为顶层供 pollOnce 调用） */
+function pollExternal(){
+  fetchWeatherThrottled();   // 天气与人流并发拉取：天气独立成败，失败不打扰人流链路
+  return fetchLiveData().then(function(){
+    // 成功路径已在 fetchLiveData 内部重绘（refreshView + 徽标），这里不用再动
+    return true;
+  }, function(err){ console.warn('[live] 更新失败', err); return false; });
+}
 function pollOnce(){
   lastPollAt = Date.now();
   return pollExternal().then(function(ok){
@@ -3489,17 +3497,7 @@ function startLive(){
   SPOTS.forEach(function(s){ s.crowd0 = s.crowd; });   // 保存原始基线
   refreshView();
   setInterval(function(){ if(!document.hidden){ refreshtick(); renderBoard(); } }, 60000);   // 人流/状态每 60s（轻量 patch + 榜单）
-  // 性能优化（E）：把天气和人流数据合并到同一个 setInterval 周期性并发请求（10 分钟）
-  // 启动时：一次性并发拉取首屏数据
-  function pollExternal(){
-    fetchWeatherThrottled();   // 天气与人流并发拉取：天气独立成败，失败不打扰人流链路
-    return fetchLiveData().then(function(){
-      // 成功路径已在 fetchLiveData 内部重绘（refreshView + 徽标），这里不用再动
-      return true;
-    }, function(err){ console.warn('[live] 更新失败', err); return false; });
-  }
-  /* 轮询自调度 + 失败指数退避（P1）：10min → 20 → 40 → 80（封顶 2h），成功归位。
-     纯函数 nextPollDelay 供单测直抽。 */
+  // 启动时：一次性并发拉取首屏数据，并进入自调度轮询循环（pollExternal/pollOnce 均为顶层定义）
   pollOnce();
   pollLoopStart();
   initMenu();                                            // ☰ 工具菜单（收纳原工具条与图例）
