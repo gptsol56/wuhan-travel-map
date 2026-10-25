@@ -841,7 +841,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
         /* spring 缓动换成 ease + 去掉 box-shadow 过渡（按 24px 小按钮的 hover 视觉收益低） */
   body.dark .zoom-btn,body.dark       .zoom-help{font-weight:700;color:var(--accent);background:linear-gradient(180deg, rgba(52,211,153,.18),rgba(52,211,153,.08))}
   .route-panel .rp-actions{display:flex;gap:8px;margin-top:10px}
-  .route-panel .rp-actions button{flex:1;padding:7px 0;font-size:13px;border-radius:8px;cursor:pointer;border:1px solid transparent;font-weight:600;transition:.15s}
+  .route-panel .rp-actions button{flex:1;padding:7px 0;font-size:13px;border-radius:8px;cursor:pointer;border:1px solid transparent;font-weight:400;transition:.15s}
   .route-panel .rp-actions #rpGo{background:linear-gradient(135deg,#e5484d,#c22b30);color:#fff;box-shadow:0 2px 8px rgba(229,72,77,.4)}
   .route-panel .rp-actions #rpGo:hover{filter:brightness(1.08)}
   .route-panel .rp-actions #rpClear,.route-panel .rp-actions #rpShare{background:rgba(255,255,255,.6);color:var(--muted);border-color:rgba(255,255,255,.7)}
@@ -884,7 +884,11 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   .rp-wp{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
   .rp-wp-empty{font-size:12px;color:var(--muted);opacity:.8}
   .rp-wp-chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;padding:2px 7px;border-radius:10px;border:1px solid rgba(48,164,108,.4);background:rgba(48,164,108,.1);color:var(--ink);max-width:100%}
-  .rp-wp-chip .idx{color:#0b7a4b;font-weight:700}
+  .rp-wp-chip .idx{color:#0b7a4b;font-weight:500}
+  .rp-wp-title{display:flex;align-items:center;gap:8px}
+  .rp-wp-title #wpSort{margin-left:auto;padding:2px 9px;border-radius:8px;border:1px solid rgba(11,122,75,.35);background:rgba(11,122,75,.08);color:#0b7a4b;font-size:11.5px;font-weight:400;cursor:pointer;white-space:nowrap}
+  .rp-wp-title #wpSort:hover{background:rgba(11,122,75,.16)}
+  body.dark .rp-wp-title #wpSort{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#34d399}
   .rp-wp-chip .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px}
   .rp-wp-chip .x{cursor:pointer;color:#c22b30;font-weight:700;font-size:14px;line-height:1;margin-left:2px}
   .rp-wp-chip .x:hover{color:#e5484d}
