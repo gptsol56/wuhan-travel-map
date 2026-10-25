@@ -1,0 +1,15 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 30,
+      "includeFiles": "{data/spots.json,server/**}"
+    }
+  },
+  "routes": [
+    { "src": "^/api/crowd(/.*)?$", "dest": "/api/index" },
+    { "src": "^/(health|metrics)$", "dest": "/api/index" },
+    { "src": "^/(server|src|tools|test|api|\\.github|node_modules)(/.*)?$", "status": 404 },
+    { "handle": "filesystem" }
+  ]
+}
