@@ -36,9 +36,9 @@
     --prism:linear-gradient(135deg, rgba(255,215,150,.7) 0%, rgba(255,255,255,.92) 30%, rgba(255,185,165,.5) 55%, rgba(255,255,255,.92) 80%, rgba(255,200,170,.7) 100%);   /* 金→珊瑚 */
   }
   body.dark{
-    --ink:#e8eaed; --muted:#9aa0a6; --line:#3a4048; --bg:#12151a; --accent:#4ade80;   /* 夜光萤火绿 */
-    --adv-hi:#ff8a8d; --adv-mid:#ffbf67; --adv-lo:#7fd9a8;   /* 深色下人流建议文字色 */
-    --res-text:#c9b4ff; --tick-text:#a8c6e0;   /* 预约/购票角标文字色（深色） */
+    --ink:#e8eaed; --muted:#9aa0a6; --line:#3a4048; --bg:#12151a; --accent:#6bc78d;   /* 夜光萤火绿（饱和度 69%→45%） */
+    --adv-hi:#eaa4a6; --adv-mid:#e3be87; --adv-lo:#8fd1ae;   /* 深色下人流建议文字色（降饱和） */
+    --res-text:#cfc5e7; --tick-text:#a8c6e0;   /* 预约/购票角标文字色（深色，降饱和） */
     --res-bg:rgba(140,113,242,.22); --tick-bg:rgba(120,155,185,.22);
     --glass:#1a1e25; --glass-soft:rgba(35,40,50,.55); --glass-strong:rgba(40,45,56,.7);
     --glass-border:rgba(255,255,255,.16); --glass-hi:rgba(255,255,255,.12);
@@ -142,7 +142,7 @@
     background:linear-gradient(135deg, #2e1a52 0%, #3d1f66 36%, #4c1c60 64%, #291849 100%), conic-gradient(from 18deg at 48% 44%, transparent 0deg, rgba(198,92,255,.30) 42deg, transparent 108deg, rgba(255,88,172,.26) 168deg, transparent 228deg, rgba(124,94,255,.28) 288deg, transparent 348deg);
   }
   :focus-visible{outline:2px solid var(--accent);outline-offset:2px}   /* 键盘焦点提示，与 :hover 分离 */
-  body.dark :focus-visible{outline-color:#34d399}
+  body.dark :focus-visible{outline-color:#86cbb2}
   /* 宽度用 100% 而不是 100vw：100vw 含经典滚动条宽度，比可视区宽，
      配合 body overflow:hidden 右边会被裁掉一截，右侧浮层跟着错位。 */
   #app{display:flex;height:100vh;height:100dvh;width:100%}
@@ -579,8 +579,8 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   body.dark .item:hover{background:rgba(45,50,62,.5);border-color:var(--glass-border)}
   body.dark .item.sel{background:rgba(30,60,48,.55);border-color:rgba(52,211,153,.35)}
   body.dark .it-emoji{background:rgba(40,45,56,.6);border-color:var(--glass-border);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
-  body.dark .item-add{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#34d399}
-  body.dark .item-add:hover,body.dark .item-add.added{background:#34d399;color:#06281a;border-color:#34d399}
+  body.dark .item-add{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#86cbb2}
+  body.dark .item-add:hover,body.dark .item-add.added{background:#34d399;color:#06281a;border-color:#86cbb2}
   body.dark .btn{background:linear-gradient(rgba(40,45,56,.7),rgba(40,45,56,.7)) padding-box, var(--prism) border-box;border-color:var(--glass-border);color:var(--ink)}
   body.dark .btn:hover{background:rgba(52,58,72,.9)}
   body.dark .pp-inner{background:rgba(30,35,45,.6);border-color:rgba(255,255,255,.18);box-shadow:0 10px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.14)}
@@ -675,7 +675,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   .pp-score{font-size:11px;color:#e8a11c;margin-left:4px}
   .pp-url{display:block;margin-top:8px;font-size:12px;color:#0b7a4b;text-decoration:none}
   .pp-url:hover{text-decoration:underline}
-  body.dark .pp-url{color:#34d399}
+  body.dark .pp-url{color:#86cbb2}
   /* ---------- 搜索联想下拉 ---------- */
   .q-wrap{position:relative}
   /* 搜索下拉 18→12（仅在搜索框聚焦时出现，按需付出） */
@@ -686,10 +686,10 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   .q-item:hover,.q-item.on{background:rgba(11,122,75,.08)}
   .q-item .q-cat{margin-left:auto;color:var(--muted);font-size:10.5px}
   .q-item mark{background:none;color:#0b7a4b;font-weight:700}
-  body.dark .q-item mark{color:#34d399}
+  body.dark .q-item mark{color:#86cbb2}
   /* ---------- 列表命中文字高亮 ---------- */
   .list mark{background:none;color:#0b7a4b;font-weight:700}
-  body.dark .list mark{color:#34d399}
+  body.dark .list mark{color:#86cbb2}
   /* ---------- 聚合气泡点击 → 快捷列表 ---------- */
   /* 聚合点列表 18→12（仅点击聚合气泡时出现） */
   .cluster-list{position:absolute;z-index:1180;background:linear-gradient(180deg, rgba(255,250,244,.75), rgba(255,248,242,.68));backdrop-filter:blur(var(--glass-blur-md)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur-md)) saturate(1.8);border:1px solid rgba(255,255,255,.7);border-radius:18px 12px 18px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);overflow:hidden;min-width:200px;max-width:260px;animation:clIn .32s var(--ios-spring)}
@@ -875,7 +875,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   .rp-tip .rt-title{font-weight:700;margin-bottom:5px;color:#fff}
   .rp-tip .fs-row{display:flex;gap:6px;margin:3px 0;align-items:flex-start}
   .rp-tip .fs-row b{flex:none;min-width:15px;color:var(--accent);font-weight:700}
-  body.dark .rp-tip .fs-row b{color:#34d399}
+  body.dark .rp-tip .fs-row b{color:#86cbb2}
   .rp-wp-title{font-size:12px;color:var(--muted);margin-top:10px;font-weight:600}
   .rp-wp{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
   .rp-wp-empty{font-size:12px;color:var(--muted);opacity:.8}
@@ -886,7 +886,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   .rp-wp-hint{font-size:10.5px;color:var(--muted);white-space:nowrap}
   .rp-wp-title #wpSort{margin-left:auto;padding:2px 9px;border-radius:8px;border:1px solid rgba(11,122,75,.35);background:rgba(11,122,75,.08);color:#0b7a4b;font-size:11.5px;font-weight:400;cursor:pointer;white-space:nowrap}
   .rp-wp-title #wpSort:hover{background:rgba(11,122,75,.16)}
-  body.dark .rp-wp-title #wpSort{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#34d399}
+  body.dark .rp-wp-title #wpSort{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#86cbb2}
   .rp-wp-chip .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px}
   .rp-wp-chip .x{cursor:pointer;color:#c22b30;font-weight:700;font-size:14px;line-height:1;margin-left:2px}
   .rp-wp-chip .x:hover{color:#e5484d}
@@ -905,7 +905,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   body.dark .rp-card.sel{border-color:#e5484d;background:rgba(70,35,40,.55)}
   body.dark .rp-tag{background:rgba(40,45,56,.5);border-color:var(--glass-border);color:var(--muted)}
   body.dark .rp-wp-chip{border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.12);color:var(--ink)}
-  body.dark .rp-wp-chip .idx{color:#34d399}
+  body.dark .rp-wp-chip .idx{color:#86cbb2}
   body.dark .rp-wp-chip .x{color:#ff8a8d}
   body.dark .rp-swap{background:rgba(40,45,56,.78);border-color:var(--glass-border);color:var(--muted)}
   body.dark .rp-swap:hover{background:rgba(52,211,153,.85);color:#06281a}
@@ -1019,8 +1019,8 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
      北极光在极夜天幕上流动：绿→青→紫→品红
      复用 body.dark 的 133 条表面覆盖，只刷色相 */
   body.aurora{
-    --ink:#e0f0f0; --muted:#8fb5b2; --line:#1e3040; --bg:#0b1628; --accent:#22d3ee;
-    --adv-hi:#ff8a8d; --adv-mid:#ffbf67; --adv-lo:#7fd9a8;
+    --ink:#e0f0f0; --muted:#8fb5b2; --line:#1e3040; --bg:#0b1628; --accent:#6acfdc;
+    --adv-hi:#eaa4a6; --adv-mid:#e3be87; --adv-lo:#8fd1ae;
     --res-text:#a0d8d0; --tick-text:#8ab8b0;
     --res-bg:rgba(34,211,238,.18); --tick-bg:rgba(100,180,170,.18);
     --glass:#0c1826; --glass-soft:rgba(13,28,46,.68); --glass-strong:rgba(16,34,56,.82);
@@ -1077,7 +1077,7 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
     background:rgba(34,211,238,.78);
     border-color:rgba(0,255,163,.4);
   }
-  body.dark.aurora :focus-visible{outline-color:#22d3ee}
+  body.dark.aurora :focus-visible{outline-color:#6acfdc}
 
   /* 极光文字排版修正：深底上的可读性优化 */
   body.dark.aurora .it-name{letter-spacing:0;   /* 深底去字距（浅底加的 .01em 在深底挤） */}
@@ -1114,7 +1114,7 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
   body.dark.aurora .rp-wp-chip{border-color:rgba(34,211,238,.3);background:rgba(34,211,238,.08);color:#e0f0f0}
   body.dark.aurora .pp-inner{background:rgba(15,30,48,.85);border-color:rgba(80,200,255,.12)}
   body.dark.aurora .iw .c-tip{background:rgba(20,50,50,.5);border-color:rgba(80,200,255,.2);color:#a0d8d0}
-  body.dark.aurora .iw .c-near .pp-near{border-color:rgba(34,211,238,.3);background:rgba(34,211,238,.06);color:#22d3ee}
+  body.dark.aurora .iw .c-near .pp-near{border-color:rgba(34,211,238,.3);background:rgba(34,211,238,.06);color:#6acfdc}
   body.dark.aurora .zoom-indicator{background:rgba(15,30,48,.85);border-color:rgba(80,200,255,.15)}
   body.dark.aurora .zoom-btn,body.dark.aurora .zoom-help{color:#e0f0f0}
   body.dark.aurora .zoom-locate{background:rgba(15,30,48,.85);color:#e0f0f0;border-color:rgba(80,200,255,.15)}
@@ -1130,7 +1130,7 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
   body.dark.aurora .weather-card .w-day{color:#e0f0f0}
   body.dark.aurora .weather-card .w-temp{color:#e0f0f0}
   body.dark.aurora .weather-card .w-temp i{color:#7a9a9a}
-  body.dark.aurora .live-status.ok{color:#22d3ee;background:rgba(34,211,238,.1);border-color:rgba(34,211,238,.3)}
+  body.dark.aurora .live-status.ok{color:#6acfdc;background:rgba(34,211,238,.1);border-color:rgba(34,211,238,.3)}
   body.dark.aurora .live-status.sim{color:#ffbf67;background:rgba(255,191,103,.1);border-color:rgba(255,191,103,.3)}
   body.dark.aurora .live-info-btn{background:rgba(20,40,60,.6);border-color:rgba(80,200,255,.2);color:#7a9a9a}
   body.dark.aurora .live-info-panel{background:rgba(15,30,48,.95);border-color:rgba(80,200,255,.15)}
@@ -1144,11 +1144,11 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
   body.dark.aurora .p-head{background:rgba(15,30,48,.5);border-bottom-color:rgba(80,200,255,.12)}
   body.dark.aurora .filters{background:rgba(15,30,48,.4);border-bottom-color:rgba(80,200,255,.1)}
 
-  body.dark.aurora .item-add{border-color:rgba(34,211,238,.4);background:rgba(34,211,238,.1);color:#22d3ee}
+  body.dark.aurora .item-add{border-color:rgba(34,211,238,.4);background:rgba(34,211,238,.1);color:#6acfdc}
   body.dark.aurora .item-add:hover,body.dark.aurora .item-add.added{background:#22d3ee;color:#062030}
-  body.dark.aurora .pp-url{color:#22d3ee}
-  body.dark.aurora .list mark,body.dark.aurora .q-item mark{color:#22d3ee}
-  body.dark.aurora .rp-wp-chip .idx{color:#22d3ee}
+  body.dark.aurora .pp-url{color:#6acfdc}
+  body.dark.aurora .list mark,body.dark.aurora .q-item mark{color:#6acfdc}
+  body.dark.aurora .rp-wp-chip .idx{color:#6acfdc}
   body.dark.aurora .chip.active{box-shadow:0 2px 8px rgba(34,211,238,.3)}
 
 
