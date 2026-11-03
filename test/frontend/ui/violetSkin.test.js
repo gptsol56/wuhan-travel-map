@@ -70,15 +70,15 @@ const sw = document.getElementById('themeToggle');
 // 让两个开关真正带上 onclick，才能测「点了会发生什么」而不是对着源码断言
 bindThemeButtons();
 
-describe('主题：4 态循环系统（晨曦→夜光→极光→紫晶）', () => {
+describe('主题：3 态循环系统（晨曦→夜光→极光）', () => {
   const body = () => document.body;
 
   beforeEach(() => {
     applyTheme('dawn');
   });
 
-  it('四态顺序固定', () => {
-    expect([...mod.THEME_ORDER]).toEqual(['dawn', 'nightglow', 'aurora', 'violet']);
+  it('三态顺序固定', () => {
+    expect([...mod.THEME_ORDER]).toEqual(['dawn', 'nightglow', 'aurora']);
   });
 
   it('晨曦：两个 dark 类都不挂', () => {
@@ -102,11 +102,10 @@ describe('主题：4 态循环系统（晨曦→夜光→极光→紫晶）', ()
     expect(body().classList.contains('violet')).toBe(false);
   });
 
-  it('紫晶：dark + violet 同时挂', () => {
+  it('紫晶已下线：applyTheme("violet") 不再挂 violet 类', () => {
     applyTheme('violet');
-    expect(body().classList.contains('dark')).toBe(true);
-    expect(body().classList.contains('violet')).toBe(true);
-    expect(body().classList.contains('aurora')).toBe(false);
+    expect(body().classList.contains('dark')).toBe(false);
+    expect(body().classList.contains('violet')).toBe(false);
   });
 
   it('非法输入回落到晨曦', () => {
@@ -125,7 +124,7 @@ describe('主题：4 态循环系统（晨曦→夜光→极光→紫晶）', ()
     expect(mod.THEME_CLASS.dawn).toBe('');
     expect(mod.THEME_CLASS.nightglow).toBe('dark');
     expect(mod.THEME_CLASS.aurora).toBe('dark aurora');
-    expect(mod.THEME_CLASS.violet).toBe('dark violet');
+    expect(mod.THEME_CLASS.violet).toBeUndefined();
   });
 });
 

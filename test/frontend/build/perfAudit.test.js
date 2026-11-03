@@ -39,7 +39,6 @@ describe('小控件不得再挂 backdrop-filter（每个都是新合成层 + 模
     '.live-status',
     '.it-emoji',
     '#collapseBtn',
-    '#btnRoute',
   ]) {
     it(`${sel} 不带 backdrop-filter`, () => {
       const body = ruleBody(sel);

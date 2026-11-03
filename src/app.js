@@ -340,7 +340,7 @@ document.addEventListener('keydown', function(e){
     case 'd':
     case 'D':
       // 点开关而不是直接改状态：日↔夜的切换逻辑只写在 themeToggle.onclick 一处，
-      // 快捷键不重复一遍。紫晶是另一个开关，不在 d 的职责范围内。
+      // 快捷键不重复一遍。
       var themeToggleEl = document.getElementById('themeToggle');
       if(themeToggleEl) themeToggleEl.click();
       break;
@@ -1610,17 +1610,14 @@ document.getElementById('expandBtn').onclick = function(){
   if(routePanelOpen){ routePanel.classList.remove('hidden'); }
 };
 
-/* 主题：日间 → 夜间 → 紫晶，三态循环。
-   紫晶不是第四种独立配色，而是「深色表面 + 紫色色相」：body 上同时挂 dark 和 violet
-   两个类，CSS 里 body.dark 那套深色玻璃覆盖全部照常生效，body.violet 排在它后面
-   （同特异性，靠源码顺序）把色相刷成紫。两边共用一套结构，就不会出现
-   「夜间调好的深色表面在紫晶里没被覆盖、露出一块白斑」这种漏改。 */
-/* 主题：单一循环入口。侧栏顶栏按钮与快捷键 D 都走 THEME_ORDER 四态循环
-   （晨曦→夜光→极光→紫晶）。aria-checked 表达「深色表面开没开」：
-   夜光/极光/紫晶都算开。紫晶不再有独立开关，避免「两个入口改同一状态」。 */
-var THEME_ORDER = ['dawn', 'nightglow', 'aurora', 'violet'];
-var THEME_CLASS = { dawn:'', nightglow:'dark', aurora:'dark aurora', violet:'dark violet' };
-var THEME_LABEL = { dawn:'🌅 晨曦', nightglow:'🌙 夜光', aurora:'🌌 极光', violet:'💜 紫晶' };
+/* 主题：晨曦 → 夜光 → 极光，三态循环。
+   夜光/极光共用深色表面：body 上挂 dark（极光再追加 aurora），
+   CSS 里 body.dark 那套深色玻璃覆盖全部照常生效。 */
+/* 主题：单一循环入口。侧栏顶栏按钮与快捷键 D 都走 THEME_ORDER 三态循环
+   （晨曦→夜光→极光）。aria-checked 表达「深色表面开没开」：夜光/极光都算开。 */
+var THEME_ORDER = ['dawn', 'nightglow', 'aurora'];
+var THEME_CLASS = { dawn:'', nightglow:'dark', aurora:'dark aurora' };
+var THEME_LABEL = { dawn:'🌅 晨曦', nightglow:'🌙 夜光', aurora:'🌌 极光' };
 var curTheme = 'dawn';
 var themeToggle = document.getElementById('themeToggle');
 function applyTheme(next){
@@ -2190,21 +2187,15 @@ if(rpFoldBtn){
   };
 }
 
-/* 侧栏「路线」按钮：开关寻路面板 */
+/* 寻路面板：默认隐藏。菜单入口已按需求删除，仅在带途经点的分享链接 / 恢复的行程里自动唤起 */
 var routePanel = document.getElementById('routePanel');
-var btnRoute = document.getElementById('btnRoute');
-var routePanelOpen = false;   // 初始隐藏，由侧栏按钮唤起
+var routePanelOpen = false;
 function setRoutePanel(open){
   routePanelOpen = open;
   routePanel.classList.toggle('hidden', !routePanelOpen);
-  btnRoute.classList.toggle('active', routePanelOpen);
   if(routePanelOpen) routePanel.classList.remove('collapsed');
   if(!open) hideRPTip();
 }
-btnRoute.onclick = function(){
-  console.log('[btnRoute] click');
-  setRoutePanel(!routePanelOpen);
-};
 
 /* ================== 精选行程预设（C1） ==================
    stops 必须与 spots.src.json 的景点名逐字一致 ——
@@ -3559,7 +3550,7 @@ function restorePrefs(){
   // 之前 dark 是持久化的：只要误按过一次 d 键（全局快捷键，输入框外都会触发），
   // 整个应用就被永久翻成夜间，而且入口藏在 ☰工具 → 🌙夜间 里面，
   // 用户看到的是一个「莫名其妙变黑」的界面，找不到地方退出来。
-  // 现在切换只在当前会话内有效，刷新即恢复日间 —— 想用夜间/紫晶就现开一次。
+  // 现在切换只在当前会话内有效，刷新即恢复日间 —— 想用夜间就现开一次。
   applyTheme('dawn');
   if(waypoints.length){ renderWaypoints(); setRoutePanel(true); routePanel.classList.remove('collapsed'); }
 }

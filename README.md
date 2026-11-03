@@ -26,7 +26,7 @@
 - 预缓存地址以注册 scope 为基准解析，域名根路径或任意子路径（如 GitHub Pages 项目页）均可正常安装
 
 **外观**
-- 四套主题循环切换：🌅 晨曦（暖色浅底）/ 🌙 夜光（深底萤火绿）/ 🌌 极光（深空蓝 + 流动极光背景）/ 💜 紫晶（紫色系）
+- 三套主题循环切换：🌅 晨曦（暖色浅底）/ 🌙 夜光（深底萤火绿）/ 🌌 极光（深空蓝 + 流动极光背景）
 - iOS 液态玻璃质感（多层 box-shadow 光效 + backdrop 玻璃）、弹簧动效、列表/地图/面板/弹窗全面适配
 
 ## 架构总览
@@ -80,15 +80,15 @@
 | 测距工具 | 自研多段测距（每段独立标签、双击/ESC/按钮等多种退出方式） |
 | 行程预设 | `ITINERARIES` 六条线路一键导入（站名与数据逐字校验） |
 | 分享链接 | 筛选+行程编码进 URL hash，打开还原 |
-| 主题系统 | 4 态循环（晨曦→夜光→极光→紫晶），快捷键 D，`THEME_CLASS` 映射 body 类 |
+| 主题系统 | 3 态循环（晨曦→夜光→极光），快捷键 D，`THEME_CLASS` 映射 body 类 |
 | 天气卡 | Open-Meteo 当前天气 + 降水概率 |
 
 ### 样式与主题（`src/style.css`）
 
-- CSS 变量驱动：`:root` 为晨曦基准，`body.dark`（夜光）、`body.aurora`（极光）、`body.violet`（紫晶）逐层覆盖变量 + 组件表面规则
+- CSS 变量驱动：`:root` 为晨曦基准，`body.dark`（夜光）、`body.aurora`（极光）逐层覆盖变量 + 组件表面规则（紫晶皮肤的 CSS 规则仍保留在文件中，但已不再挂接主题循环）
 - 极光主题带纯 CSS 流动极光背景（`transform` 动画，零重绘）与地图滤镜（`brightness/hue-rotate`）
 - iOS 液态玻璃：多层 box-shadow 高光/暗影 + `backdrop-filter` 玻璃 + 弹簧 `cubic-bezier` 动效
-- 可访问性：四主题文字对比度实测全部 ≥ WCAG AA（4.5:1）；`prefers-reduced-motion` 全局降级
+- 可访问性：三主题文字对比度实测全部 ≥ WCAG AA（4.5:1）；`prefers-reduced-motion` 全局降级
 
 ### Service Worker（`sw.js`）
 

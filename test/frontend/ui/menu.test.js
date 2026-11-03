@@ -61,11 +61,13 @@ describe('☰ 工具菜单（原 .ctl 工具条收纳而来）', () => {
   });
 
   it('原工具条的按钮都收进了菜单里（日夜开关除外：它是顶栏小开关）', () => {
-    const ids = ['btnRoute', 'btn-measure', 'btn-north', 'reset', 'btn-vec', 'btn-sat',
+    const ids = ['btn-measure', 'btn-north', 'reset', 'btn-vec', 'btn-sat',
       'btn-traffic', 'btn-crowd-color'];
     for (const id of ids) {
       expect(ui.menu.querySelector('#' + id), `#${id} 应在 #menu 内`).toBeTruthy();
     }
+    // 路线查询菜单入口已按需求删除（小窄条）；寻路面板仅经分享链接/恢复行程唤起
+    expect(ui.menu.querySelector('#btnRoute'), '菜单里不应再有 #btnRoute').toBeNull();
     // 日/夜切换从菜单挪到了侧栏顶栏（#themeToggle），菜单里不再有 #btn-theme
     expect(ui.menu.querySelector('#btn-theme'), '菜单里不应再有 #btn-theme').toBeNull();
     expect(document.getElementById('themeToggle'), '顶栏应有 #themeToggle').toBeTruthy();
