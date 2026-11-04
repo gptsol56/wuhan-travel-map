@@ -844,7 +844,12 @@ body.dark .sp-name{background:var(--surface-3);color:var(--ink);border-color:var
   /* 缩放指示器 */
   
         /* spring 缓动换成 ease + 去掉 box-shadow 过渡（按 24px 小按钮的 hover 视觉收益低） */
-  body.dark .zoom-btn,body.dark       .zoom-help{font-weight:700;color:var(--accent);background:linear-gradient(180deg, rgba(52,211,153,.18),rgba(52,211,153,.08))}
+  body.dark .zoom-btn{font-weight:700;color:var(--accent);background:linear-gradient(180deg, rgba(52,211,153,.18),rgba(52,211,153,.08))}
+  /* 问号帮助钮：暗色下做【不透明】主题色底 —— 夜光=薄荷底薄荷字，极光=青蓝底青蓝字。
+     zoom-help 从上一行的缩放钮组拆出来：那边是半透明渐变，用户要求问号不透。
+     color-mix 从 --accent 派生底色，两个主题自动各得其色。 */
+  body.dark .zoom-help{background:color-mix(in srgb,var(--surface-3) 84%,var(--accent) 16%);border-color:color-mix(in srgb,var(--accent) 42%,transparent);color:var(--accent)}
+  body.dark .zoom-help:hover{background:color-mix(in srgb,var(--surface-3) 72%,var(--accent) 28%)}
   .route-panel .rp-actions{display:flex;gap:8px;margin-top:10px}
   .route-panel .rp-actions button{flex:1;padding:7px 0;font-size:13px;border-radius:8px;cursor:pointer;border:1px solid transparent;font-weight:400;transition:.15s}
   .route-panel .rp-actions #rpGo{background:linear-gradient(135deg,#e5484d,#c22b30);color:#fff;box-shadow:0 2px 8px rgba(229,72,77,.4)}
@@ -1126,7 +1131,7 @@ body.dark .sp-name{background:var(--surface-3);color:var(--ink);border-color:var
   body.dark.aurora .iw .c-tip{background:rgba(20,50,50,.5);border-color:rgba(80,200,255,.2);color:#a0d8d0}
   body.dark.aurora .iw .c-near .pp-near{border-color:rgba(34,211,238,.3);background:rgba(34,211,238,.06);color:#6acfdc}
   body.dark.aurora .zoom-indicator{background:rgba(15,30,48,.85);border-color:rgba(80,200,255,.15)}
-  body.dark.aurora .zoom-btn,body.dark.aurora .zoom-help{color:#e0f0f0}
+  body.dark.aurora .zoom-btn{color:#e0f0f0}
   body.dark.aurora .zoom-locate{background:rgba(15,30,48,.85);color:#e0f0f0;border-color:rgba(80,200,255,.15)}
   body.dark.aurora .f-toggle{border-color:rgba(80,200,255,.25);background:rgba(20,40,60,.6);color:#e0f0f0}
   body.dark.aurora .f-toggle.active{background:rgba(34,211,238,.8);color:#062030;border-color:rgba(0,255,163,.4)}
