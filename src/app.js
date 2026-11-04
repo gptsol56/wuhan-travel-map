@@ -429,7 +429,7 @@ SpotPin.prototype.createDOM = function(){
   var dom = document.createElement('div');
   dom.className = 'spotpin';
   dom.innerHTML = badge +
-    '<div class="sp-pin" style="background:'+color+';box-shadow:0 2px 6px rgba(0,0,0,.35)"><span>'+esc(s.emoji)+'</span></div>' +
+    '<div class="sp-pin"><span>'+esc(s.emoji)+'</span><i class="sp-dot" style="background:'+color+'"></i></div>' +
     (this.hideName ? '' : '<div class="sp-name">'+esc(s.name)+'</div>');
   this.onClick = this.onClick.bind(this);
   dom.addEventListener('click', this.onClick);
@@ -447,8 +447,8 @@ SpotPin.prototype.onClick = function(){ this.emit('click'); };
 SpotPin.prototype.refresh = function(){
   if(!this.spot || !this.dom) return;
   var color = crowdColorOn ? COLOR[CROWD[this.spot.crowd]] : CROWD_OFF_COLOR;
-  var pin = this.dom.querySelector('.sp-pin');
-  if(pin){ pin.style.background = color; pin.style.boxShadow = '0 2px 6px rgba(0,0,0,.35)'; }
+  var dot = this.dom.querySelector('.sp-dot');
+  if(dot){ dot.style.background = color; }
 };
 
 /* --- 聚合气泡 --- */

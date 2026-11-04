@@ -310,17 +310,30 @@ body.dark #panel{background:var(--surface-1);border-right-color:var(--surface-bo
      给个 min-height 把下限钉在 2 行，1 行内容也占满同样高度：
      现在零视觉代价（没有卡片是 1 行），但对数据变化免疫。 */
   .it-tags{display:flex;gap:5px;margin-top:5px;flex:none;flex-wrap:wrap;min-height:45px}
-  .tag{font-size:12px;line-height:1.4;letter-spacing:.2px;padding:3px 9px;border-radius:9px;color:#fff;font-weight:600;border:1px solid rgba(255,255,255,.4);box-shadow:0 1px 3px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.4);white-space:nowrap;flex:none}
-  /* 人流/预约标签 tint 化：实色底白字改成「彩色浅底 + 彩色文字」，
-     与 .t-adv/.t-open/.it-src 那套半透明玻璃风统一 —— 一行标签一个视觉密度，
-     不再有一两块实色压在玻璃卡片上。文字色走 --adv-*（三种主题各自调过对比度）。
-     必须带 .tag 前缀：.t-hi 同时被弹窗 .tier（纯文字）和聚合列表 .cl-crowd（自带 tint）
-     复用，裸 .t-hi 的实色底会一并染过去。 */
-  .tag.t-hi{background:rgba(229,72,77,.16);color:var(--adv-hi);border-color:rgba(255,255,255,.3)}
-  .tag.t-mid{background:rgba(245,165,36,.18);color:var(--adv-mid);border-color:rgba(255,255,255,.3)}
-  .tag.t-lo{background:rgba(48,164,108,.16);color:var(--adv-lo);border-color:rgba(255,255,255,.3)}
-  .tag.t-res{background:var(--res-bg);color:var(--res-text);border-color:rgba(255,255,255,.3)}
-  .tag.t-tick{background:var(--tick-bg);color:var(--tick-text);border-color:rgba(255,255,255,.3)}
+  /* ===== 状态气泡 · 分类配色系统（2026-11-04 重做）=====
+     五类色族：人流红/橙/绿 + 预约紫 + 购票蓝，跨主题语义不变。
+     每颗气泡 = 同族色 13% 浅底 + 同族色 34% 细边 + 同族色加粗文字，
+     三位一体同族渐变，无阴影无高光。字色走 adv/res/tick 三组令牌，
+     三套主题各自调过对比度。图案全部字体安全：
+     人流 ▲◆▼ 几何符号（任何设备不会变豆腐块）、预约 CSS 圆环、购票圆角方块。
+     必须带 .tag 前缀：.t-hi 等类名同时被弹窗 .tier（纯文字）和聚合列表
+     .cl-crowd（自带 tint）复用，裸类选择器会把配色染过去。 */
+  .tag{--c:var(--muted);display:inline-flex;align-items:center;gap:4px;font-size:12px;line-height:1.4;letter-spacing:.2px;padding:3px 9px 3px 7px;border-radius:8px;font-weight:600;white-space:nowrap;flex:none;color:var(--c);background:color-mix(in srgb,var(--c) 13%,transparent);border:1px solid color-mix(in srgb,var(--c) 34%,transparent)}
+  .tag::before{content:'';flex:none;width:5px;height:5px;border-radius:50%;background:currentColor}
+  /* 分类色族（文字色令牌随主题切换，背景边框由 color-mix 派生） */
+  .tag.t-hi,.tag.t-adv.adv-hi,.tag.t-closed{--c:var(--adv-hi)}
+  .tag.t-mid,.tag.t-adv.adv-mid,.tag.t-off{--c:var(--adv-mid)}
+  .tag.t-lo,.tag.t-adv.adv-lo,.tag.t-open{--c:var(--adv-lo)}
+  .tag.t-res{--c:var(--res-text)}
+  .tag.t-tick{--c:var(--tick-text)}
+  /* 人流三级图案：▲高 ◆中 ▼低 */
+  .tag.t-hi::before,.tag.t-adv.adv-hi::before,.tag.t-closed::before{content:'▲';width:auto;height:auto;border-radius:0;background:none;font-size:8px;line-height:1}
+  .tag.t-mid::before,.tag.t-adv.adv-mid::before,.tag.t-off::before{content:'◆';width:auto;height:auto;border-radius:0;background:none;font-size:7px;line-height:1}
+  .tag.t-lo::before,.tag.t-adv.adv-lo::before,.tag.t-open::before{content:'▼';width:auto;height:auto;border-radius:0;background:none;font-size:8px;line-height:1}
+  /* 需预约：CSS 空心圆环；需购票：实心圆角方块 */
+  .tag.t-res::before{width:6px;height:6px;border-radius:50%;background:transparent;border:1.5px solid currentColor}
+  .tag.t-tick::before{border-radius:1px}
+  .tag.t-adv{font-weight:500}
   .it-src{
     font-size:11px; line-height:1.4;letter-spacing:.2px;
     padding:2px 7px;
@@ -348,14 +361,6 @@ body.dark #panel{background:var(--surface-1);border-right-color:var(--surface-bo
   .tr-col.now .tr-h{color:#fff;font-weight:700}
   .tr-h{font-size:9px;color:#9aa;white-space:nowrap}
   .tr-note{font-size:9px;color:#9aa;align-self:center;margin-left:5px;white-space:nowrap}
-  .tag.t-adv{font-weight:500;display:inline-flex;align-items:center;gap:4px;border-color:rgba(255,255,255,.3)}
-  .tag.t-adv::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--muted)}
-  .tag.t-adv.adv-hi{background:rgba(229,72,77,.16);color:var(--adv-hi)} .tag.t-adv.adv-hi::before{background:var(--adv-hi)}
-  .tag.t-adv.adv-mid{background:rgba(245,165,36,.18);color:var(--adv-mid)} .tag.t-adv.adv-mid::before{background:var(--adv-mid)}
-  .tag.t-adv.adv-lo{background:rgba(48,164,108,.16);color:var(--adv-lo)} .tag.t-adv.adv-lo::before{background:var(--adv-lo)}
-  .tag.t-open{background:rgba(48,164,108,.16);color:var(--adv-lo);display:inline-flex;align-items:center;gap:4px;border-color:rgba(255,255,255,.3)} .tag.t-open::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--adv-lo)}
-  .tag.t-off{background:rgba(245,165,36,.18);color:var(--adv-mid);display:inline-flex;align-items:center;gap:4px;border-color:rgba(255,255,255,.3)} .tag.t-off::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--adv-mid)}
-  .tag.t-closed{background:rgba(229,72,77,.16);color:var(--adv-hi);display:inline-flex;align-items:center;gap:4px;border-color:rgba(255,255,255,.3)} .tag.t-closed::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--adv-hi)}
 
 
   /* 添加到路线的「+」按钮 */
@@ -405,11 +410,13 @@ body.dark #panel{background:var(--surface-1);border-right-color:var(--surface-bo
    现在：pin 只留 1 层阴影 + 1 个静态渐变（仅 hover 出现）；标签去掉
    backdrop-filter 与全部 ::before，一次静态绘制到位。 */
   /* spring 缓动换成 ease（translateY 3px 那种微小动作用 ease 几乎无差） */
-  .sp-pin{position:relative;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2.5px solid rgba(255,255,255,.85);font-size:21px;line-height:1;box-shadow:0 2px 6px rgba(0,0,0,.32);transition:transform .12s ease}
+  .sp-pin{position:relative;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--surface-border);background:var(--surface-3);font-size:21px;line-height:1;box-shadow:var(--surface-shadow);transition:transform .12s ease}
+  /* 人流等级色点：pin 不再做实心底色，等级由右上角 11px 圆点表达（问号按钮同材质方案） */
+  .sp-dot{position:absolute;top:-2px;right:-2px;width:11px;height:11px;border-radius:50%;border:2px solid var(--surface-3);pointer-events:none}
   .sp-pin:hover{transform:translateY(-2px) scale(1.12)}
   .sp-pin:active{transform:translateY(-1px) scale(1.05)}
-.sp-name{position:absolute;top:48px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.93);color:#1a1f2e;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:7px;white-space:nowrap;line-height:1.4;max-width:140px;overflow:hidden;text-overflow:ellipsis;border:1px solid rgba(0,0,0,.06);box-shadow:0 1px 4px rgba(0,0,0,.24);letter-spacing:.3px;z-index:1;pointer-events:none}
-body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255,255,255,.14);box-shadow:0 1px 4px rgba(0,0,0,.5)}
+.sp-name{position:absolute;top:48px;left:50%;transform:translateX(-50%);background:var(--surface-3);color:var(--ink);font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:7px;white-space:nowrap;line-height:1.4;max-width:140px;overflow:hidden;text-overflow:ellipsis;border:1px solid var(--surface-border);box-shadow:0 2px 8px rgba(0,0,0,.18);letter-spacing:.3px;z-index:1;pointer-events:none}
+body.dark .sp-name{background:var(--surface-3);color:var(--ink);border-color:var(--surface-border)}
   /* 摘掉 backdrop-filter：地图上几十个 pin 的小徽标各自模糊一次地图，纯亏 */
   .sp-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:9px;border:1px solid rgba(255,255,255,.65);box-shadow:0 1px 3px rgba(0,0,0,.3), inset 0 .5px 0 rgba(255,255,255,.5);white-space:nowrap;line-height:1.5}
   .sp-res-need_reserve{background:var(--res-bg);color:var(--res-text)}
@@ -1024,8 +1031,10 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
      复用 body.dark 的 133 条表面覆盖，只刷色相 */
   body.aurora{
     --ink:#e0f0f0; --muted:#8fb5b2; --line:#1e3040; --bg:#0b1628; --accent:#6acfdc;
-    --adv-hi:#eaa4a6; --adv-mid:#e3be87; --adv-lo:#8fd1ae;
-    --res-text:#a0d8d0; --tick-text:#8ab8b0;
+    /* 状态气泡字色：冷粉(警示) / 沙金(中等) / 荧光青绿(良好) / 冰蓝紫(预约) / 天青(购票)，
+       贴合深空蓝底（旧值继承夜光的暖粉金绿，和青蓝主题不搭） */
+    --adv-hi:#f0a8b8; --adv-mid:#e8cf9a; --adv-lo:#7fe0c3;
+    --res-text:#a8b8f0; --tick-text:#8ec8e8;
     --res-bg:rgba(34,211,238,.18); --tick-bg:rgba(100,180,170,.18);
     --surface-1:#0d1a2c; --surface-2:#122238; --surface-3:#18294a;
     --surface-border:rgba(80,200,255,.16);
