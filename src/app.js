@@ -71,14 +71,8 @@ function hexRgb(hex){
   _hexRgbCache[hex] = c;
   return c;
 }
-function radialGlow(hex, spread){
-  var c = hexRgb(hex);
-  return 'radial-gradient(circle at 50% 38%, rgba('+c.r+','+c.g+','+c.b+',1) 0%, rgba('+c.r+','+c.g+','+c.b+',.82) 38%, rgba('+c.r+','+c.g+','+c.b+',.28) 68%, rgba('+c.r+','+c.g+','+c.b+',0) '+(spread||85)+'%)';
-}
-function neonGlow(hex){
-  var c = hexRgb(hex);
-  return '0 0 6px rgba('+c.r+','+c.g+','+c.b+',.85), 0 0 16px rgba('+c.r+','+c.g+','+c.b+',.55), 0 0 30px rgba('+c.r+','+c.g+','+c.b+',.32)';
-}
+function radialGlow(hex, spread){ return hex; }   // 扁平材质：pin 纯色圆底，辉光已下线（保留函数名兼容旧调用）
+function neonGlow(hex){ return 'none'; }
 
 /* ================== 地图应用（等 TMap 加载后执行） ================== */
 function startApp(){
@@ -435,7 +429,7 @@ SpotPin.prototype.createDOM = function(){
   var dom = document.createElement('div');
   dom.className = 'spotpin';
   dom.innerHTML = badge +
-    '<div class="sp-pin" style="background:'+radialGlow(color,88)+';box-shadow:'+neonGlow(color)+',0 2px 6px rgba(0,0,0,.35)"><span>'+esc(s.emoji)+'</span></div>' +
+    '<div class="sp-pin" style="background:'+color+';box-shadow:0 2px 6px rgba(0,0,0,.35)"><span>'+esc(s.emoji)+'</span></div>' +
     (this.hideName ? '' : '<div class="sp-name">'+esc(s.name)+'</div>');
   this.onClick = this.onClick.bind(this);
   dom.addEventListener('click', this.onClick);
@@ -454,7 +448,7 @@ SpotPin.prototype.refresh = function(){
   if(!this.spot || !this.dom) return;
   var color = crowdColorOn ? COLOR[CROWD[this.spot.crowd]] : CROWD_OFF_COLOR;
   var pin = this.dom.querySelector('.sp-pin');
-  if(pin){ pin.style.background = radialGlow(color, 88); pin.style.boxShadow = neonGlow(color) + ',0 2px 6px rgba(0,0,0,.35)'; }
+  if(pin){ pin.style.background = color; pin.style.boxShadow = '0 2px 6px rgba(0,0,0,.35)'; }
 };
 
 /* --- 聚合气泡 --- */

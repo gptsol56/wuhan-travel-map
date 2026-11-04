@@ -29,37 +29,21 @@ const rule = (sel) => lastRule(new RegExp(`(?:^|[}\\n])\\s*${sel.replace(/[.\[\]
 // 于是那些白色透明渐变原封不动盖在深色面板上 —— 用户报的
 // 「夜间模式被白色透明渐变遮挡」。
 describe('夜间模式：压在深色面板上的白色覆盖层都压下去了', () => {
-  // 这些是直接盖住面板内容的大面积柔光，浅色下是玻璃质感，夜里必须调暗
+  // 扁平材质重做（2026-11-04）后，这些大面积柔光 ::before 已被整体移除：
+  // 表面改为纯色 + 细边 + 单投影，不再靠白色渐变伪元素做玻璃质感。
+  // 所以现在的守卫是反向的 —— 谁也别把它们加回来。
   const highlights = [
     ['.measure-panel::before', '测距面板顶部 30%'],
     ['.p-head::before', '侧栏标题栏顶部 6px'],
+    ['.pp-inner::before', '弹窗正中间横糊一条（旧 90deg bug）'],
   ];
 
   for (const [sel, why] of highlights) {
-    it(`${sel} 有夜间覆盖且亮度 ≤ .12（${why}）`, () => {
-      const light = rule(sel);
-      expect(light, `${sel} 的浅色规则没找到`).not.toBeNull();
-      expect(maxWhiteAlpha(light), `${sel} 浅色下不够亮，测试前提不成立`).toBeGreaterThan(0.2);
-
-      const dark = rule(`body.dark ${sel}`);
-      expect(dark, `${sel} 没有夜间覆盖，白色渐变会原样盖在深色面板上`).not.toBeNull();
-      expect(maxWhiteAlpha(dark), `${sel} 夜间仍然亮到 .${maxWhiteAlpha(dark)}`).toBeLessThanOrEqual(0.12);
+    it(`${sel} 已移除（原 ${why}，扁平材质不再要柔光层）`, () => {
+      expect(rule(sel), `${sel} 又出现了，夜间会被它盖一层白`).toBeNull();
+      expect(rule(`body.dark ${sel}`), `${sel} 的夜间覆盖也该一并删干净`).toBeNull();
     });
   }
-
-  // zoom-indicator::before 已随缩放控件重设计移除（不再有光斑伪元素）
-
-  // 这是个明确的写错：浅色那条是自上而下的柔光(180deg)，
-  // 夜间却写成了左右方向(90deg)、白到 .55 —— 深色下弹窗正中间横糊一条白带。
-  it('.pp-inner::before 夜间方向与浅色一致（180deg），不是横着糊一条', () => {
-    const light = rule('.pp-inner::before');
-    const dark = rule('body.dark .pp-inner::before');
-    expect(light).toContain('180deg');
-    expect(dark, '.pp-inner::before 没有夜间覆盖').not.toBeNull();
-    expect(dark).toContain('180deg');
-    expect(dark).not.toContain('90deg');
-    expect(maxWhiteAlpha(dark)).toBeLessThanOrEqual(0.15);
-  });
 
   it('棱镜描边夜间整体压暗（--prism 令牌），不是一圈白边', () => {
     // mask 版 ::after 棱镜已全量换成双背景 border-box 技法（遮罩修复），

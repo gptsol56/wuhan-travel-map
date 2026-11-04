@@ -141,21 +141,40 @@ describe('主玻璃面板（route-panel / .menu / #panel 等）一律不挂 back
   });
 });
 
-describe('玻璃模糊令牌：半径有上限、面板引用令牌、移动端降档', () => {
-  // 视觉升级后 17 处字面 blur 收敛为三档令牌（10/12/14），单一调参入口；
-  // 上限语义不变（防「再加一点玻璃感」加回去），另加两条新约束：
-  // 面板必须引用令牌（不允许字面值回流）、820px 断点整体降档。
-  const TOKENS = { '--glass-blur': 12, '--glass-blur-md': 12, '--glass-blur-lg': 14 };
-  for (const [tok, limit] of Object.entries(TOKENS)) {
-    it(`${tok} 定义且 ≤ ${limit}px`, () => {
-      const m = CODE.match(new RegExp(tok.replace(/-/g, '\\-') + '\\s*:\\s*(\\d+)px'));
-      expect(m, `${tok} 未定义`).toBeTruthy();
-      expect(Number(m[1]), `${tok} 超上限`).toBeLessThanOrEqual(limit);
+describe('扁平材质令牌：玻璃/透镜死令牌已清、surface 三档在位', () => {
+  // 2026-11-04 材质重做：玻璃模糊与透镜效果全量下线，表面收敛为
+  // --surface-1/2/3 + --surface-border + --surface-shadow 三档令牌。
+  // 以下断言防「加一点玻璃感」把旧令牌加回来。
+  it('玻璃模糊/透镜调参令牌不再出现（--glass-blur/-sat/-bri、--lens-*）', () => {
+    expect(CODE.match(/--glass-blur|--glass-sat|--glass-bri|--lens-glow|--lens-width/g) || []).toHaveLength(0);
+  });
+  it('多层玻璃阴影令牌不再被引用（var(--glass-hi/-deep/-drop)）', () => {
+    expect(CODE.match(/var\(--glass-(hi|deep|drop)\)/g) || []).toHaveLength(0);
+  });
+  const SURFACES = [':root', 'body.dark', 'body.aurora', 'body.violet'];
+  for (const sel of SURFACES) {
+    it(`${sel} 定义 --surface-1/2/3 + --surface-border + --surface-shadow`, () => {
+      const m = CODE.match(new RegExp(sel.replace(/\./g, '\\.') + '\\{[^}]*'));
+      expect(m, `${sel} 块不见了`).toBeTruthy();
+      for (const tok of ['--surface-1', '--surface-2', '--surface-3', '--surface-border', '--surface-shadow']) {
+        expect(m[0], `${sel} 缺 ${tok}`).toContain(tok);
+      }
     });
   }
-  // 令牌保留在 :root（不引用、零成本），维持单一口径防后续回流字面模糊半径。
-  it('移动端 820px 断点：三档令牌整体降档（GPU O(像素×半径)）', () => {
-    expect(CODE.match(/@media \(max-width:820px\)\{[\s\S]{0,400}?--glass-blur:8px/), '断点内未找到降档令牌').toBeTruthy();
+  for (const sel of ['.menu', '.pp-inner', '.q-list', '.cluster-list', '.route-panel', '.measure-panel']) {
+    it(`${sel} 底色引用 --surface-2（浮层统一）`, () => {
+      expect(ruleBody(sel), `${sel} 未用 --surface-2`).toContain('var(--surface-2)');
+    });
+  }
+  it('#panel 底色引用 --surface-1', () => {
+    expect(ruleBody('#panel')).toContain('var(--surface-1)');
+  });
+  it('暗色地图滤镜轻压暗：不含 hue-rotate，brightness ≥ .8', () => {
+    const m = CODE.match(/body\.dark\{[^}]*--map-filter:([^;}]+)/);
+    expect(m, 'body.dark 未定义 --map-filter').toBeTruthy();
+    expect(m[1], 'hue-rotate 又加回来了').not.toMatch(/hue-rotate/);
+    const b = m[1].match(/brightness\(([\d.]+)\)/);
+    expect(b && Number(b[1]), 'brightness 低于 .8，压得太狠').toBeGreaterThanOrEqual(0.8);
   });
 });
 
