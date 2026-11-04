@@ -1,4 +1,4 @@
-﻿import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { grabVar, loadPart } from '../helpers/loadAppPart.js';
 
 const TMap = { LatLng: function LatLng(lat, lng) { this.lat = lat; this.lng = lng; } };
@@ -11,11 +11,11 @@ beforeEach(() => {
   mod = loadPart({
     parts: [
       'var:HEAT_STOPS', 'var:HEAT_BUCKETS',
-      'var:heatCanvas', 'var:heatProjLat',
-      'lerp', 'heatRGB', 'projectHeatPoints',
+      'var:heatCanvas', 'var:heatProjLat', 'var:crowdColorOn', 'var:HEAT_MIN_ZOOM',
+      'lerp', 'heatRGB', 'projectHeatPoints', 'heatVisible',
     ],
     stubs: { TMap },
-    exports: ['lerp', 'heatRGB', 'projectHeatPoints', 'HEAT_STOPS', 'HEAT_BUCKETS', 'heatPts', 'heatProjBuf'],
+    exports: ['lerp', 'heatRGB', 'projectHeatPoints', 'heatVisible', 'HEAT_STOPS', 'HEAT_BUCKETS', 'heatPts', 'heatProjBuf', 'crowdColorOn'],
   });
 });
 
@@ -98,6 +98,29 @@ describe('projectHeatPoints', () => {
   it('空数据返回 0', () => {
     mod.heatPts = [];
     expect(mod.projectHeatPoints(320, 240)).toBe(0);
+  });
+});
+
+describe('heatVisible：缩放过低不画热力层（防低缩放糊成大片光斑）', () => {
+  it('人流着色关闭 → 不画', () => {
+    mod.crowdColorOn = false;
+    window.__tmapMap.getZoom = () => 15;
+    expect(mod.heatVisible()).toBe(false);
+  });
+  it('缩放 < 13 → 不画（城区级光斑来源）', () => {
+    mod.crowdColorOn = true;
+    window.__tmapMap.getZoom = () => 11;
+    expect(mod.heatVisible()).toBe(false);
+  });
+  it('缩放 ≥ 13 → 画', () => {
+    mod.crowdColorOn = true;
+    window.__tmapMap.getZoom = () => 14;
+    expect(mod.heatVisible()).toBe(true);
+  });
+  it('拿不到 getZoom 时维持画（不回归旧行为）', () => {
+    mod.crowdColorOn = true;
+    delete window.__tmapMap.getZoom;
+    expect(mod.heatVisible()).toBe(true);
   });
 });
 

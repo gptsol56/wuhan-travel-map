@@ -2886,12 +2886,19 @@ function projectHeatPoints(W, H){
   }
   return m;
 }
+var HEAT_MIN_ZOOM = 13;                 // 低于此级别不画热力层：城区级缩放下光斑会糊成大片
+function heatVisible(){
+  if(!crowdColorOn) return false;
+  var mp = window.__tmapMap;
+  if(mp && typeof mp.getZoom === 'function') return mp.getZoom() >= HEAT_MIN_ZOOM;
+  return true;                          // 拿不到缩放信息时维持原行为（画）
+}
 function drawHeatLayer(){
   if(!heatCanvas) return;
   var sz = heatSize(), dpr = window.devicePixelRatio || 1;
   var W = sz.w, H = sz.h;
   if(W <= 0 || H <= 0) return;
-  var m = (crowdColorOn && heatPts.length) ? projectHeatPoints(W, H) : 0;   // 人流着色关闭 → m=0，清空热力层
+  var m = (heatVisible() && heatPts.length) ? projectHeatPoints(W, H) : 0;   // 开关关闭/缩放过低 → m=0，清空热力层
   if(heatWorkerReady){
     heatWorker.postMessage({ t:'draw', w:W, h:H, dpr:dpr, count:m, buf:heatProjBuf });
     return;
