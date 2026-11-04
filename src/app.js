@@ -202,10 +202,19 @@ function spotHTML(s){
   var r = getReserveInfo(s);
   var rname = r[0];
   var tierCls = CROWD_CLS[s.crowd] || 't-lo';
-  var infoRows = '';
-  if(s.hours)   infoRows += '<div class="c-row"><b>开放</b><span>'+esc(s.hours)+'</span></div>';
-  if(s.duration)infoRows += '<div class="c-row"><b>建议</b><span>'+esc(s.duration)+'</span></div>';
-  if(s.metro)   infoRows += '<div class="c-row"><b>交通</b><span>'+esc(s.metro)+'</span></div>';
+  /* 简化：开放/建议/地铁三行并一行「参考」；去掉与 peak/trend 重复的「典型高峰」行 */
+  var refs = [];
+  if(s.hours)    refs.push('开放 ' + s.hours);
+  if(s.duration) refs.push('建议 ' + s.duration);
+  if(s.metro)    refs.push('地铁 ' + s.metro);
+  var infoRow = refs.length ? '<div class="c-row"><b>参考</b><span>'+esc(refs.join(' · '))+'</span></div>' : '';
+  /* 小红书外链：网页搜索直达（用户端自行按时间排序即为最新帖子） */
+  var xhsKW = encodeURIComponent(s.name);
+  var xhs = '<details class="c-xhs"><summary>📕 小红书 · 最新帖子</summary><div class="c-xhs-links">'+
+    '<a href="https://www.xiaohongshu.com/search_result?keyword='+xhsKW+'" target="_blank" rel="noopener noreferrer">🔥 「'+esc(s.name)+'」最新帖子</a>'+
+    '<a href="https://www.xiaohongshu.com/search_result?keyword='+encodeURIComponent(s.name+' 攻略')+'" target="_blank" rel="noopener noreferrer">📝 游玩攻略合集</a>'+
+    '<a href="https://www.xiaohongshu.com/search_result?keyword='+encodeURIComponent(s.name+' 拍照')+'" target="_blank" rel="noopener noreferrer">📷 拍照打卡灵感</a>'+
+    '</div></details>';
   var score = s.score ? '<span class="pp-score">⭐ '+esc(s.score)+'</span>' : '';
   var os = openState(s), osChip = os ? ' <span class="tag t-'+os.cls+'">'+esc(os.text)+'</span>' : '';
   var actions = '<div class="pp-actions"><button data-act="go">📍 到这去</button><button data-act="fav" class="'+(isFav(s)?'on':'')+'" aria-pressed="'+(isFav(s)?'true':'false')+'">'+(isFav(s)?'★ 已收藏':'☆ 收藏')+'</button></div>';
@@ -214,9 +223,8 @@ function spotHTML(s){
     '<div class="c-title">'+esc(s.emoji)+' '+esc(s.name)+' '+score+osChip+'</div>'+
     '<div class="c-cat">'+esc(s.cat)+'</div>'+
     '<div class="c-row"><b>门票</b><span>'+esc(s.ticket)+'</span></div>'+
-    '<div class="c-row"><b>预约</b><span>【'+esc(rname)+'】 '+esc(s.reserveNote)+'</span></div>'+infoRows+
+    '<div class="c-row"><b>预约</b><span>'+esc(rname)+' · '+esc(s.reserveNote)+'</span></div>'+infoRow+
     '<div class="c-row"><b>人流</b><span><span class="tier '+tierCls+'">'+esc(s.crowd)+'</span>　<span class="peak">'+esc(s.peak)+'</span></span></div>'+
-    (s._typPeak ? '<div class="c-row"><b>典型高峰</b><span>'+esc(s._typPeak)+'</span></div>' : '')+
     '<div class="c-advice">💬 '+esc(getCrowdAdvice(s).full)+'</div>'+
     '<div class="c-trend">'+trendHTML(s)+'</div>'+
     '<div class="c-row"><b>地址</b><span>'+esc(s.addr)+'</span></div>'+
@@ -228,7 +236,7 @@ function spotHTML(s){
           return '<button class="pp-near" data-i="' + nb.index + '" title="查看 '+esc(nb.spot.name)+'">'+esc(nb.spot.name)+' · '+fmtDist(nb.dist)+'</button>';
         }).join('') + '</div>';
     })()+
-    '<div class="c-tip">💡 '+esc(s.tip)+'</div>'+actions+'</div>';
+    '<div class="c-tip">💡 '+esc(s.tip)+'</div>'+xhs+actions+'</div>';
 }
 var popupSize = null, wrapSize = null;   // 弹窗/容器尺寸缓存：pan/zoom 时避免每帧读布局
 function measurePopupBox(){
