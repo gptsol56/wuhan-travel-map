@@ -11,11 +11,11 @@ beforeEach(() => {
   mod = loadPart({
     parts: [
       'var:HEAT_STOPS', 'var:HEAT_BUCKETS',
-      'var:heatCanvas', 'var:heatProjLat', 'var:crowdColorOn', 'var:HEAT_MIN_ZOOM',
+      'var:heatCanvas', 'var:heatProjLat', 'var:crowdColorOn', 'var:HEAT_MIN_ZOOM', 'var:heatOn',
       'lerp', 'heatRGB', 'projectHeatPoints', 'heatVisible',
     ],
     stubs: { TMap },
-    exports: ['lerp', 'heatRGB', 'projectHeatPoints', 'heatVisible', 'HEAT_STOPS', 'HEAT_BUCKETS', 'heatPts', 'heatProjBuf', 'crowdColorOn'],
+    exports: ['lerp', 'heatRGB', 'projectHeatPoints', 'heatVisible', 'HEAT_STOPS', 'HEAT_BUCKETS', 'heatPts', 'heatProjBuf', 'crowdColorOn', 'heatOn'],
   });
 });
 
@@ -101,24 +101,24 @@ describe('projectHeatPoints', () => {
   });
 });
 
-describe('heatVisible：缩放过低不画热力层（防低缩放糊成大片光斑）', () => {
-  it('人流着色关闭 → 不画', () => {
-    mod.crowdColorOn = false;
+describe('heatVisible：热力层开关 + 缩放过低不画（防低缩放糊成大片光斑）', () => {
+  it('热力层开关关闭 → 不画（默认关）', () => {
+    mod.heatOn = false;
     window.__tmapMap.getZoom = () => 15;
     expect(mod.heatVisible()).toBe(false);
   });
-  it('缩放 < 13 → 不画（城区级光斑来源）', () => {
-    mod.crowdColorOn = true;
+  it('开关打开但缩放 < 13 → 不画（城区级光斑来源）', () => {
+    mod.heatOn = true;
     window.__tmapMap.getZoom = () => 11;
     expect(mod.heatVisible()).toBe(false);
   });
-  it('缩放 ≥ 13 → 画', () => {
-    mod.crowdColorOn = true;
+  it('开关打开且缩放 ≥ 13 → 画', () => {
+    mod.heatOn = true;
     window.__tmapMap.getZoom = () => 14;
     expect(mod.heatVisible()).toBe(true);
   });
   it('拿不到 getZoom 时维持画（不回归旧行为）', () => {
-    mod.crowdColorOn = true;
+    mod.heatOn = true;
     delete window.__tmapMap.getZoom;
     expect(mod.heatVisible()).toBe(true);
   });

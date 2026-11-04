@@ -23,6 +23,7 @@ var CROWD_TXT = {"高":"人流高","中":"人流中","低":"人流低"};
 var COLOR = ["#30a46c","#c2410c","#e5484d"];   // index by CROWD：低=绿、中=深橙、高=红（与列表/弹窗 .t-lo/.t-mid/.t-hi 语义一致）
 var CROWD_OFF_COLOR = '#5b6472';               // 「人流着色关闭」时的中性灰蓝
 var crowdColorOn = true;                       // 地图人流着色默认开（可在工具栏关闭）
+var heatOn = false;                            // 人流热力层默认关：光斑观感差，需要时在工具菜单手动开
 var RESERVE_TXT = {need_reserve:["⏱ 需预约","#6e56cf"],need_ticket:["¥ 需购票","#4f6f8f"],free:["✓ 免预约","#30a46c"]};
 
 /* ================== 工具函数（消除重复代码） ================== */
@@ -2681,7 +2682,7 @@ function renderLegend(){
   var el = document.getElementById('legend');
   if(!el) return;   // 图例已按需求移除（容器删于 index.html）；保留函数使三处调用安全空转
   var offNote = crowdColorOn ? '' : '<span class="lg-b" style="color:#9aa">地图标记已用中性色 · 点👥人流色恢复（列表/弹窗仍按此配色）</span>';
-  var heatScale = crowdColorOn
+  var heatScale = heatOn
     ? '<div class="heat-scale" title="热力强度（近10天历史热力）"><span class="hs-lbl">低</span><span class="hs-bar"></span><span class="hs-lbl">高</span></div>'
     : '';
   el.innerHTML =
@@ -2792,6 +2793,23 @@ btnCrowdColor.onclick = function(){
   savePrefs();
 };
 
+/* ---- 热力层开关：默认关（用户反馈光斑观感差），独立于「人流着色」 ---- */
+var btnHeat = document.getElementById('btn-heat');
+function syncHeatBtn(){
+  btnHeat.textContent = heatOn ? '🔥 关热力层' : '🔥 热力层';
+  btnHeat.setAttribute('aria-pressed', heatOn ? 'true' : 'false');
+}
+btnHeat.classList.toggle('active', heatOn);
+syncHeatBtn();
+btnHeat.onclick = function(){
+  heatOn = !heatOn;
+  btnHeat.classList.toggle('active', heatOn);
+  syncHeatBtn();
+  drawHeatLayer();          // 开：立即按当前缩放绘制（<13 级仍被 heatVisible 拦住）
+  renderLegend();
+  savePrefs();
+};
+
 /* ---- 热力图层（C1：把及客智能真实 S2 栅格画成半透明色块） ---- */
 /* 后端 normalizePoi 已把每个格子的 cell_center 从 WGS84 转成 GCJ-02 并透传 _cells；
    这里用一个覆盖整个地图容器的 canvas，在 projectToContainer 的像素坐标上逐格绘制径向渐变。 */
@@ -2888,7 +2906,7 @@ function projectHeatPoints(W, H){
 }
 var HEAT_MIN_ZOOM = 13;                 // 低于此级别不画热力层：城区级缩放下光斑会糊成大片
 function heatVisible(){
-  if(!crowdColorOn) return false;
+  if(!heatOn) return false;
   var mp = window.__tmapMap;
   if(mp && typeof mp.getZoom === 'function') return mp.getZoom() >= HEAT_MIN_ZOOM;
   return true;                          // 拿不到缩放信息时维持原行为（画）
@@ -3532,7 +3550,7 @@ function savePrefs(){
     lsSet(PREFS_KEY, JSON.stringify({
       waypoints: waypoints, mode: curMode, resF: resF,
       zoneF: zoneF, metroF: metroF,
-      crowdColorOn: crowdColorOn, sortBy: sortBy
+      crowdColorOn: crowdColorOn, heatOn: heatOn, sortBy: sortBy
     }));
   }, 250);
 }
@@ -3559,6 +3577,12 @@ function restorePrefs(){
     crowdColorOn = !!p.crowdColorOn;
     var _bcc = document.getElementById('btn-crowd-color');
     if(_bcc){ _bcc.classList.toggle('active', crowdColorOn); syncCrowdColorBtn(); }
+    renderLegend();
+  }
+  if('heatOn' in p){
+    heatOn = !!p.heatOn;
+    var _bh = document.getElementById('btn-heat');
+    if(_bh){ _bh.classList.toggle('active', heatOn); syncHeatBtn(); }
     renderLegend();
   }
   // 主题不再从 localStorage 恢复，每次打开一律日间。
