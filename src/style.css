@@ -152,18 +152,18 @@
   /* 主玻璃面板：模糊半径从 12px 砍到 10px。
      12 → 10 在视觉上几乎无差，但高斯模糊本身是 O(像素数 × 半径)，
      侧栏整列常驻，砍 17% 半径直接等于砍 30%+ 移动端 GPU 时间。 */
-  #panel{width:320px;min-width:320px;height:100%;background:linear-gradient(180deg, rgba(255,250,244,.8) 0%, rgba(252,248,242,.7) 50%, rgba(248,244,240,.76) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-right:1px solid var(--glass-border);font-size:13px;display:flex;flex-direction:column;z-index:1200;box-shadow:0 1px 2px rgba(15,30,60,.08), 8px 0 40px rgba(15,30,60,.15), inset 1px 0 0 rgba(255,255,255,.95), inset -1px 0 0 rgba(255,255,255,.18);transition:width .28s ease,min-width .28s ease;position:relative;overflow:hidden;background-clip:padding-box}
+  #panel{width:320px;min-width:320px;height:100%;background:linear-gradient(180deg, rgba(255,250,244,.8) 0%, rgba(252,248,242,.7) 50%, rgba(248,244,240,.76) 100%);border-right:1px solid var(--glass-border);font-size:13px;display:flex;flex-direction:column;z-index:1200;box-shadow:0 1px 2px rgba(15,30,60,.08), 8px 0 40px rgba(15,30,60,.15), inset 1px 0 0 rgba(255,255,255,.95), inset -1px 0 0 rgba(255,255,255,.18);transition:width .28s ease,min-width .28s ease;position:relative;overflow:hidden;background-clip:padding-box}
 /* 水晶棱镜边框 — 右侧蓝→白→粉→紫渐变模拟光线色散（保留，这是玻璃材质的主体观感） */
 #panel::after{content:'';position:absolute;top:0;right:-1px;bottom:0;width:2px;background:linear-gradient(180deg, rgba(167,199,255,0) 0%, rgba(167,199,255,.95) 25%, rgba(255,255,255,1) 50%, rgba(255,200,225,.9) 75%, rgba(167,199,255,0) 100%);pointer-events:none}
 body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40,50,.78),rgba(30,34,42,.85));border-right-color:rgba(255,255,255,.1);box-shadow:0 1px 2px rgba(0,0,0,.3), 8px 0 40px rgba(0,0,0,.6), inset 1px 0 0 rgba(255,255,255,.12)}
-  .p-head{padding:13px 10px;border-bottom:1px solid rgba(255,255,255,.55);background:linear-gradient(180deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.4) 60%, rgba(245,247,250,.45) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(200%) brightness(1.04);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(200%) brightness(1.04);position:relative}
+  .p-head{padding:13px 10px;border-bottom:1px solid rgba(255,255,255,.55);background:linear-gradient(180deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.4) 60%, rgba(245,247,250,.45) 100%);position:relative}
 .p-head::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,0));pointer-events:none;border-radius:0 0 6px 6px}
   .p-head::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg, transparent, rgba(0,0,0,.12), transparent)}
   body.dark .p-head{background:linear-gradient(180deg, rgba(45,50,60,.55), rgba(35,40,50,.32));border-bottom-color:rgba(255,255,255,.1)}
   .p-head h1{font-size:18px;margin:0 0 3px;font-weight:600;letter-spacing:.01em;color:var(--ink);text-shadow:0 1px 0 rgba(255,255,255,.5)}
   .p-head .sub{font-size:12px;color:var(--muted);line-height:1.5}
-  .p-head .weather{margin-top:7px;font-size:12px;color:#0b5d3b;background:rgba(240,250,244,.55);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border:1px solid rgba(207,232,219,.85);border-radius:8px;padding:4px 8px;line-height:1.5}
-  .p-head .note{margin-top:7px;font-size:11px;color:#8a5a00;background:rgba(255,246,230,.5);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border:1px solid rgba(245,217,168,.8);border-radius:7px;padding:5px 8px;line-height:1.5}
+  .p-head .weather{margin-top:7px;font-size:12px;color:#0b5d3b;background:rgba(240,250,244,.75);border:1px solid rgba(207,232,219,.85);border-radius:8px;padding:4px 8px;line-height:1.5}
+  .p-head .note{margin-top:7px;font-size:11px;color:#8a5a00;background:rgba(255,246,230,.72);border:1px solid rgba(245,217,168,.8);border-radius:7px;padding:5px 8px;line-height:1.5}
   /* 天气卡：紧凑双行，有层级有边框 */
   .weather-card{margin:6px 10px 0;padding:6px 10px;border-radius:10px;border:1px solid rgba(180,210,190,.55);background:linear-gradient(180deg, rgba(240,250,244,.65), rgba(235,244,250,.5));font-size:12px;line-height:1.6;overflow:hidden}
   .weather-card .w-day{display:flex;align-items:center;gap:7px;padding:1px 0}
@@ -187,7 +187,7 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
   .b-chip{padding:1px 7px;border-radius:8px;border:1px solid var(--glass-border);background:var(--glass);color:var(--ink);font-size:11px;cursor:pointer;white-space:nowrap}
   .b-chip:hover{border-color:var(--accent)}
   .b-empty{font-size:11.5px;color:var(--muted)}
-  .filters{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.3);backdrop-filter:blur(var(--glass-blur-md)) saturate(200%) brightness(1.04);-webkit-backdrop-filter:blur(var(--glass-blur-md)) saturate(200%) brightness(1.04)}
+  .filters{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.45)}
   /* 筛选折叠成 3 个图标：原来是 4 组「label + chips」常驻，把列表挤到只剩一小条 */
   .f-row{display:flex;align-items:center;gap:6px}
   .f-row .q-wrap{flex:1;min-width:0;margin-top:0}
@@ -200,7 +200,7 @@ body.dark #panel{background:linear-gradient(180deg, rgba(40,46,56,.9),rgba(35,40
   .f-toggle.active{background:color-mix(in srgb,var(--accent) 15%,transparent);border-color:color-mix(in srgb,var(--accent) 38%,transparent);color:var(--accent)}
   .f-panel{padding-top:7px}
   /* 工具菜单：收纳原 .ctl 常驻工具条与图例 */
-  .menu{position:absolute;top:52px;right:12px;z-index:1250;width:190px;max-height:min(82vh,640px);overflow-y:auto;padding:8px;border-radius:18px 12px 18px 12px;background:linear-gradient(180deg, rgba(255,250,244,.72), rgba(248,244,240,.65));backdrop-filter:blur(var(--glass-blur-lg)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur-lg)) saturate(1.8);border:1px solid rgba(255,255,255,.7);box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);display:flex;flex-direction:column;gap:3px}
+  .menu{position:absolute;top:52px;right:12px;z-index:1250;width:190px;max-height:min(82vh,640px);overflow-y:auto;padding:8px;border-radius:18px 12px 18px 12px;background:linear-gradient(180deg, rgba(255,250,244,.95), rgba(248,244,240,.92));border:1px solid rgba(255,255,255,.7);box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);display:flex;flex-direction:column;gap:3px}
   .menu::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,.04) 28%,transparent 55%,rgba(255,255,255,.06) 100%)}
   .menu[hidden]{display:none}
   /* .menu-item 自带 display:flex，会盖掉 hidden 属性的 UA 样式 —— 显式守卫（安装按钮默认隐藏用） */
@@ -422,20 +422,20 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
 
   /* 缩放组：[-] [11] [+] + ? 独立圆钮，纵排右下角 */
   .zoom-group{position:absolute;right:12px;bottom:12px;z-index:1150;display:flex;flex-direction:column;align-items:center;gap:6px}
-  .zoom-indicator{display:flex;flex-direction:column;align-items:center;border-radius:14px;overflow:hidden;border:1px solid rgba(0,0,0,.1);background:rgba(255,255,255,.82);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);box-shadow:var(--glass-hi),0 4px 16px rgba(0,0,0,.15)}
+  .zoom-indicator{display:flex;flex-direction:column;align-items:center;border-radius:14px;overflow:hidden;border:1px solid rgba(0,0,0,.1);background:rgba(255,255,255,.94);box-shadow:var(--glass-hi),0 4px 16px rgba(0,0,0,.15)}
   .zoom-indicator .zoom-btn{width:34px;height:34px;border:none;background:transparent;color:var(--ink);font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s ease,transform .2s var(--spring-pop)}
   .zoom-indicator .zoom-btn:hover{background:rgba(0,0,0,.06)}
   .zoom-indicator .zoom-btn:active{transform:scale(.88)}
   .zoom-indicator .zoom-btn:first-child{border-radius:14px 14px 0 0}
   .zoom-indicator .zoom-btn:last-child{border-radius:0 0 14px 14px}
   .zoom-level{min-width:34px;padding:4px 0;text-align:center;font-weight:700;font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums;font-family:var(--font-mono);font-size:12px;user-select:none;border-top:1px solid rgba(0,0,0,.08);border-bottom:1px solid rgba(0,0,0,.08)}
-  .zoom-help{width:44px;height:44px;border-radius:50%;font-size:18px;border:1px solid rgba(0,0,0,.1);background:rgba(255,255,255,.82);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);color:var(--accent);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--glass-hi),0 4px 16px rgba(0,0,0,.12);transition:background .15s ease,transform .2s var(--spring-pop)}
+  .zoom-help{width:44px;height:44px;border-radius:50%;font-size:18px;border:1px solid rgba(0,0,0,.1);background:rgba(255,255,255,.94);color:var(--accent);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--glass-hi),0 4px 16px rgba(0,0,0,.12);transition:background .15s ease,transform .2s var(--spring-pop)}
   .zoom-help:hover{background:rgba(11,122,75,.08);transform:scale(1.08)}
   .zoom-help:active{transform:scale(.9)}
-  body.dark .zoom-indicator{background:rgba(35,40,50,.82);border-color:rgba(255,255,255,.12)}
+  body.dark .zoom-indicator{background:rgba(35,40,50,.94);border-color:rgba(255,255,255,.12)}
   body.dark .zoom-indicator .zoom-btn{color:var(--ink)}
   body.dark .zoom-indicator .zoom-btn:hover{background:rgba(255,255,255,.08)}
-  body.dark .zoom-help{background:rgba(35,40,50,.82);border-color:rgba(255,255,255,.12);color:var(--accent)}
+  body.dark .zoom-help{background:rgba(35,40,50,.94);border-color:rgba(255,255,255,.12);color:var(--accent)}
 
   /* 自建测距：每段距离标签（绝对定位在地图上，pan/zoom 跟随） */
   .measure-label{position:absolute;z-index:1190;pointer-events:auto;cursor:pointer;padding:2px 8px;border-radius:8px;background:rgba(11,122,75,.88);color:#fff;font-size:11px;font-weight:700;white-space:nowrap;transform:translate(-50%,-50%);box-shadow:0 2px 8px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.3);transition:background .15s ease,transform .25s var(--spring-soft);user-select:none}
@@ -454,7 +454,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   /* 自建弹窗（液态玻璃）——完全自定义，无 TMap 默认容器 */
   .spot-popup{position:absolute;top:0;left:0;z-index:3000;will-change:transform;pointer-events:none;display:none}
   /* 弹窗模糊 14→10（252px 宽的小弹窗，玻璃感差异肉眼几乎看不出） */
-  .pp-inner{pointer-events:auto;box-sizing:border-box;width:252px;background:linear-gradient(180deg, rgba(255,250,244,.78) 0%, rgba(250,246,240,.7) 50%, rgba(245,242,238,.76) 100%);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-radius:20px 12px 20px 12px;padding:14px 16px;box-shadow:var(--glass-hi),var(--glass-deep),0 12px 40px rgba(0,0,0,.3);border:1px solid rgba(0,0,0,.06);font-size:13.5px;line-height:1.72;overflow-wrap:break-word;word-break:break-word;white-space:normal;position:relative;overflow:hidden;will-change:transform;animation:ppIn .3s var(--ios-spring);transform-origin:50% 15%}
+  .pp-inner{pointer-events:auto;box-sizing:border-box;width:252px;background:linear-gradient(180deg, rgba(255,250,244,.96) 0%, rgba(250,246,240,.93) 50%, rgba(245,242,238,.94) 100%);border-radius:20px 12px 20px 12px;padding:14px 16px;box-shadow:var(--glass-hi),var(--glass-deep),0 12px 40px rgba(0,0,0,.3);border:1px solid rgba(0,0,0,.06);font-size:13.5px;line-height:1.72;overflow-wrap:break-word;word-break:break-word;white-space:normal;position:relative;overflow:hidden;will-change:transform;animation:ppIn .3s var(--ios-spring);transform-origin:50% 15%}
   @keyframes ppIn{from{opacity:0;transform:perspective(800px) scale(.92) translateY(8px) rotateX(-4deg)}to{opacity:1;transform:none}}
 /* 原来这里有 4 条伪元素规则、其中 2 条互相覆盖（191 被 194 覆盖、192 被 193 覆盖），
    即 mask-composite 渐变边框和径向高光从来没生效过。合并成一条顶部高光。 */
@@ -463,8 +463,8 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   @media (max-width:480px){
     .pp-inner{width:min(252px,92vw)}
   }
-  /* 摘掉 backdrop-filter：14×14 小三角上模糊 20px 地图基本看不见；bg .6→.8 补偿 */
-  .pp-arrow{position:absolute;left:50%;bottom:-7px;margin-left:-7px;width:14px;height:14px;background:rgba(255,255,255,.8);border-right:1px solid rgba(255,255,255,.7);border-bottom:1px solid rgba(255,255,255,.7);transform:rotate(45deg);box-shadow:4px 4px 12px rgba(0,0,0,.12);pointer-events:none}
+  /* 用户要求：去掉弹窗底部指向景点的小三角（旋转 45° 的白色小方块），其他不动 */
+  .pp-arrow{display:none}
   /* 摘掉 backdrop-filter：22×22 关闭按钮上模糊收益低；bg .55→.78 补偿 */
   .pp-close{position:absolute;top:9px;right:9px;z-index:2;width:22px;height:22px;border-radius:50%;border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.78);color:var(--muted);font-size:12px;font-weight:700;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s ease,color .15s ease,transform .3s var(--spring-pop)}
   .pp-close:active{transform:scale(.86)}
@@ -576,7 +576,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   body.aurora{background:#0b1628;color:#e0f0f0}   /* 极光深空蓝底 */
   /* 夜间表面统一在 30,35,45 系（与 .route-panel/.pp-inner/.measure-panel 等一致）。
      这里曾是 rgba(18,21,26,.66) 的近黑异色 —— 侧栏与路线面板并排时色差刺眼。 */
-  body.dark #panel{background:rgba(30,35,45,.72)}
+  body.dark #panel{background:rgba(30,35,45,.9)}
   body.dark .p-head{background:var(--glass-head);border-bottom:1px solid var(--glass-head-border)}
   body.dark .p-head h1{text-shadow:none}
   body.dark .p-head .weather{background:rgba(20,60,40,.5);border-color:rgba(50,110,80,.6);color:#7fd9a8}
@@ -593,7 +593,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   body.dark .item-add:hover,body.dark .item-add.added{background:#34d399;color:#06281a;border-color:#86cbb2}
   body.dark .btn{background:linear-gradient(rgba(40,45,56,.7),rgba(40,45,56,.7)) padding-box, var(--prism) border-box;border-color:var(--glass-border);color:var(--ink)}
   body.dark .btn:hover{background:rgba(52,58,72,.9)}
-  body.dark .pp-inner{background:rgba(30,35,45,.6);border-color:rgba(255,255,255,.18);box-shadow:0 10px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.14)}
+  body.dark .pp-inner{background:rgba(30,35,45,.96);border-color:rgba(255,255,255,.18);box-shadow:0 10px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.14)}
   body.dark .pp-inner::before{background:linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.55) 20%,rgba(255,255,255,.55) 80%,rgba(255,255,255,0) 100%)}
   body.dark .pp-arrow{background:rgba(30,35,45,.6);border-color:rgba(255,255,255,.18)}
   body.dark .iw .c-tip{background:rgba(20,55,40,.55);border-color:rgba(50,110,80,.55);color:#8fd9b0}
@@ -652,10 +652,10 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   body.dark .btn.active{background:rgba(52,211,153,.85);color:#06281a}
 
   /* ---------- 定位按钮（悬浮于地图右下） ---------- */
-  .zoom-locate{width:44px;height:44px;border-radius:50%;border:1px solid rgba(0,0,0,.1);background:rgba(255,255,255,.82);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);color:var(--ink);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--glass-hi),0 4px 16px rgba(0,0,0,.12);transition:background .15s ease,transform .2s var(--spring-pop)}
+  .zoom-locate{width:44px;height:44px;border-radius:50%;border:1px solid rgba(0,0,0,.1);background:rgba(255,255,255,.94);color:var(--ink);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--glass-hi),0 4px 16px rgba(0,0,0,.12);transition:background .15s ease,transform .2s var(--spring-pop)}
   .zoom-locate:hover{background:rgba(255,255,255,.95);transform:scale(1.08)}
   .zoom-locate:active{transform:scale(.9)}
-  body.dark .zoom-locate{background:rgba(35,40,50,.82);border-color:rgba(255,255,255,.12)}
+  body.dark .zoom-locate{background:rgba(35,40,50,.94);border-color:rgba(255,255,255,.12)}
   /* ---------- 比例尺 ----------
      自研比例尺已删：TMap 自带 .tmap-scale-control 就在同一锚点，
      两套叠在一起再加腾讯地图版权块，左下角会糊成三行。
@@ -689,7 +689,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   /* ---------- 搜索联想下拉 ---------- */
   .q-wrap{position:relative}
   /* 搜索下拉 18→12（仅在搜索框聚焦时出现，按需付出） */
-  .q-list{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:1200;background:linear-gradient(180deg, rgba(255,250,244,.78), rgba(255,248,242,.7));backdrop-filter:blur(var(--glass-blur-md)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur-md)) saturate(1.8);border:1px solid rgba(255,255,255,.6);border-radius:16px 10px 16px 10px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);overflow:hidden;max-height:250px;overflow-y:auto}
+  .q-list{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:1200;background:linear-gradient(180deg, rgba(255,250,244,.96), rgba(255,248,242,.93));border:1px solid rgba(255,255,255,.6);border-radius:16px 10px 16px 10px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);overflow:hidden;max-height:250px;overflow-y:auto}
   body.dark .q-list{background:rgba(34,40,52,.96);border-color:rgba(255,255,255,.14)}
   .q-list .q-empty{padding:9px 11px;font-size:12.5px;color:var(--muted)}
   .q-item{display:flex;align-items:center;gap:7px;font-size:12.5px;padding:7px 11px;cursor:pointer;color:var(--ink)}
@@ -702,7 +702,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   body.dark .list mark{color:#86cbb2}
   /* ---------- 聚合气泡点击 → 快捷列表 ---------- */
   /* 聚合点列表 18→12（仅点击聚合气泡时出现） */
-  .cluster-list{position:absolute;z-index:1180;background:linear-gradient(180deg, rgba(255,250,244,.75), rgba(255,248,242,.68));backdrop-filter:blur(var(--glass-blur-md)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur-md)) saturate(1.8);border:1px solid rgba(255,255,255,.7);border-radius:18px 12px 18px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);overflow:hidden;min-width:200px;max-width:260px;animation:clIn .32s var(--ios-spring)}
+  .cluster-list{position:absolute;z-index:1180;background:linear-gradient(180deg, rgba(255,250,244,.95), rgba(255,248,242,.92));border:1px solid rgba(255,255,255,.7);border-radius:18px 12px 18px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);overflow:hidden;min-width:200px;max-width:260px;animation:clIn .32s var(--ios-spring)}
   body.dark .cluster-list{background:rgba(30,36,46,.95);border-color:rgba(255,255,255,.15)}
   @keyframes clIn{from{opacity:0;transform:translateY(-10px) scale(.97) rotateX(-3deg)}to{opacity:1;transform:none}}
   .cluster-list .cl-head{padding:9px 12px;font-size:12.5px;font-weight:700;background:linear-gradient(90deg,var(--cl-accent,#0b7a4b) 0%,transparent 30%),rgba(255,255,255,.5);border-bottom:1px solid rgba(120,130,145,.18);display:flex;align-items:center;gap:6px}
@@ -728,14 +728,14 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
      结果整个面板掉到视口外，「路程 / 直线」读数被屏幕底边切掉，
      看上去就像「点了测距没反应」。 */
   /* 测距面板模糊 12→10（按需弹出，砍 17% 半径省 GPU） */
-  .measure-panel{position:absolute;left:12px;bottom:28px;z-index:1150;backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-radius:18px 12px 18px 12px;padding:9px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);font-size:12.5px;line-height:1.6;overflow:hidden;background:linear-gradient(180deg, rgba(255,250,244,.72) 0%, rgba(248,244,240,.5) 50%, rgba(240,238,234,.55) 100%) padding-box, var(--prism) border-box;border:1px solid transparent}
+  .measure-panel{position:absolute;left:12px;bottom:28px;z-index:1150;border-radius:18px 12px 18px 12px;padding:9px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);font-size:12.5px;line-height:1.6;overflow:hidden;background:linear-gradient(180deg, rgba(255,250,244,.93) 0%, rgba(248,244,240,.87) 50%, rgba(240,238,234,.89) 100%) padding-box, var(--prism) border-box;border:1px solid transparent}
 
 .measure-panel::before{content:'';position:absolute;top:1px;left:10%;right:10%;height:30%;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,.5), transparent);pointer-events:none}
   .measure-panel .mp-title{font-weight:700;margin-bottom:2px}
   .measure-panel .mp-row{color:var(--muted)}
   .measure-panel .mp-row b{color:var(--ink);font-weight:700}
   .measure-panel .mp-hint{font-size:10.5px;color:var(--muted);opacity:.85;margin-top:2px}
-  body.dark .measure-panel{background:linear-gradient(rgba(30,35,45,.65),rgba(30,35,45,.65)) padding-box, var(--prism) border-box;border-color:rgba(255,255,255,.18);box-shadow:0 6px 24px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.12)}
+  body.dark .measure-panel{background:linear-gradient(rgba(30,35,45,.92),rgba(30,35,45,.92)) padding-box, var(--prism) border-box;border-color:rgba(255,255,255,.18);box-shadow:0 6px 24px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.12)}
 
   /* ---------- 路线查询面板 ---------- */
   /* overflow 改成 visible（原来是 hidden），原因是折叠键被面板圆角啃掉了角。
@@ -758,7 +758,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
      .prism ::after 的 mask 边框依赖父级 overflow 边界（其实不依赖，
      mask-composite 只看自身的 border-radius），所以这个改法 0 风险。
      面板的圆角还在，只是子元素不再被圆角裁切。 */
-  .route-panel{position:absolute;left:12px;top:12px;z-index:1300;width:260px;background:linear-gradient(180deg, rgba(255,250,244,.75) 0%, rgba(250,246,240,.65) 50%, rgba(245,242,238,.7) 100%) padding-box, var(--prism) border-box;backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);border-radius:22px 14px 22px 14px;padding:11px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);font-size:12.5px;overflow:visible;border:1px solid transparent}
+  .route-panel{position:absolute;left:12px;top:12px;z-index:1300;width:260px;background:linear-gradient(180deg, rgba(255,250,244,.94) 0%, rgba(250,246,240,.9) 50%, rgba(245,242,238,.92) 100%) padding-box, var(--prism) border-box;border-radius:22px 14px 22px 14px;padding:11px 12px;box-shadow:var(--glass-hi),var(--glass-deep),var(--glass-drop);font-size:12.5px;overflow:visible;border:1px solid transparent}
   /* 抽屉开关时对话框要整体挪位/收窄，这里给它补上 left / width 的过渡，
      否则 body.panel-open 那条规则会瞬移，看起来像闪了一下。
      注意只动 left 和 width，不碰 transform —— .rp-body 的折叠用的是 max-height。 */
@@ -826,8 +826,8 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   .route-panel input:focus{border-color:var(--accent)}
 
   /* 键盘快捷键面板 */
-  #helpOverlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px) saturate(var(--glass-sat)) brightness(var(--glass-bri));animation:fadeIn .15s ease}
-  #helpOverlay .help-card{background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.85));backdrop-filter:blur(20px) saturate(200%) brightness(1.04);border:1px solid rgba(255,255,255,.7);border-radius:18px;padding:18px 22px;min-width:340px;box-shadow:0 20px 60px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.95);animation:slideUp .3s var(--spring-soft)}
+  #helpOverlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);animation:fadeIn .15s ease}
+  #helpOverlay .help-card{background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.85));border:1px solid rgba(255,255,255,.7);border-radius:18px;padding:18px 22px;min-width:340px;box-shadow:0 20px 60px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.95);animation:slideUp .3s var(--spring-soft)}
   body.dark #helpOverlay .help-card{background:linear-gradient(180deg, rgba(35,40,50,.92),rgba(30,34,42,.85));border-color:rgba(255,255,255,.15);box-shadow:0 20px 60px rgba(0,0,0,.6)}
   .help-head{font-weight:700;font-size:15px;letter-spacing:.5px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;color:var(--ink)}
   .help-x{width:26px;height:26px;border-radius:50%;border:1px solid rgba(0,0,0,.12);background:rgba(255,255,255,.6);color:#1a1f2e;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;transition:.15s}
@@ -903,7 +903,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   /* 摘掉 backdrop-filter（互换按钮上 blur 8px 地图收益低）；bg .55→.78 补偿 */
   .rp-swap{display:inline-flex;align-items:center;gap:3px;padding:3px 7px;font-size:11.5px;border-radius:7px;border:1px solid rgba(255,255,255,.8);background:rgba(255,255,255,.78);color:var(--muted);cursor:pointer;transition:background .12s ease, color .12s ease, border-color .12s ease}
   .rp-swap:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
-  body.dark .route-panel{background:linear-gradient(rgba(30,35,45,.68),rgba(30,35,45,.68)) padding-box, var(--prism) border-box;border-color:rgba(255,255,255,.18);box-shadow:0 6px 24px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.12)}
+  body.dark .route-panel{background:linear-gradient(rgba(30,35,45,.94),rgba(30,35,45,.94)) padding-box, var(--prism) border-box;border-color:rgba(255,255,255,.18);box-shadow:0 6px 24px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.12)}
   body.dark .route-panel input{background:rgba(40,45,56,.6);border-color:var(--glass-border);color:var(--ink)}
   body.dark .route-panel .rp-title button{background:rgba(40,45,56,.6);border-color:var(--glass-border);color:var(--muted)}
   /* 摘掉 backdrop-filter 后深色背景也要补：.5→.72 补偿 */
@@ -940,7 +940,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
      右下是「回到我的位置」(x>=1230)，y 620~656 这条带上什么都没有。
      收起/弹出方向也跟着镜像成自下而上。
      spring 缓动换 ease（.34,1.56,.64,1 会算反向运动帧；toast 一次性弹窗，ease 已够用）。 */
-  .toast{position:fixed;bottom:64px;left:50%;transform:translate(-50%,12px) scale(.95);z-index:4000;background:linear-gradient(180deg, rgba(50,56,66,.82) 0%, rgba(35,40,50,.78) 50%, rgba(28,32,38,.88) 100%);color:#fff;padding:9px 16px;border-radius:16px 10px 16px 10px;font-size:12.5px;backdrop-filter:blur(var(--glass-blur-lg)) saturate(var(--glass-sat)) brightness(var(--glass-bri));-webkit-backdrop-filter:blur(var(--glass-blur-lg)) saturate(1.8);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -16px 32px rgba(0,0,0,.25),0 16px 48px rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.14);pointer-events:none;opacity:0;transition:opacity .25s ease, transform .45s var(--spring-soft);max-width:min(420px,76vw);text-align:center}
+  .toast{position:fixed;bottom:64px;left:50%;transform:translate(-50%,12px) scale(.95);z-index:4000;background:linear-gradient(180deg, rgba(50,56,66,.82) 0%, rgba(35,40,50,.78) 50%, rgba(28,32,38,.88) 100%);color:#fff;padding:9px 16px;border-radius:16px 10px 16px 10px;font-size:12.5px;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -16px 32px rgba(0,0,0,.25),0 16px 48px rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.14);pointer-events:none;opacity:0;transition:opacity .25s ease, transform .45s var(--spring-soft);max-width:min(420px,76vw);text-align:center}
 body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-gradient(180deg, rgba(255,255,255,.92),rgba(245,247,250,.85));color:#1a1f2e;border-color:rgba(255,255,255,.6);box-shadow:0 10px 32px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.95)}
   .toast.show{opacity:1;transform:translate(-50%,0) scale(1);animation:toastPop .5s var(--ios-spring)}
 @keyframes toastPop{0%{transform:translate(-50%,16px) scale(.88) rotateX(4deg);opacity:0}100%{transform:translate(-50%,0) scale(1) rotateX(0);opacity:1}}
@@ -1111,7 +1111,7 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
   body.dark.aurora .menu{background:rgba(15,30,48,.92);border-color:rgba(80,200,255,.15)}
   body.dark.aurora .menu-item{color:#e0f0f0}
   body.dark.aurora .menu-item:hover{background:rgba(34,211,238,.1)}
-  body.dark.aurora .route-panel{background:rgba(15,30,48,.85);border-color:rgba(80,200,255,.12)}
+  body.dark.aurora .route-panel{background:rgba(15,30,48,.95);border-color:rgba(80,200,255,.12)}
   body.dark.aurora .route-panel input{background:rgba(20,40,60,.7);border-color:rgba(80,200,255,.2);color:#e0f0f0}
   body.dark.aurora .route-panel .rp-title button{background:rgba(20,40,60,.7);color:#7a9a9a;border-color:rgba(80,200,255,.2)}
   body.dark.aurora .rp-mode{background:rgba(20,40,60,.7);color:#7a9a9a;border-color:rgba(80,200,255,.2)}
@@ -1122,7 +1122,7 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
   body.dark.aurora .rp-card:hover{background:rgba(34,211,238,.08)}
   body.dark.aurora .rp-tag{background:rgba(20,40,60,.5);border-color:rgba(80,200,255,.12);color:#7a9a9a}
   body.dark.aurora .rp-wp-chip{border-color:rgba(34,211,238,.3);background:rgba(34,211,238,.08);color:#e0f0f0}
-  body.dark.aurora .pp-inner{background:rgba(15,30,48,.85);border-color:rgba(80,200,255,.12)}
+  body.dark.aurora .pp-inner{background:rgba(15,30,48,.96);border-color:rgba(80,200,255,.12)}
   body.dark.aurora .iw .c-tip{background:rgba(20,50,50,.5);border-color:rgba(80,200,255,.2);color:#a0d8d0}
   body.dark.aurora .iw .c-near .pp-near{border-color:rgba(34,211,238,.3);background:rgba(34,211,238,.06);color:#6acfdc}
   body.dark.aurora .zoom-indicator{background:rgba(15,30,48,.85);border-color:rgba(80,200,255,.15)}
@@ -1132,7 +1132,7 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
   body.dark.aurora .f-toggle.active{background:rgba(34,211,238,.8);color:#062030;border-color:rgba(0,255,163,.4)}
   body.dark.aurora .mi-btn{background:rgba(20,40,60,.6);border-color:rgba(80,200,255,.2);color:#e0f0f0}
   body.dark.aurora .toast{background:rgba(15,30,48,.92);border-color:rgba(80,200,255,.15)}
-  body.dark.aurora .measure-panel{background:rgba(15,30,48,.85)}
+  body.dark.aurora .measure-panel{background:rgba(15,30,48,.94)}
   body.dark.aurora .q-list{background:rgba(15,30,48,.92)}
   body.dark.aurora .cluster-list{background:rgba(15,30,48,.92)}
   body.dark.aurora .measure-label{background:rgba(34,211,238,.85)}

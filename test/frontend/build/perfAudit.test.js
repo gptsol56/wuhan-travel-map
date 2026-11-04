@@ -121,23 +121,24 @@ describe('动效克制：prefers-reduced-motion 必须实际生效', () => {
   });
 });
 
-describe('主玻璃面板（route-panel / .menu / #panel 等）仍保留 backdrop-filter', () => {
-  // 反向断言：确保这次没把大面板的模糊也误删。
-  // 这几条是大块玻璃，摘掉它们就没"液态玻璃"质感了——之前用户特地抱怨过。
+describe('主玻璃面板（route-panel / .menu / #panel 等）一律不挂 backdrop-filter', () => {
+  // 2026-11-04 用户反馈：玻璃遮罩的模糊只在地图上产生模糊光斑，没有任何正面作用，
+  // 要求全部摘掉。底色用高不透明度渐变补偿（见 style.css 各面板 background）。
+  // 这些选择器覆盖了历史上挂过模糊的全部面板/浮层，防止后续再加回去。
   for (const sel of [
-    '.route-panel',
-    '#panel',
-    '.menu',
-    '.measure-panel',
-    '.pp-inner',
-    '.zoom-indicator',
+    '.route-panel', '#panel', '.menu', '.measure-panel', '.pp-inner',
+    '.zoom-indicator', '.filters', '.q-list', '.cluster-list',
+    '.zoom-help', '.zoom-locate', '.p-head', '.toast', '#helpOverlay',
   ]) {
-    it(`${sel} 仍带 backdrop-filter（主玻璃）`, () => {
+    it(`${sel} 不带 backdrop-filter（玻璃模糊已全量下线）`, () => {
       const body = ruleBody(sel);
       expect(body, `${sel} 规则不见了`).toBeTruthy();
-      expect(body, `${sel} 的 backdrop-filter 被误删了`).toMatch(/backdrop-filter/);
+      expect(body, `${sel} 又挂回了 backdrop-filter（用户已要求全部移除）`).not.toMatch(/backdrop-filter/);
     });
   }
+  it('整个样式表不再有任何 backdrop-filter:blur(...) 声明', () => {
+    expect(CODE.match(/backdrop-filter\s*:[^;]*blur\(/g) || []).toHaveLength(0);
+  });
 });
 
 describe('玻璃模糊令牌：半径有上限、面板引用令牌、移动端降档', () => {
@@ -152,27 +153,7 @@ describe('玻璃模糊令牌：半径有上限、面板引用令牌、移动端�
       expect(Number(m[1]), `${tok} 超上限`).toBeLessThanOrEqual(limit);
     });
   }
-  const blurPx = (body) => {
-    const lit = body.match(/backdrop-filter\s*:\s*blur\((\d+)px\)/);
-    if (lit) return Number(lit[1]);
-    const v = body.match(/backdrop-filter\s*:\s*blur\\?\(var\\?\?/);  // placeholder
-    const vv = body.match(/blur\(var\((--[\w-]+)\)\)/);
-    return vv ? TOKENS[vv[1]] : null;
-  };
-  const caps = {
-    '#panel': 12, '.route-panel': 12, '.measure-panel': 12, '.pp-inner': 12,
-    '.filters': 12, '.q-list': 12, '.cluster-list': 12,
-    '.menu': 16, '.zoom-indicator': 14,
-  };
-  for (const [sel, limit] of Object.entries(caps)) {
-    it(`${sel} 模糊半径 ≤ ${limit}px（字面值或令牌解析）`, () => {
-      const body = ruleBody(sel);
-      expect(body, `${sel} 规则不见了`).toBeTruthy();
-      const px = blurPx(body);
-      expect(px, `${sel} 解析不到模糊半径`).not.toBeNull();
-      expect(px, `${sel} 模糊半径 ${px}px 超过 ${limit}px`).toBeLessThanOrEqual(limit);
-    });
-  }
+  // 令牌保留在 :root（不引用、零成本），维持单一口径防后续回流字面模糊半径。
   it('移动端 820px 断点：三档令牌整体降档（GPU O(像素×半径)）', () => {
     expect(CODE.match(/@media \(max-width:820px\)\{[\s\S]{0,400}?--glass-blur:8px/), '断点内未找到降档令牌').toBeTruthy();
   });
