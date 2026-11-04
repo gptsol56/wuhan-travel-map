@@ -592,6 +592,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   body.dark .iw .c-near .pp-near{border-color:rgba(90,180,140,.4);background:rgba(20,55,40,.5);color:#8fd9b0}
   body.dark .iw .c-near .pp-near:hover{background:rgba(30,70,50,.7)}
   body.dark .iw .peak{color:#e5c37a}
+  body.dark #map{background:#14181f}
   body.dark #map canvas{filter:var(--map-filter)}
   /* 腾讯 SDK 内部用 canvas 渲染地名/道路标签，CSS 无法直接控制文字字体，
      但可以让 canvas 元素继承字体声明以加速 SDK 字体回退 */
@@ -607,7 +608,7 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
   /* warn = 上游配额耗尽。故障态，和 ok(绿)/sim(黄) 都要一眼分得开。
      浅色 + 夜间各一份，和 ok/sim 的写法保持一致。 */
   .live-status.warn{color:#8c3d00;background:rgba(255,240,226,.7);border-color:rgba(238,175,120,.95)}
-  body.dark .live-status.warn{color:#f0a86a;background:rgba(70,38,8,.6);border-color:rgba(150,100,35,.7)}
+  body.dark .live-status.warn{color:#f6b47c;background:rgba(70,38,8,.6);border-color:rgba(150,100,35,.7)}
   .live-status.loading{color:var(--live-loading)}
   .live-status.loading::before{content:'';display:inline-block;width:10px;height:10px;border-radius:50%;border:2px solid var(--live-loading);border-top-color:transparent;animation:live-spin .8s linear infinite;margin-right:6px;vertical-align:-1px}
   @keyframes live-spin{to{transform:rotate(360deg)}}
@@ -931,13 +932,17 @@ body.dark .sp-name{background:rgba(15,18,24,.9);color:#fff;border-color:rgba(255
      右下是「回到我的位置」(x>=1230)，y 620~656 这条带上什么都没有。
      收起/弹出方向也跟着镜像成自下而上。
      spring 缓动换 ease（.34,1.56,.64,1 会算反向运动帧；toast 一次性弹窗，ease 已够用）。 */
-  .toast{position:fixed;bottom:64px;left:50%;transform:translate(-50%,12px) scale(.95);z-index:4000;background:linear-gradient(180deg, rgba(50,56,66,.82) 0%, rgba(35,40,50,.78) 50%, rgba(28,32,38,.88) 100%);color:#fff;padding:9px 16px;border-radius:16px 10px 16px 10px;font-size:12.5px;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -16px 32px rgba(0,0,0,.25),0 16px 48px rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.14);pointer-events:none;opacity:0;transition:opacity .25s ease, transform .45s var(--spring-soft);max-width:min(420px,76vw);text-align:center}
-body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-gradient(180deg, rgba(255,255,255,.92),rgba(245,247,250,.85));color:#1a1f2e;border-color:rgba(255,255,255,.6);box-shadow:0 10px 32px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.95)}
+  .toast{position:fixed;bottom:64px;left:50%;transform:translate(-50%,12px) scale(.95);z-index:4000;background:rgba(30,34,42,.96);color:#fff;padding:9px 16px;border-radius:12px;font-size:13px;box-shadow:var(--surface-shadow);border:1px solid rgba(255,255,255,.14);pointer-events:none;opacity:0;transition:opacity .25s ease, transform .45s var(--spring-soft);max-width:min(420px,76vw);text-align:center}
+  /* 晨曦（body 无 .dark）的普通 toast：浅色底深字，只兜底无状态变体的，
+     ok/info/error 保持语义色底 + 白字（三条 variant 规则在后面）。 */
+  body:not(.dark) .toast:not(.ok):not(.info):not(.error){background:rgba(255,255,255,.96);color:#1a1f2e;border-color:var(--surface-border)}
   .toast.show{opacity:1;transform:translate(-50%,0) scale(1);animation:toastPop .5s var(--ios-spring)}
 @keyframes toastPop{0%{transform:translate(-50%,16px) scale(.88) rotateX(4deg);opacity:0}100%{transform:translate(-50%,0) scale(1) rotateX(0);opacity:1}}
-  .toast.ok{background:rgba(20,122,74,.94)}
-  .toast.error{background:rgba(200,45,50,.94)}
-  .toast.info{background:rgba(38,78,128,.94)}
+  /* 语义色 variant：任何主题下都白字 —— 旧写法里 color:#1a1f2e 是给浅色底配的，
+     暗色/极光下背景被主题规则刷深、字色却留在深色，整颗弹窗黑字糊死（用户报「根本看不清」） */
+  .toast.ok{background:rgba(20,122,74,.95);color:#fff;border-color:rgba(255,255,255,.25)}
+  .toast.error{background:rgba(200,45,50,.95);color:#fff;border-color:rgba(255,255,255,.25)}
+  .toast.info{background:rgba(38,78,128,.95);color:#fff;border-color:rgba(255,255,255,.25)}
 
   /* ---------- 夜间模式补齐：压掉压在深色面板上的白色透明层 ----------
      夜间只改了各组件自己的 background，从来没管叠在上面的 ::before / ::after。
@@ -1137,6 +1142,9 @@ body.light-mode .toast,.toast.ok,.toast.info,.toast.error{background:linear-grad
   body.dark.aurora .live-info-panel .lp-head{border-bottom-color:rgba(80,200,255,.1)}
   body.dark.aurora .live-info-panel .lp-close{background:rgba(20,40,60,.6);border-color:rgba(80,200,255,.15);color:#7a9a9a}
   body.dark.aurora .live-info-panel .lp-legend{border-top-color:rgba(80,200,255,.1)}
+  /* 次要说明文字在极光深底上偏暗，提一档亮度 */
+  body.dark.aurora .live-info-panel .lp-item span:not(.lp-dot),
+  body.dark.aurora .live-info-panel .lp-note{color:#9fc4c0}
 
   body.dark.aurora .menu-item{font-size:13px}    /* 菜单标准 */
   /* 极光下侧栏面板底色统一 */
