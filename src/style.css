@@ -762,19 +762,9 @@ body.dark .sp-name{background:var(--surface-3);color:var(--ink);border-color:var
      否则 body.panel-open 那条规则会瞬移，看起来像闪了一下。
      注意只动 left 和 width，不碰 transform —— .rp-body 的折叠用的是 max-height。 */
   .route-panel{transition:left .25s ease, width .25s ease}
-/* 顶光改为 inset 顶线：原来是独立圆角白色渐变块（border-radius:10px + height:20%），
-   在 overflow:visible 的面板上就是一块看得见的「白玻璃片」贴在标题区，对比度突兀。
-   inset box-shadow 贴合面板自身 18px 圆角、零溢出。 */
-.route-panel::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.12) 0%,rgba(255,255,255,.03) 30%,transparent 55%,rgba(255,255,255,.02) 85%,rgba(255,255,255,.08) 100%)}
+  /* 流光已全部移除（2026-11-04，用户要求）：路线面板与 .pp-inner 弹窗
+     的斜光带及 @keyframes sheenSweep 均删除。 */
   .route-panel.hidden{display:none}
-  /* 流光（玻璃完整化·动态）：斜光带每 7s 扫过一次 —— 纯 transform 循环（合成器
-     动画，零重绘），低透明度不抢内容；reduced-motion 被全局 0.01ms 压制；
-     折叠动画窗口 .folding 暂停，不与 max-height 动画叠加抢帧。 */
-  .route-panel:hover .rp-body::after{animation-duration:3s;background:linear-gradient(100deg,transparent,rgba(255,255,255,.22),transparent)}
-  .route-panel .rp-body::after{content:'';position:absolute;top:0;bottom:0;left:0;width:64px;background:linear-gradient(100deg,transparent,rgba(255,255,255,.12),transparent);transform:skewX(-18deg) translateX(-90px);animation:sheenSweep 7s linear infinite;pointer-events:none}
-  .route-panel.folding .rp-body::after{animation-play-state:paused}
-  .pp-inner::after{content:'';position:absolute;top:0;bottom:0;left:0;width:56px;background:linear-gradient(100deg,transparent,rgba(255,255,255,.14),transparent);transform:skewX(-18deg) translateX(-80px);animation:sheenSweep 7s linear 1.2s infinite;pointer-events:none}
-  @keyframes sheenSweep{0%,42%{transform:skewX(-18deg) translateX(-90px)}68%,100%{transform:skewX(-18deg) translateX(340px)}}
   .route-panel .rp-title{font-weight:700;letter-spacing:-0.01em;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
   /* 折叠键尺寸必须跟同排控件对齐：.rp-mode 实测 28px、查询路线/清除 31px，
    这里原来只有 22×22、圆角 6px、字号 11px —— 一个 11px 的 ▾ 挤在 22px 白框里，
